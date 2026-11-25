@@ -6,7 +6,7 @@ let mg=null,nbuf=null;
 function audio(){if(ac){if(ac.state==='suspended')ac.resume();return}try{ac=new (window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();mg.gain.value=.8;mg.connect(ac.destination)}catch(e){ac=null}}
 function snd(f,d,type='square',f2=0,vol=.04){
   if(!ac||!sfxOn)return;try{const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);
-  if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(Math.max(.0002,vol*OPT.sv/8),t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
   o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}
 }
 
@@ -28,6 +28,7 @@ function tone(f,t,d,type,vol,f2){const o=ac.createOscillator(),g=ac.createGain()
 function noise(t,d,vol,hp){if(!nbuf){nbuf=ac.createBuffer(1,Math.floor(ac.sampleRate*.3),ac.sampleRate);const a=nbuf.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}
   const sr=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();sr.buffer=nbuf;fl.type='highpass';fl.frequency.value=hp;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);sr.connect(fl).connect(g).connect(mg);sr.start(t);sr.stop(t+d+.02)}
 function musicTick(){
+  if(mg)mg.gain.value=OPT.mv/10;
   if(!ac||!mg||!mus.id||ac.state!=='running')return;const tr=TR[mus.id],sp=60/tr.bpm/4;if(mus.next<ac.currentTime)mus.next=ac.currentTime+.03;
   try{while(mus.next<ac.currentTime+.12){const t=mus.next,i=mus.step;
     if(musicOn){const L=tr.L[i%tr.L.length],Bn=tr.B[i%tr.B.length],D=tr.D[i%tr.D.length];

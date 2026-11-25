@@ -2,6 +2,15 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.10 — Pause menu, settings, intro cards
+
+- Pause menu: Resume, Weapon, Restart from checkpoint, Settings, Quit to stage select (Back to editor in custom levels).
+- Settings screen (O, pause menu, or the button under the game): music and sound volume, screen shake, reduced flashing and particles, tap-to-toggle charge shot, assist (half damage or invincible). Saved with the other options.
+- With assist on, spikes knock you back instead of killing you, and best times aren't recorded.
+- Stage intro cards with a one-line hint for each sector.
+- Gale Kite rebalanced: it cruises 10 px lower and spends 110 frames cruising between attacks (was 150). The test bot's blaster-only fight dropped from about 146 s to 53 s.
+- Smoke tests cover the pause menu, settings, assist and toggle charge (31 checks).
+
 ## 0.9 — Route checker, tests and docs
 
 - Added `tools/harness.js`, which loads the game in Node with stand-ins for the browser.

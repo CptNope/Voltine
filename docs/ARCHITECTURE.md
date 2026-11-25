@@ -59,7 +59,8 @@ frame(now)                                  render.js, driven by requestAnimatio
 | `title` | logo and difficulty choice | `select` |
 | `select` | stage cards, Boss Rush, Level Editor | `play`, `edit`, `title` |
 | `play` | gameplay | `pause`, `dead`, `got`, `edit` (custom levels) |
-| `pause` | weapon list and audio status | `play` |
+| `pause` | pause menu (`PAUSE_ITEMS`, cursor `pm`) | `play`, `opts`, `select`, `edit` |
+| `opts` | settings (`OPT_ITEMS`, cursor `om`); returns to `optsFrom` | `title`, `select` or `pause` |
 | `dead` | 90-frame "Signal lost", then `resetRun(false)` at the checkpoint | `play` |
 | `got` | stage clear, weapon earned, ending or rush result | `select` or `edit` |
 | `edit` | level editor | `play` (playtest), `select` |
@@ -134,6 +135,10 @@ All entities are plain objects in arrays, updated and drawn every frame:
 - `snd(freq, dur, type, freq2, vol)` plays a one-off effect. It respects the sound toggle.
 - Music: each track in `TR` has a `bpm`, a `root` MIDI note, a lead pattern `L` (32-step multiples), a bass pattern `B` (16), and drums `D` (`k` kick, `s` snare, `h` hat). Notes are semitones from the root, and `.` is a rest. `musicTick()` schedules notes on the audio clock, so timing doesn't depend on frame rate.
 - Browsers only allow audio after the player interacts with the page, so `audio()` is called from input handlers.
+
+## Settings
+
+`OPT` (`world.js`) holds the player settings: `mv` and `sv` volumes (0–10), `shake`, `rf` (reduced flashing), `tc` (toggle charge) and `as` (assist: 0 off, 1 half damage, 2 invincible). They're saved in `voltline-opts`. Code that flashes, shakes or spawns particles should check `OPT.rf` and `OPT.shake`. Anything that records a result should skip it when `OPT.as` is on.
 
 ## Saving
 

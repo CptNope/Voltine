@@ -6,12 +6,14 @@ try{const s=JSON.parse(localStorage.getItem('voltline-v2')||'null');if(s&&Array.
 if(!Array.isArray(save.bestH))save.bestH=[0,0,0,0];if(!save.rush)save.rush=[0,0];
 const persist=()=>{try{localStorage.setItem('voltline-v2',JSON.stringify(save))}catch(e){}};
 let musicOn=true,sfxOn=true,hard=false;
-try{const o=JSON.parse(localStorage.getItem('voltline-opts')||'{}');musicOn=o.m!==false;sfxOn=o.s!==false;hard=!!o.h}catch(e){}
-const saveOpts=()=>{try{localStorage.setItem('voltline-opts',JSON.stringify({m:musicOn,s:sfxOn,h:hard}))}catch(e){}};
+const OPT={mv:8,sv:8,shake:1,rf:0,tc:0,as:0}; // music/sound volume 0-10, screen shake, reduced flashing, toggle charge, assist 0 off 1 half damage 2 invincible
+try{const o=JSON.parse(localStorage.getItem('voltline-opts')||'{}');musicOn=o.m!==false;sfxOn=o.s!==false;hard=!!o.h;for(const k in OPT)if(Number.isInteger(o[k]))OPT[k]=o[k]}catch(e){}
+const saveOpts=()=>{try{localStorage.setItem('voltline-opts',JSON.stringify({m:musicOn,s:sfxOn,h:hard,...OPT}))}catch(e){}};
 const mb=document.getElementById('mus'),sb=document.getElementById('sfx');
 const optUI=()=>{mb.textContent=musicOn?'Music on':'Music off';mb.setAttribute('aria-pressed',musicOn);sb.textContent=sfxOn?'Sound on':'Sound off';sb.setAttribute('aria-pressed',sfxOn)};
 const togM=()=>{musicOn=!musicOn;saveOpts();optUI()},togS=()=>{sfxOn=!sfxOn;saveOpts();optUI()};
-mb.addEventListener('click',()=>{audio();togM()});sb.addEventListener('click',()=>{audio();togS()});optUI();
+mb.addEventListener('click',()=>{audio();togM()});
+document.getElementById('optsBtn').addEventListener('click',()=>{audio();if(state==='play'||state==='pause')openOpts('pause');else if(state==='title'||state==='select')openOpts(state);scr.focus()});sb.addEventListener('click',()=>{audio();togS()});optUI();
 const unlocked=w=>w===0||!!save.cleared[w-1];
 const rb=document.getElementById('reset');let rArm=0;
 rb.addEventListener('click',()=>{if(!rArm){rArm=1;rb.textContent='Click again to reset';setTimeout(()=>{rArm=0;rb.textContent='Reset progress'},3000);return}

@@ -2,7 +2,7 @@
 
 Where the game stands, what comes next, and what's known to need work. Items in each section are in priority order. When something ships, move it to **Done** and add a line to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.9** (see the changelog). Everything listed under Done is covered by `tools/smoke.js` and `tools/ghost.js`, but **none of it has been play-tested by people yet**. That's the biggest gap, and it's why the first item under Now is a playtest pass rather than a feature.
+**Current version: 0.10** (see the changelog). Everything listed under Done is covered by `tools/smoke.js` and `tools/ghost.js`, but **none of it has been play-tested by people yet**. That's the biggest gap, and it's why the first item under Now is a playtest pass rather than a feature.
 
 ---
 
@@ -20,7 +20,7 @@ These need an owner's call before related work can go ahead.
 ## Now
 
 1. **Human playtest pass.** Play every stage on Normal and Hard and record where you die, what feels unfair and what drags. Then tune values, not code:
-   - The Gale Kite fight takes the test bot about 2½ minutes with the blaster. It's probably too long for players without the Arc Bolt. Consider lowering its health, letting it hover lower, or shortening its idle time between attacks.
+   - The Gale Kite fight was shortened in 0.10 (the test bot's blaster time went from about 146 s to 53 s). Check that it still feels like a fight.
    - Null Engine phase 1 may be too short: the bot breaks it in about 4 seconds with boss weapons.
    - Crusher timing in Coil Foundry and the gust strength in Sky Relay are untested by hand.
    - Music and sound-effect volumes haven't been heard by anyone yet.
@@ -30,10 +30,8 @@ These need an owner's call before related work can go ahead.
 
 ## Next
 
-- **Settings screen:** separate music and sound volume sliders, remappable keys, screen shake on/off, reduced flashing.
-- **Accessibility:** a reduced-motion mode (less shake, fewer particles), high-contrast palette option, an option to hold-to-charge without holding (toggle charge), and an assist mode with an invincibility toggle or extra health.
-- **Stage intro cards:** show the sector name and a one-line hint for new mechanics when a stage starts.
-- **Pause menu options:** restart from checkpoint, return to stage select.
+- **Remappable keys** in Settings, including gamepad buttons.
+- **High-contrast palette** option for low-vision players.
 - **Run the route checker on custom levels:** a "Check route" button in the editor that runs the same search and tells you whether your level can be finished.
 - **More enemy types,** at least one new one per sector (a shielded walker for Prism, a hopping spark for Foundry, a diving gull for Sky).
 - **Best-time splits:** show checkpoint split times against your best run.
@@ -62,7 +60,6 @@ Unscheduled. Promote to Next or Later when there's a reason.
 | Issue | Severity | Notes |
 |---|---|---|
 | Not play-tested by people | high | See Now, item 1. |
-| Gale Kite fight is long with the blaster | medium | Tuning, not a bug. |
 | A custom level whose checkpoint is over a pit makes you die on every respawn | low | The editor could block checkpoints over gaps, or respawn at the start instead. |
 | Font falls back to monospace until Google Fonts loads | low | See the fonts decision above. |
 | `sw.js` `VERSION` must be bumped by hand when files change | low | Could be automated in CI. |
@@ -72,6 +69,7 @@ Unscheduled. Promote to Next or Later when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.10 | Pause menu, settings (volumes, shake, reduced flashing, toggle charge, assist), stage intro cards, Gale Kite rebalance |
 | 0.9 | Route checker and smoke tests in `tools/`; fixed four impossible or near-impossible jumps it found; full documentation |
 | 0.8 | Code split into ten ordered script files; visual fixes from real-browser screenshots (background contrast, phone layout, select portraits) |
 | 0.7 | Level editor with playtest, autosave and shareable level codes |

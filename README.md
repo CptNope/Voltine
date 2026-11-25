@@ -40,6 +40,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 - **Level editor:** paint your own stage, playtest it instantly, and share it as a short text code.
 - **Synthesized soundtrack:** seven tracks, one per stage, plus a menu, boss and final-boss theme.
 - **Keyboard, gamepad and touch** controls. The touch pad appears automatically on phones and tablets.
+- **Pause menu and settings:** restart from the last checkpoint, quit to stage select, adjust music and sound volume, turn screen shake off, reduce flashing, switch the charge shot to tap-to-toggle, and turn on an assist mode.
 - **Installable and offline-capable** when served from GitHub Pages.
 
 ## How to play
@@ -67,10 +68,11 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 | Switch weapon | Q / E (also C) | LB / RB, Y | WPN |
 | Start / pause | Enter or P | Start | START |
 | Back / pause | Esc or Backspace | — | — |
+| Settings | O | — | Settings button under the game |
 | Music on/off | M | Select | button under the game |
 | Sound on/off | N | — | button under the game |
 
-While paused, ↑ ↓ (or Q / E) switches weapons from a list showing each weapon's energy.
+The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoint, Settings, and Quit to stage select (Back to editor in custom levels). Q / E switch weapons anywhere.
 
 ## Sectors and bosses
 
@@ -97,6 +99,21 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 **Hard.** Pick it on the title screen. You take 50% more damage, enemies have an extra hit point, turrets fire more often, bosses take 30% less damage per hit, and health pickups heal half as much. Hard best times are saved separately.
 
 **Boss Rush.** Unlocks after the Null Core. Fight Prism Warden → Coil Hound → Gale Kite → Null Engine in a row on one clock, with a health and energy refill between fights. If you die, you restart at the current boss and the clock keeps running.
+
+## Settings and accessibility
+
+Open **Settings** with **O**, from the pause menu, or with the button under the game. Changes save straight away.
+
+| Setting | Options | What it does |
+|---|---|---|
+| Music volume | 0–10 | soundtrack level (M still mutes) |
+| Sound volume | 0–10 | effects level (N still mutes) |
+| Screen shake | On / Off | turns every camera shake off |
+| Flashing and particles | Full / Reduced | no white hit flashes or blinking, steady warning lines, one third of the particles. The hero turns see-through instead of blinking while invulnerable. |
+| Charge shot | Hold / Tap to toggle | Tap to toggle: one tap fires and starts charging, the next tap releases the charged shot. No holding needed. |
+| Assist | Off / Half damage / Invincible | Half damage halves every hit. Invincible ignores hits. With either, spikes knock you back instead of killing you. Pits still reset you to the checkpoint. **Best times aren't recorded while assist is on.** |
+
+Each stage opens with a short card showing its name and a hint about its main hazard.
 
 ## Level editor
 
@@ -126,7 +143,7 @@ Progress lives in your browser's `localStorage` on this device:
 | Key | Holds |
 |---|---|
 | `voltline-v2` | cleared sectors, best times (Normal and Hard), Boss Rush bests |
-| `voltline-opts` | music, sound and difficulty settings |
+| `voltline-opts` | music and sound toggles, difficulty, and every setting above |
 | `voltline-edit` | your current editor level |
 
 **Reset progress** (under the game) clears the first one. It asks you to click twice.

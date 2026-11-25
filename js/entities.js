@@ -21,17 +21,17 @@ function resetRun(full){
 }
 buildMap();resetRun(true);
 
-function burst(x,y,c,n=10,sp=2.5){for(let i=0;i<n;i++){const a=Math.random()*6.283,s=Math.random()*sp+.5;PT.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:20+Math.random()*20,c})}}
+function burst(x,y,c,n=10,sp=2.5){if(OPT.rf)n=Math.ceil(n/3);for(let i=0;i<n;i++){const a=Math.random()*6.283,s=Math.random()*sp+.5;PT.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:20+Math.random()*20,c})}}
 function onLadder(p){const cx=Math.floor((p.x+p.w/2)/TS);for(let ty=Math.floor(p.y/TS);ty<=Math.floor((p.y+p.h-1)/TS);ty++)if(tile(cx,ty)==='H')return true;return false}
 function endSlide(){P.slide=0;P.y-=10;P.h=22}
 function hurt(d){
   if(P.inv>0||state!=='play')return;
-  if(hard)d=Math.ceil(d*1.5);P.hp-=d;P.inv=80;P.hurt=14;P.vy=-2;P.climb=false;if(P.slide&&rectFree(P.x,P.y-10,P.w,22))endSlide();
-  snd(220,.18,'sawtooth',90,.06);shake=6;burst(P.x+6,P.y+10,ORG,6);
+  if(OPT.as===2){P.inv=40;return}if(hard)d=Math.ceil(d*1.5);if(OPT.as===1)d=Math.ceil(d/2);P.hp-=d;P.inv=80;P.hurt=14;P.vy=-2;P.climb=false;if(P.slide&&rectFree(P.x,P.y-10,P.w,22))endSlide();
+  snd(220,.18,'sawtooth',90,.06);shake=OPT.shake?6:0;burst(P.x+6,P.y+10,ORG,6);
   if(P.hp<=0)die();
 }
 function die(){P.hp=0;state='dead';deadT=0;deaths++;snd(400,.6,'triangle',60,.08);for(let i=0;i<16;i++){const a=i/16*6.283;PT.push({x:P.x+6,y:P.y+11,vx:Math.cos(a)*2,vy:Math.sin(a)*2,l:70,c:i%2?MINT:ORG,orb:1})}}
-function swap(d){let w=P.wpn;for(let i=0;i<4;i++){w=(w+d+4)%4;if(unlocked(w))break}if(w!==P.wpn){P.wpn=w;P.charge=0;PB=PB.filter(b=>b.k!=='o');snd(700,.06,'square',900,.03);POP.push({x:P.x+6,y:P.y-6,s:WPN[w].n,c:WPN[w].c,l:50})}}
+function swap(d){let w=P.wpn;for(let i=0;i<4;i++){w=(w+d+4)%4;if(unlocked(w))break}if(w!==P.wpn){P.wpn=w;P.charge=0;P.charging=false;PB=PB.filter(b=>b.k!=='o');snd(700,.06,'square',900,.03);POP.push({x:P.x+6,y:P.y-6,s:WPN[w].n,c:WPN[w].c,l:50})}}
 function fire(){
   const w=P.wpn,y=P.y+(P.slide?5:9),x0=P.face>0?P.x+P.w+2:P.x-2;
   if(w===0){if(PB.filter(b=>b.k==='b').length>=3)return;PB.push({k:'b',w:0,x:x0,y,vx:P.face*5,vy:0,r:2.5,dmg:1});snd(880,.07,'square',1300,.03)}
@@ -51,8 +51,8 @@ function updPlayer(){
   const p=P,L=K.left,R=K.right,U=K.up,D=K.down,cx=Math.floor((p.x+p.w/2)/TS);
   if(p.inv>0)p.inv--;if(p.shootT>0)p.shootT--;
   if(pr('next'))swap(1);if(pr('prev'))swap(-1);
-  if(pr('fire'))fire();
-  if(p.wpn===0){if(K.fire){p.charge++;if(p.charge===55)snd(520,.12,'triangle',1040,.05)}else{if(p.charge>=55){PB.push({k:'B',w:0,x:p.face>0?p.x+p.w+2:p.x-2,y:p.y+(p.slide?5:9),vx:p.face*5.5,vy:0,r:7,dmg:3,pierce:1});p.shootT=14;snd(180,.3,'sawtooth',700,.06)}p.charge=0}}
+  if(pr('fire')&&!(OPT.tc&&p.wpn===0&&p.charge>=55))fire();
+  if(p.wpn===0){const hold=OPT.tc?p.charging:K.fire;if(OPT.tc&&pr('fire')){if(p.charge>=55){p.charging=false}else p.charging=true}if(hold){p.charge++;if(p.charge===55)snd(520,.12,'triangle',1040,.05)}else{if(p.charge>=55){PB.push({k:'B',w:0,x:p.face>0?p.x+p.w+2:p.x-2,y:p.y+(p.slide?5:9),vx:p.face*5.5,vy:0,r:7,dmg:3,pierce:1});p.shootT=14;snd(180,.3,'sawtooth',700,.06)}p.charge=0}}
   if(p.hurt>0){p.hurt--;p.vx=-p.face*.9;p.vy=Math.min(p.vy+G,6);phys(p);envCheck();return}
   if(p.climb){
     p.vx=0;p.vy=((D?1:0)-(U?1:0))*1.3;p.x=cx*TS+TS/2-p.w/2;if(L)p.face=-1;if(R)p.face=1;
@@ -86,7 +86,7 @@ function updPlayer(){
 function envCheck(){
   const p=P;
   if(p.y>H*TS+20){die();return}
-  if(p.inv===0)for(let ty=Math.floor((p.y+3)/TS);ty<=Math.floor((p.y+p.h-1)/TS);ty++)for(let tx=Math.floor((p.x+2)/TS);tx<=Math.floor((p.x+p.w-2)/TS);tx++)if(tile(tx,ty)==='^'){die();return}
+  if(p.inv===0)for(let ty=Math.floor((p.y+3)/TS);ty<=Math.floor((p.y+p.h-1)/TS);ty++)for(let tx=Math.floor((p.x+2)/TS);tx<=Math.floor((p.x+p.w-2)/TS);tx++)if(tile(tx,ty)==='^'){if(OPT.as){hurt(6);P.vy=-4.5;return}die();return}
   for(const c of CR)if(p.x+p.w>c.cx-12&&p.x<c.cx+12&&p.y<c.bot){hurt(6);break}
   for(let i=ST.cps.length-1;i>cp;i--)if(p.x>ST.cps[i]*TS){cp=i;snd(660,.1,'triangle',990,.05);burst(ST.cps[i]*TS+8,13*TS,GOLD,12);break}
 }

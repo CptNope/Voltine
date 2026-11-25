@@ -95,5 +95,26 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [3, 'null']])
   check('menu and stage tracks switch', a === 'menu' && b === 'prism', `${a} > ${b}`);
 }
 
+{ // pause menu, settings, assist, toggle charge, intro card
+  const G = load({ seed: 15 });
+  G.call('startStage', 0);
+  check('stage intro card shows on start', G.get('introT') > 0);
+  G.step(30, { right: 1 }); const x0 = G.get('P').x;
+  tap(G, 'start'); check('Enter opens the pause menu', G.get('state') === 'pause' && G.get('pm') === 0);
+  tap(G, 'down'); tap(G, 'down'); tap(G, 'start');
+  check('Restart from checkpoint returns to the checkpoint', G.get('state') === 'play' && G.get('P').x < x0);
+  tap(G, 'start'); tap(G, 'down'); tap(G, 'down'); tap(G, 'down'); tap(G, 'start');
+  check('Settings opens from the pause menu', G.get('state') === 'opts');
+  const OPT = G.get('OPT'); tap(G, 'left'); check('volume changes with left/right', OPT.mv === 7);
+  for (let i = 0; i < 5; i++) tap(G, 'down'); tap(G, 'right'); check('assist cycles', OPT.as === 1);
+  tap(G, 'back'); check('Esc returns to the pause menu', G.get('state') === 'pause');
+  tap(G, 'down'); tap(G, 'start'); check('Quit returns to stage select', G.get('state') === 'select');
+  G.get('save').cleared = [1, 1, 1, 1]; G.get('save').best = [0, 0, 0, 0];
+  toArena(G, 0); fightBoss(G); check('assist runs do not record a best time', G.get('save').best[0] === 0);
+  OPT.as = 0; OPT.tc = 1; G.call('startStage', 0); G.step(80, {});
+  tap(G, 'fire'); G.step(60, {}); const n0 = G.get('PB').length; tap(G, 'fire'); G.step(2, {});
+  check('toggle charge: tap starts charging, tap again releases a charged shot', G.get('PB').some(b => b.k === 'B'), `${n0} shots before`);
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);
