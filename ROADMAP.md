@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.13.** Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.14 (in progress).** Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -58,6 +58,7 @@ Every feature should support at least one of these pillars and break none of the
 | Decision | Outcome | When |
 |---|---|---|
 | License | **MIT**. See [LICENSE](LICENSE). | 0.13 |
+| Repo name | Renamed `Voltine` → **`Voltline`**. The game is now at `cptnope.github.io/Voltline/`; the old Pages address no longer works. | 0.14 |
 | Build tooling | No build step. Classic scripts, not ES modules, so `file://` keeps working. | 0.8 |
 | New stages | Added to the end of `STAGES`, so older saves keep their indexes. The select-screen order lives in `CARD`. | 0.12 |
 | Weakness design | One closed cycle through the wardens. The final boss takes +1 from every boss weapon. | 0.12 |
@@ -67,7 +68,6 @@ Every feature should support at least one of these pillars and break none of the
 
 | Decision | Options | Recommendation | Blocks |
 |---|---|---|---|
-| **Repo name** | rename `Voltine` → `Voltline`, or keep it | **Rename before announcing 1.0.** GitHub redirects the repo URL but not the Pages URL, so the earlier the better. | 1.0 itch.io page and press kit |
 | **Fonts offline** | keep Google Fonts, or bundle Chakra Petch (it's under the OFL) | **Bundle it.** It removes the only third-party request and makes a fresh offline install pixel-exact. | 0.19 |
 | **Where to release** | GitHub Pages only, itch.io too, or a desktop build (Steam) | **itch.io at 1.0.** It costs nothing and accepts browser games. Decide on desktop after seeing how people respond. | 1.0 and Beyond |
 | **Privacy stance** | no data collected ever, or opt-in anonymous stats | **No data collected.** It fits pillar 3. Playtest feedback comes from people, not telemetry. | Engineering track |
@@ -83,11 +83,11 @@ Every feature should support at least one of these pillars and break none of the
 
 | Item | Size | Done when |
 |---|---|---|
-| **Coyote time:** jump for a few frames after walking off a ledge | S | A jump up to 6 frames after leaving a ledge works; smoke check added |
-| **Jump buffering:** a jump pressed just before landing still happens | S | A press up to 6 frames before landing jumps; smoke check added |
-| **Hit-stop and feedback:** a brief freeze on boss hits and kills, punchier hit sounds | S | 3-frame freeze on boss hits; respects reduced flashing |
-| **Camera:** look ahead in the direction you're running, smooth vertical follow in tall rooms | S | No sudden camera snaps on landing; checked on all five stages |
-| **Playtest round 1:** 5 people, covering keyboard, gamepad and phone | M | Notes recorded in `docs/PLAYTEST.md`: where people died, what felt unfair, what dragged, completion times |
+| ✅ **Coyote time:** jump for a few frames after walking off a ledge | S | A jump up to 6 frames after leaving a ledge works; smoke check added |
+| ✅ **Jump buffering:** a jump pressed just before landing still happens | S | A press up to 6 frames before landing jumps; smoke check added |
+| ✅ **Hit-stop and feedback:** a brief freeze on boss hits and kills, punchier hit sounds | S | 3-frame freeze on boss hits; respects reduced flashing |
+| ✅ **Camera:** eases its lead in the direction you're facing instead of snapping when you turn | S | No sudden camera snaps when turning |
+| **Playtest round 1:** 5 people, covering keyboard, gamepad and phone. The kit is ready: [docs/PLAYTEST.md](docs/PLAYTEST.md) plus the in-game playtest report. | M | Notes recorded in `docs/PLAYTEST.md`: where people died, what felt unfair, what dragged, completion times |
 | **Tuning pass** from those notes | M | Every "unfair" note has a change or a written reason for keeping it |
 | Undertow, Gale Kite and Null Engine phase 1 timing checks | S | Each fight lasts 45 to 120 s for a playtester using its weakness weapon |
 | Music and sound mix pass | S | No track or effect clips; the boss themes sit slightly above the stage themes |
@@ -185,7 +185,7 @@ Every feature should support at least one of these pillars and break none of the
 - [ ] Accessibility checklist from 0.15 complete
 - [ ] No high-severity known issues
 - [ ] README, ARCHITECTURE, LEVEL_CODES, CONTRIBUTING and CHANGELOG up to date
-- [ ] Repo-name decision made, with links updated
+- [x] Repo-name decision made, with links updated (0.14)
 - [ ] itch.io page: description, 5 screenshots, a 30-second GIF, controls
 - [ ] Press kit in `docs/press/`: logo, screenshots, fact sheet
 - [ ] Git tag `v1.0.0` and a GitHub Release with notes

@@ -48,7 +48,7 @@ frame(now)                                  render.js, driven by requestAnimatio
 1. `pollPad()` merges gamepad buttons into `K`, then the music and sound toggles are checked.
 2. The current `state` is handled (see below).
 3. The camera eases toward its target. In a boss arena it locks to the arena.
-4. Particles and popups are updated, screen shake decays.
+4. Particles and popups are updated, screen shake decays. During `hitStop` frames, gameplay (`play` state) is frozen while input edges still update.
 5. `setTrack()` picks the music for the current state.
 6. `prev` is copied from `K`, so `pr(k)` means "pressed this frame".
 
@@ -85,7 +85,7 @@ frame(now)                                  render.js, driven by requestAnimatio
 | ` ` | empty | no |
 
 - **Collision:** `moveX` then `moveY` against tiles, axis by axis (`world.js`). `phys(p)` adds riding moving platforms and being pushed by belts.
-- **Player numbers:** 12 × 22 hitbox (12 × 12 while sliding). Run 1.6 px per frame, jump −5.2, gravity 0.25 per frame, top falling speed 6. A full jump rises about **54 px (3.4 tiles)** and covers about **66 px** of flat ground. Releasing jump early cuts the rise. Sliding is 3.2 px per frame for 26 frames and continues while there's a ceiling overhead.
+- **Player numbers:** 12 × 22 hitbox (12 × 12 while sliding). Run 1.6 px per frame, jump −5.2, gravity 0.25 per frame, top falling speed 6. A full jump rises about **54 px (3.4 tiles)** and covers about **66 px** of flat ground. Releasing jump early cuts the rise. Sliding is 3.2 px per frame for 26 frames and continues while there's a ceiling overhead. Coyote time: a jump still works for 6 frames after leaving the ground (`p.coy`, `p.jumped`). Jump buffer: a press in the air is remembered for 6 frames (`p.buf`) and fires on landing.
 - **Level design rules of thumb** (`tools/ghost.js` catches breaks in practice): no step-up taller than 3 tiles (48 px), no flat gap or spike run wider than 2 tiles unless there's a platform, and any platform over a hazard must be reachable from below without hitting your head on it.
 
 ## Stage data
@@ -147,6 +147,10 @@ All entities are plain objects in arrays, updated and drawn every frame:
 ## Settings
 
 `OPT` (`world.js`) holds the player settings: `mv` and `sv` volumes (0–10), `shake`, `rf` (reduced flashing), `tc` (toggle charge) and `as` (assist: 0 off, 1 half damage, 2 invincible). They're saved in `voltline-opts`. Code that flashes, shakes or spawns particles should check `OPT.rf` and `OPT.shake`. Anything that records a result should skip it when `OPT.as` is on.
+
+## Playtest log
+
+`logEv(o)` in `records.js` appends events to `save.log` (capped at 400): `death` (column, cause `pit`, `spikes` or `hit`, and the boss if in a fight), `clear` (time, reboots) and `boss` (fight length in frames). It skips custom levels and route checks. `playtestReport()` turns the log into the text summary behind the **Copy playtest report** button.
 
 ## Saving
 

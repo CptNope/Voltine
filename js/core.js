@@ -9,6 +9,7 @@ const ro=new ResizeObserver(fit);ro.observe(scr);fit();
 
 /* ---------- weapons & stages ---------- */
 const WPN=[{n:'VOLT BUSTER',s:'VB',c:MINT,cost:0},{n:'PRISM SPREAD',s:'PS',c:PINK,cost:2,d:'Fires a three-way fan of shots.'},{n:'ARC BOLT',s:'AB',c:GOLD,cost:3,d:'Lobs a heavy bolt that bounces along the floor.'},{n:'GUST RING',s:'GR',c:SKY,cost:4,d:'Orbiting shield that eats bullets. Fire again to throw it.'},{n:'TIDE LANCE',s:'TL',c:'#4fd1c5',cost:3,d:'A fast lance that pierces everything in a line.'}];
+const VERSION='0.14';
 const WEAK={warden:3,hound:1,kite:4,undertow:2};
 const TEAL='#4fd1c5';
 // weapon index -> stage index that awards it; select-screen card order -> stage index

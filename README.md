@@ -4,9 +4,9 @@ A vector-graphics action platformer for the browser. Run, jump, slide, swim and 
 
 Everything is drawn live as glowing strokes on a canvas and every sound is synthesized in the browser, so the game has no image or audio files. It's plain HTML and JavaScript with no build step and no dependencies.
 
-> **Play it:** **https://cptnope.github.io/Voltine/**, served by GitHub Pages from `main`. You can also open `index.html` straight from a download.
+> **Play it:** **https://cptnope.github.io/Voltline/**, served by GitHub Pages from `main`. You can also open `index.html` straight from a download.
 
-![checks](https://github.com/CptNope/Voltine/actions/workflows/checks.yml/badge.svg) ![license: MIT](https://img.shields.io/badge/license-MIT-5ef2c4)
+![checks](https://github.com/CptNope/Voltline/actions/workflows/checks.yml/badge.svg) ![license: MIT](https://img.shields.io/badge/license-MIT-5ef2c4)
 
 ---
 
@@ -52,6 +52,8 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 3. Fight through to the boss arena at the end. The gate closes behind you, and the boss's health bar shows top right.
 4. Beat the boss to earn its weapon. Switch weapons with **Q / E**, and keep an eye on the energy bar under your health.
 5. Beat all four wardens to open **Null Core**. Clear that to unlock **Boss Rush**.
+
+**Forgiving jumps:** you can still jump for a split second after running off a ledge, and a jump pressed just before you land happens as you touch down.
 
 **Swimming:** in water you fall slowly and move a little slower. Each tap of jump is a stroke upward, and a stroke at the surface launches you out of the water. Sliding doesn't work underwater.
 
@@ -200,6 +202,8 @@ Progress lives in your browser's `localStorage` on this device:
 
 **Moving to another device:** open *Move your progress to another device* under the game, press **Copy progress code**, and on the other device paste it and press **Load progress code**. Loading replaces that device's progress, so it asks you to click twice. Codes start with `VS1.` and are checked and cleaned when loaded.
 
+**Playtest report:** the same panel has **Copy playtest report**, a short text summary of where you died and from what, your clears and how long each boss fight took. It's kept only on this device and leaves it only if you paste it somewhere. See [docs/PLAYTEST.md](docs/PLAYTEST.md) for running a playtest.
+
 When served from `*.github.io`, the game registers a service worker (`sw.js`) and has an app manifest, so it can be installed to a home screen or desktop and played offline after the first visit.
 
 ## Running locally
@@ -261,6 +265,7 @@ Contribution workflow and conventions are in [CONTRIBUTING.md](CONTRIBUTING.md).
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): engine design and how-to guides for extending it
 - [docs/LEVEL_CODES.md](docs/LEVEL_CODES.md): the shareable level format
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to work on the game
+- [docs/PLAYTEST.md](docs/PLAYTEST.md): how to run a playtest and what to measure
 
 ## Status
 

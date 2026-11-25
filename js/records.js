@@ -40,6 +40,27 @@ function split(i){
 }
 function saveSplits(){if(ST.custom||ST.rush||OPT.as)return;const k=hard?'splitsH':'splits';if(!Array.isArray(save[k]))save[k]=[];save[k][S]=runSplits.slice()}
 
+/* ---------- playtest log: stays on this device; the report is text the player chooses to share ---------- */
+let bossT0=0;
+function logEv(o){
+  if(silent||!ST||ST.custom)return;if(!Array.isArray(save.log))save.log=[];
+  save.log.push(Object.assign({s:ST.key,h:hard?1:0,a:OPT.as?1:0,when:Date.now()},o));if(save.log.length>400)save.log.splice(0,save.log.length-400);persist();
+}
+function playtestReport(){
+  const L=Array.isArray(save.log)?save.log:[],keys=['prism','foundry','sky','tide','core','rush'],nm={prism:'Prism Grid',foundry:'Coil Foundry',sky:'Sky Relay',tide:'Tide Vault',core:'Null Core',rush:'Boss Rush'};
+  const out=['Voltline playtest report · version '+VERSION+' · '+new Date().toISOString().slice(0,10),'Events logged: '+L.length+(OPT.as?' · assist is on now':'')+(hard?' · Hard is selected now':''),''];
+  for(const k of keys){const ev=L.filter(e=>e.s===k);if(!ev.length)continue;
+    const d=ev.filter(e=>e.e==='death'),c=ev.filter(e=>e.e==='clear'),b=ev.filter(e=>e.e==='boss');
+    out.push(nm[k]+': '+c.length+' clear'+(c.length===1?'':'s')+(c.length?' (fastest '+fmt(Math.min(...c.map(e=>e.t)))+')':'')+', '+d.length+' death'+(d.length===1?'':'s'));
+    const spots={};for(const e of d){const key=e.b?'boss fight ('+(BN[e.b]||e.b)+')':'columns '+Math.floor(e.x/5)*5+'-'+(Math.floor(e.x/5)*5+4);(spots[key]=spots[key]||{n:0,c:{}}).n++;spots[key].c[e.c]=(spots[key].c[e.c]||0)+1}
+    Object.entries(spots).sort((a,b)=>b[1].n-a[1].n).slice(0,5).forEach(([w,v])=>out.push('  '+v.n+' × '+w+' ('+Object.entries(v.c).map(([c,n])=>n+' '+c).join(', ')+')'));
+    const byB={};for(const e of b)(byB[e.k]=byB[e.k]||[]).push(e.d);
+    for(const [kk,ds] of Object.entries(byB))out.push('  boss '+(BN[kk]||kk)+': '+ds.length+' win'+(ds.length===1?'':'s')+', average fight '+fmt(ds.reduce((x,y)=>x+y,0)/ds.length)+', range '+fmt(Math.min(...ds))+'-'+fmt(Math.max(...ds)));
+    out.push('')}
+  if(L.length===0)out.push('No events yet. Play a few stages first.');
+  return out.join('\n');
+}
+
 /* ---------- progress codes ---------- */
 function exportProgress(){return 'VS1.'+btoa(JSON.stringify(save))}
 function importProgress(code){
@@ -56,6 +77,8 @@ function importProgress(code){
   const say=t=>{msg.textContent=t;clearTimeout(say.t);say.t=setTimeout(()=>msg.textContent='',4000)};
   document.getElementById('progCopy').addEventListener('click',()=>{const c=exportProgress();box.value=c;box.select();
     try{navigator.clipboard.writeText(c).then(()=>say('Progress code copied.'),()=>say('Code is selected above. Copy it from there.'))}catch(e){say('Code is selected above. Copy it from there.')}});
+  document.getElementById('progReport').addEventListener('click',()=>{const r=playtestReport();box.value=r;box.select();
+    try{navigator.clipboard.writeText(r).then(()=>say('Playtest report copied. Paste it wherever you send feedback.'),()=>say('Report is selected above. Copy it from there.'))}catch(e){say('Report is selected above. Copy it from there.')}});
   let arm=0;document.getElementById('progLoad').addEventListener('click',e=>{const d=importProgress(box.value);if(!d){say('That code could not be read.');return}
     if(!arm){arm=1;e.currentTarget.textContent='Click again to replace this device\'s progress';setTimeout(()=>{arm=0;document.getElementById('progLoad').textContent='Load progress code'},4000);return}
     arm=0;document.getElementById('progLoad').textContent='Load progress code';save=d;persist();P.wpn=0;state='title';say('Progress loaded.')});

@@ -193,5 +193,43 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   check('a save missing achievement and stats fields still works', ok);
 }
 
+{ // 0.14 feel: coyote time, jump buffering, hit-stop
+  const G = load({ seed: 21 });
+  const offLedge = late => { // walk off the ledge at the end of Prism Grid's first ground strip, press jump `late` frames after leaving it
+    G.call('startStage', 0); G.step(2, {}); G.set('E', []); G.set('introT', 0);
+    const P = G.get('P'); P.x = 29 * 16; P.y = 15 * 16 - 22; P.inv = 9999; G.step(3, {});
+    let n = 0; while (G.get('P').onG && n++ < 60) G.step(1, { right: 1 });
+    G.step(late, { right: 1 }); G.step(1, { right: 1, jump: 1 }); G.step(1, { right: 1, jump: 1 });
+    return G.get('P').vy;
+  };
+  check('coyote time: jump 3 frames after leaving a ledge', offLedge(3) < -3);
+  check('no coyote jump 9 frames after leaving a ledge', offLedge(9) > 0);
+  G.call('startStage', 0); G.step(2, {}); G.set('E', []);
+  const P = G.get('P'); P.x = 10 * 16; P.y = 150; P.vy = 0; P.inv = 9999;
+  while (P.y + P.h < 15 * 16 - 8) G.step(1, {});
+  G.step(1, { jump: 1 }); let jumped = false, landed = G.get('P').onG;
+  for (let i = 0; i < 12; i++) { G.step(1, { jump: 1 }); if (G.get('P').onG) landed = true; if (landed && G.get('P').vy < -3) jumped = true; }
+  check('jump buffering: a press just before landing still jumps', jumped);
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1]; toArena(G, 0); G.step(140, {});
+  const B = G.get('B'); B.inv = 0; B.st = 'idle'; G.call('hitBoss', { w: 3, dmg: 1, x: B.x, y: B.y });
+  const x0 = G.get('P').x; G.step(2, { right: 1 });
+  check('hit-stop freezes play briefly on a boss hit', G.get('P').x === x0 && G.get('hitStop') >= 0);
+  G.step(6, { right: 1 }); check('play resumes after hit-stop', G.get('P').x !== x0);
+}
+
+{ // playtest log and report
+  const G = load({ seed: 22 });
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1];
+  G.call('startStage', 0); G.step(5, {}); const P = G.get('P'); P.x = 36 * 16; P.y = 260; G.step(120, {});
+  const log = G.get('save').log || [];
+  check('deaths are logged with place and cause', log.some(e => e.e === 'death' && e.c === 'pit' && e.s === 'prism'));
+  toArena(G, 0); fightBoss(G);
+  const L2 = G.get('save').log; check('boss fights and clears are logged', L2.some(e => e.e === 'boss' && e.k === 'warden' && e.d > 0) && L2.some(e => e.e === 'clear'));
+  const rep = G.call('playtestReport');
+  check('playtest report summarises deaths and boss times', /Prism Grid: 1 clear/.test(rep) && /pit/.test(rep) && /boss PRISM WARDEN: 1 win/.test(rep));
+  const n = L2.length; G.call('enterEditor'); G.call('routeStart'); for (let i = 0; i < 5 && G.get('state') === 'route'; i++) G.step(1);
+  check('route checks and custom levels are not logged', G.get('save').log.length === n);
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

@@ -2,6 +2,17 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.14 — Feel (in progress)
+
+- **Repo renamed** to `CptNope/Voltline`. The game is now at https://cptnope.github.io/Voltline/. Saves carry over because they're stored per site, not per path.
+- **Coyote time:** you can still jump for 6 frames after running off a ledge.
+- **Jump buffering:** a jump pressed up to 6 frames before landing happens as you land. Release early for a short hop, as usual.
+- **Hit-stop:** a short freeze on boss hits (longer on a weakness hit), a longer one on the killing blow, and a heavier hit sound. It's off when Flashing and particles is set to Reduced.
+- **Camera:** its lead eases toward the way you're facing instead of jumping 48 px when you turn.
+- **Playtest kit:** a local playtest log (deaths with place and cause, clears, boss-fight lengths) and a **Copy playtest report** button below the game. Nothing is sent anywhere. Also `docs/PLAYTEST.md`: session guide, questions, device checklist, tuning targets and a results log.
+- The version number shows on the title screen.
+- Smoke tests: 69 checks.
+
 ## 0.13 — Records
 
 - **Licensed under MIT** (`LICENSE`).
@@ -103,7 +114,7 @@ Versions are informal milestones. Newest first.
 
 ## 0.2 — Repository
 
-- Moved into `CptNope/Voltine` as a single `index.html`.
+- Moved into `CptNope/Voltine` (renamed to `CptNope/Voltline` in 0.14) as a single `index.html`.
 
 ## 0.1 — First playable
 

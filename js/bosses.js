@@ -3,7 +3,7 @@
 /* ---------- bosses ---------- */
 const AL=()=> (ARENA+1)*TS, AR=()=>(W-2)*TS;
 function spawnBoss(){
-  bossHurt=false;
+  bossHurt=false;bossT0=clock;
   const k=ST.rush?RUSH[rushIdx]:ST.kind;B={kind:k,x:(W-9)*TS,y:-50,w:28,h:34,vx:0,vy:0,hp:28,shown:0,st:'drop',t:0,face:-1,inv:0,onG:false};
   if(k==='hound'){B.w=34;B.h=22}
   if(k==='kite'){B.w=32;B.h=20;B.y=-30}
@@ -15,8 +15,8 @@ const orbPos=(b,o)=>({x:b.x+20+Math.cos(o.a)*34,y:b.y+20+Math.sin(o.a)*34});
 function aimFire(n,spread,sp,ox,oy,c){const a0=Math.atan2(P.y+11-oy,P.x+6-ox);for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*spread;EB.push({x:ox,y:oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:3.5,c})}snd(240,.15,'sawtooth',120,.05)}
 function hitBoss(s){
   if(B.inv>0)return;const weak=WEAK[B.kind]===s.w;B.hp-=(weak?4:B.kind==='null'&&s.w>0?s.dmg+1:s.dmg)*(hard?.7:1);B.inv=weak?24:B.kind==='null'?16:10;
-  if(weak)ach('weak');snd(weak?300:500,.08,'square',weak?120:250,.05);burst(s.x,s.y,weak?GOLD:CRM,weak?10:5);if(weak){POP.push({x:B.x+B.w/2,y:B.y-4,s:'WEAK!',c:GOLD,l:40});shake=5}
-  if(B.hp<=0){B.hp=0;B.st='boom';B.t=0;if(!bossHurt)ach('flawless')}
+  if(weak)ach('weak');if(!OPT.rf)hitStop=weak?4:2;snd(weak?300:500,.08,'square',weak?120:250,.05);snd(90,.08,'square',55,.05);burst(s.x,s.y,weak?GOLD:CRM,weak?10:5);if(weak){POP.push({x:B.x+B.w/2,y:B.y-4,s:'WEAK!',c:GOLD,l:40});shake=5}
+  if(B.hp<=0){logEv({e:'boss',k:B.kind,d:clock-bossT0});B.hp=0;B.st='boom';B.t=0;if(!OPT.rf)hitStop=10;if(!bossHurt)ach('flawless')}
 }
 function updBoss(){
   const b=B;b.t++;if(b.inv)b.inv--;if(b.shown<b.hp&&tick%2===0)b.shown++;
@@ -112,7 +112,7 @@ function updUndertow(b){
 function winStage(){
   if(ST.custom){ach('maker');lastWin={custom:1};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
   if(ST.rush){ach('rush');if(hard)ach('rush_hard');const i=hard?1:0,pb=!OPT.as&&(!save.rush[i]||clock<save.rush[i]);if(pb)save.rush[i]=clock;persist();lastWin={rush:1,pb};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
-  split(ST.cps.length);const first=!save.cleared[S];save.cleared[S]=1;const bt=hard?save.bestH:save.best;if(!OPT.as&&(!bt[S]||clock<bt[S])){bt[S]=clock;saveSplits()}persist();
+  logEv({e:'clear',t:clock,d:deaths});split(ST.cps.length);const first=!save.cleared[S];save.cleared[S]=1;const bt=hard?save.bestH:save.best;if(!OPT.as&&(!bt[S]||clock<bt[S])){bt[S]=clock;saveSplits()}persist();
   ach('first_clear');if(deaths===0)ach('no_reboot');if(save.cleared[0]&&save.cleared[1]&&save.cleared[2]&&save.cleared[5])ach('all_wardens');
   if([1,2,3,4].every(unlocked))ach('all_weapons');if(S===3){ach('core');if(hard)ach('hard_core')}if(S===0&&clock<150*60)ach('speed');
   lastWin={first,w:WFROM.indexOf(S),all:coreOpen(),fin:!!ST.final};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(659,.2,'square',0,.05),180);setTimeout(()=>snd(784,.4,'square',0,.05),360);
