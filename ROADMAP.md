@@ -24,7 +24,7 @@ These need an owner's call before related work can go ahead.
    - Null Engine phase 1 may be too short: the bot breaks it in about 4 seconds with boss weapons.
    - Crusher timing in Coil Foundry and the gust strength in Sky Relay are untested by hand.
    - Music and sound-effect volumes haven't been heard by anyone yet.
-2. **Enable GitHub Pages** and check the install and offline flow on a real phone (Android Chrome, iOS Safari).
+2. **Check install and offline play on a real phone** (Android Chrome, iOS Safari) from the live Pages site.
 3. **Watch the GitHub Actions checks** (`.github/workflows/checks.yml`). They run the smoke tests and route checker on every push. Keep them green.
 4. **Touch editing check.** Painting and dragging in the editor with a finger hasn't been tested on a real device.
 

@@ -4,7 +4,9 @@ A vector-graphics action platformer for the browser. Run, jump, slide and blast 
 
 Everything is drawn live as glowing strokes on a canvas and every sound is synthesized in the browser, so the game has no image or audio files. It's plain HTML and JavaScript with no build step and no dependencies.
 
-> **Play it:** once GitHub Pages is switched on for this repo (Settings → Pages → Deploy from branch → `main`, root folder), the game is served at `https://cptnope.github.io/Voltine/`. You can also open `index.html` straight from a download.
+> **Play it:** **https://cptnope.github.io/Voltine/**, served by GitHub Pages from `main`. You can also open `index.html` straight from a download.
+
+![checks](https://github.com/CptNope/Voltine/actions/workflows/checks.yml/badge.svg)
 
 ---
 
