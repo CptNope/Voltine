@@ -17,7 +17,7 @@ document.getElementById('optsBtn').addEventListener('click',()=>{audio();if(stat
 const unlocked=w=>w===0||!!save.cleared[WFROM[w]];
 const rb=document.getElementById('reset');let rArm=0;
 rb.addEventListener('click',()=>{if(!rArm){rArm=1;rb.textContent='Click again to reset';setTimeout(()=>{rArm=0;rb.textContent='Reset progress'},3000);return}
- save={cleared:[0,0,0,0,0,0],best:[0,0,0,0,0,0],bestH:[0,0,0,0,0,0],rush:[0,0]};persist();rArm=0;rb.textContent='Progress cleared';P.wpn=0;state='title'});
+ save={cleared:[0,0,0,0,0,0],best:[0,0,0,0,0,0],bestH:[0,0,0,0,0,0],rush:[0,0],ach:{},stats:{kills:0,pickups:0,reboots:0},splits:[],splitsH:[]};persist();rArm=0;rb.textContent='Progress cleared';P.wpn=0;state='title'});
 
 /* ---------- level ---------- */
 let S=0,ST=STAGES[0],W=194,ARENA=163,map=[],MV=[],CR=[],WARN=[],POP=[];

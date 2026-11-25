@@ -184,5 +184,14 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   check('route checks do not touch stats', (save.stats.reboots || 0) === 0, 'reboots ' + (save.stats.reboots || 0));
 }
 
+{ // older or minimal saves (as written by Reset progress before 0.13, or by tools) must not crash
+  const G = load({ seed: 20 });
+  G.set('save', { cleared: [1, 1, 1, 1, 0, 1], best: [0, 0, 0, 0, 0, 0], bestH: [0, 0, 0, 0, 0, 0], rush: [0, 0] });
+  let ok = true;
+  try { G.call('startStage', 0); G.call('die'); G.step(100, {}); G.call('stat', 'kills'); G.call('ach', 'weak'); G.set('state', 'records'); G.draw(); G.set('recPage', 1); G.draw(); toArena(G, 0); fightBoss(G); }
+  catch (e) { ok = false; console.log(e.stack); }
+  check('a save missing achievement and stats fields still works', ok);
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

@@ -217,7 +217,7 @@ function drawSelect(){
   const bar3=(k,x,label,col,lock)=>{const on=sel===k;ctx.fillStyle='rgba(14,6,30,.85)';ctx.fillRect(x,208,140,22);glow(on?(lock?'#6b5a8e':col):'rgba(183,163,214,.35)',on&&!lock?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(x+.5,208.5,139,21);ctx.shadowBlur=0;text(label,x+70,223,9,lock?'#6b5a8e':on?col:CRM,'center',on&&!lock?6:0)};
   {const rb=save.rush[hard?1:0],lock=!save.cleared[3];bar3(5,20,lock?'BOSS RUSH · locked':'BOSS RUSH'+(rb?' · '+fmt(rb):''),PINK,lock)}
   bar3(6,170,'LEVEL EDITOR',GOLD,false);
-  {const n=ACH_IDS.filter(id=>save.ach[id]).length;bar3(7,320,'RECORDS · '+n+'/'+ACH.length,MINT,false)}
+  {const n=ACH_IDS.filter(id=>save.ach&&save.ach[id]).length;bar3(7,320,'RECORDS · '+n+'/'+ACH.length,MINT,false)}
   for(const q of POP)text(q.s,q.x,q.y,10,q.c,'center',6);
   text('ARSENAL',20,252,9,'rgba(243,233,255,.6)','left',0);
   let ax=70;for(let w=0;w<WPN.length;w++){const u=unlocked(w);ctx.strokeStyle=u?WPN[w].c:'rgba(255,255,255,.15)';ctx.lineWidth=1;ctx.strokeRect(ax+.5,243.5,25,12);text(u?WPN[w].s:'--',ax+12.5,253,8,u?WPN[w].c:'rgba(255,255,255,.25)','center',0);ax+=29}

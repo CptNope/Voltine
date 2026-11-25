@@ -10,7 +10,8 @@ Versions are informal milestones. Newest first.
 - **Progress codes** (`VS1.`): move a save between devices. They're validated and cleaned when loaded.
 - Fixed: tapping the select screen used the old four-card layout, so touch players could pick the wrong card or bar. It now matches the five cards and three bars.
 - Route checks don't touch stats or achievements.
-- Smoke tests: 59 checks.
+- Fixed before release: Reset progress (or any save without the new fields) made the game crash on the next death. Caught by the route-checker run in CI. A smoke check now covers older and minimal saves.
+- Smoke tests: 60 checks.
 
 ## 0.12 — Tide Vault
 

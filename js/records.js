@@ -26,19 +26,19 @@ if(!Array.isArray(save.splits))save.splits=[];if(!Array.isArray(save.splitsH))sa
 let TOASTS=[],runSplits=[],bossHurt=false,recPage=0;
 
 function ach(id){
-  if(silent)return;const a=ACH.find(x=>x[0]===id);if(!a||save.ach[id])return;if(a[3]&&OPT.as)return;
+  if(silent)return;if(!save.ach)save.ach={};const a=ACH.find(x=>x[0]===id);if(!a||save.ach[id])return;if(a[3]&&OPT.as)return;
   save.ach[id]=1;persist();TOASTS.push({s:a[1],t:200});snd(880,.12,'triangle',1320,.05);setTimeout(()=>snd(1320,.2,'triangle',1760,.05),120);
 }
-function stat(k,n=1){if(silent)return;save.stats[k]=(save.stats[k]||0)+n;if(k==='kills'&&save.stats.kills>=100)ach('kills')}
+function stat(k,n=1){if(silent)return;if(!save.stats)save.stats={};save.stats[k]=(save.stats[k]||0)+n;if(k==='kills'&&save.stats.kills>=100)ach('kills')}
 
 /* ---------- splits: one per checkpoint, the boss gate, and the clear ---------- */
-const splitBest=()=>((hard?save.splitsH:save.splits)[S]||[]);
+const splitBest=()=>(((hard?save.splitsH:save.splits)||[])[S]||[]);
 const fmtS=f=>{const s=Math.abs(f)/60;return (f<0?'-':'+')+(s>=60?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):s.toFixed(1))};
 function split(i){
   if(ST.custom||ST.rush)return;runSplits[i]=clock;const b=splitBest()[i];
   if(b)POP.push({x:P.x+6,y:P.y-10,s:fmtS(clock-b),c:clock<=b?MINT:CORAL,l:110});
 }
-function saveSplits(){if(ST.custom||ST.rush||OPT.as)return;const arr=hard?save.splitsH:save.splits;arr[S]=runSplits.slice()}
+function saveSplits(){if(ST.custom||ST.rush||OPT.as)return;const k=hard?'splitsH':'splits';if(!Array.isArray(save[k]))save[k]=[];save[k][S]=runSplits.slice()}
 
 /* ---------- progress codes ---------- */
 function exportProgress(){return 'VS1.'+btoa(JSON.stringify(save))}
@@ -71,8 +71,8 @@ function drawRecords(){
   text('RECORDS',VW/2,30,20,GOLD,'center',8);
   text((recPage?'◀ Achievements':'Achievements')+'   ·   '+(recPage?'Times':'Times ▶'),VW/2,46,9,'rgba(243,233,255,.6)','center',0);
   if(recPage===0){
-    const got=ACH_IDS.filter(id=>save.ach[id]).length;text(got+' of '+ACH.length+' unlocked',VW-16,30,9,GOLD,'right',0);
-    ACH.forEach((a,i)=>{const col=i<8?0:1,row=i%8,x=20+col*226,y=66+row*22,on=!!save.ach[a[0]];
+    const got=ACH_IDS.filter(id=>save.ach&&save.ach[id]).length;text(got+' of '+ACH.length+' unlocked',VW-16,30,9,GOLD,'right',0);
+    ACH.forEach((a,i)=>{const col=i<8?0:1,row=i%8,x=20+col*226,y=66+row*22,on=!!(save.ach&&save.ach[a[0]]);
       ctx.strokeStyle=on?GOLD:'rgba(255,255,255,.2)';ctx.lineWidth=1;ctx.strokeRect(x+.5,y-8.5,9,9);if(on){ctx.fillStyle=GOLD;ctx.fillRect(x+2,y-7,6,6)}
       text(a[1]+(a[3]?' *':''),x+16,y,10,on?GOLD:CRM,'left',on?4:0);text(a[2],x+16,y+10,8,'rgba(243,233,255,.55)','left',0)});
     text('* needs assist off',20,252,8,'rgba(243,233,255,.5)','left',0);
@@ -81,8 +81,8 @@ function drawRecords(){
     text('Sector',24,70,9,'rgba(243,233,255,.6)','left',0);text('Best',230,70,9,'rgba(243,233,255,.6)','right',0);text('Best on Hard',330,70,9,'rgba(243,233,255,.6)','right',0);text('Splits (Normal)',350,70,9,'rgba(243,233,255,.6)','left',0);
     rows.forEach(([n,i],r)=>{const y=90+r*20,b=i<0?save.rush[0]:save.best[i],h=i<0?save.rush[1]:save.bestH[i];
       text(n,24,y,10,CRM,'left',0);text(b?fmt(b):'—',230,y,10,b?MINT:'rgba(243,233,255,.35)','right',0);text(h?fmt(h):'—',330,y,10,h?CORAL:'rgba(243,233,255,.35)','right',0);
-      const sp=i<0?null:save.splits[i];text(sp&&sp.length?sp.map(f=>fmt(f)).join(' '):'—',350,y,8,'rgba(243,233,255,.6)','left',0)});
-    const st=save.stats;text('Enemies defeated '+(st.kills||0)+'   ·   Pickups '+(st.pickups||0)+'   ·   Reboots '+(st.reboots||0),VW/2,230,9,CRM,'center',0);
+      const sp=i<0?null:(save.splits||[])[i];text(sp&&sp.length?sp.map(f=>fmt(f)).join(' '):'—',350,y,8,'rgba(243,233,255,.6)','left',0)});
+    const st=save.stats||{};text('Enemies defeated '+(st.kills||0)+'   ·   Pickups '+(st.pickups||0)+'   ·   Reboots '+(st.reboots||0),VW/2,230,9,CRM,'center',0);
   }
   text('← → switch page · Esc back',VW/2,264,8,'rgba(243,233,255,.5)','center',0);
 }
