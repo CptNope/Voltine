@@ -11,6 +11,8 @@ Pick one of three sectors, fight through to its warden, and take the boss's weap
 | Sky Relay | Gale Kite | moving platforms, headwind gusts | Gust Ring (orbit shield, throwable) |
 | Null Core (final) | Null Engine | everything above, combined | — |
 
+Beat the Null Core to unlock **Boss Rush**: all four bosses back to back on one clock, with a refill between fights. Best times are kept per difficulty.
+
 ## Controls
 
 | Action | Keys |
@@ -30,3 +32,5 @@ Touch controls appear automatically on phones and tablets, and standard gamepads
 ## Run it
 
 Open `index.html` in a browser, or enable GitHub Pages for this repo (Settings → Pages → deploy from `main`, root).
+
+On GitHub Pages it is an installable app: the manifest and service worker (`sw.js`) let you add it to a home screen or desktop and play offline. When you change `index.html`, bump `VERSION` in `sw.js` so installed copies pick up the update.
