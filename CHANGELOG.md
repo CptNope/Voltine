@@ -2,6 +2,20 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.12 — Tide Vault
+
+- New sector, **Tide Vault**: flooded pools, a pillar to swim under, a bump to swim over, urchin beds and floating stepping stones.
+- **Swimming:** slower movement and falling in water, a stroke on each jump press, a leap out at the surface, splashes and bubbles.
+- New boss, **Undertow**: a sea serpent that hunts underwater, leaps across the arena, spits drifting bubbles and pulls you in with a whirlpool. It shoots back at the top of its leaps below half health.
+- New weapon, **Tide Lance**: a fast piercing lance.
+- The weakness cycle is now four links: Prism Spread beats the Coil Hound, Arc Bolt beats Undertow, Tide Lance beats the Gale Kite, and Gust Ring beats the Prism Warden. The Kite's weakness moved from Arc Bolt to Tide Lance.
+- New enemy, **jellyfish**: bobs in the water and drifts toward you.
+- The select screen shows five cards. The Null Core now needs all four wardens beaten; saves that already cleared it keep access.
+- Boss Rush has five bosses, and the arena floods for Undertow.
+- New music track and an underwater background (light shafts, bubbles, kelp).
+- Editor: water tile, jellyfish, Undertow as a boss choice, and the Tide Vault theme. Level codes accept `~`, `j` and theme 4.
+- The route checker understands swimming. All five stages pass, and there are 46 smoke checks.
+
 ## 0.11 — New enemies and in-editor route check
 
 - Three new enemies:

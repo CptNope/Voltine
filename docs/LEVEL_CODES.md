@@ -12,10 +12,10 @@ The `VL1.` prefix is the format version. The decoder also accepts the bare base6
 
 | Key | Type | Meaning |
 |---|---|---|
-| `b` | string | boss: `warden`, `hound`, `kite` or `null` |
-| `t` | integer 0–3 | theme: 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay (adds wind), 3 Null Core. This sets colours and music. |
+| `b` | string | boss: `warden`, `hound`, `kite`, `undertow` or `null` |
+| `t` | integer 0–4 | theme: 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay (adds wind), 3 Null Core, 4 Tide Vault. This sets colours and music. |
 | `r` | array of 17 strings | the tile rows, top to bottom, run-length encoded (below) |
-| `s` | array of `[type, x, y]` | entities. `type` is `w` walker, `s` shield walker, `h` spark hopper, `f` flyer, `g` gull, `t` turret, `p` health, `e` energy |
+| `s` | array of `[type, x, y]` | entities. `type` is `w` walker, `s` shield walker, `h` spark hopper, `f` flyer, `g` gull, `j` jellyfish, `t` turret, `p` health, `e` energy |
 | `v` | array of `[x, y, vertical]` | moving platforms. `vertical` 0 moves sideways (±40 px over 180 frames), 1 moves up and down (±28 px over 150 frames) |
 | `c` | array of `x` | crusher columns |
 | `k` | array of `x` | checkpoint columns (up to 3; the start is always column 2) |
@@ -34,6 +34,7 @@ Each row is 100 tiles, written as `<count><char>` pairs, with each count between
 | `H` | ladder |
 | `>` | belt pushing right |
 | `<` | belt pushing left |
+| `~` | water (swimmable) |
 
 Example: a row with 30 empty tiles, 5 blocks and 65 empty tiles is `30 5#65 `. Tile characters are never digits, so the pairs can be read without separators.
 
@@ -41,7 +42,7 @@ Example: a row with 30 empty tiles, 5 blocks and 65 empty tiles is `30 5#65 `. T
 
 - Column 0 is always a wall. Columns 1–4 of rows 15–16 are always solid, as the start platform.
 - Columns 100–130 are the boss arena, added automatically: solid ground, a closing gate at column 100 and a wall at 129–130.
-- When a code is loaded, it's checked. It's **rejected** if the boss, theme or row count is invalid, if any row doesn't decode to exactly 100 tiles, or if a tile character isn't one of the six above.
+- When a code is loaded, it's checked. It's **rejected** if the boss, theme or row count is invalid, if any row doesn't decode to exactly 100 tiles, or if a tile character isn't one of the seven above.
 - These are **dropped quietly**: entities with an unknown type or coordinates outside the grid; anything beyond 120 entities, 30 platforms, 20 crushers or 3 checkpoints; and any extra fields.
 - Decoded values are only used as data. They're never inserted into the page as HTML.
 
@@ -60,3 +61,7 @@ Base64-encode that JSON and put `VL1.` in front to get a working code.
 ## Versioning
 
 If the format ever changes in a way that breaks old codes, use a new prefix (`VL2.`) and keep the `VL1` decoder, so old shared codes still load.
+
+## Compatibility
+
+0.12 added water (`~`), jellyfish (`j`), the Undertow boss and theme 4. All older `VL1` codes still load, but codes using these additions won't load in versions before 0.12.

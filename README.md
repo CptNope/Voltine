@@ -1,6 +1,6 @@
 # Voltline
 
-A vector-graphics action platformer for the browser. Run, jump, slide and blast through three sectors, take each warden's weapon, use it against the next one, then break into the Null Core.
+A vector-graphics action platformer for the browser. Run, jump, slide, swim and blast through four sectors, take each warden's weapon, use it against the next one, then break into the Null Core.
 
 Everything is drawn live as glowing strokes on a canvas and every sound is synthesized in the browser, so the game has no image or audio files. It's plain HTML and JavaScript with no build step and no dependencies.
 
@@ -30,13 +30,13 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 
 ## Features
 
-- **Four stages** with their own hazards and enemies: spike pits, ladders, slide tunnels, conveyor belts, ceiling crushers, lava, moving platforms, lifts and headwind gusts.
-- **Four bosses**, each with its own attack patterns and a harder second stage once it drops below half health. The final boss has two distinct phases.
+- **Five stages** with their own hazards and enemies: spike pits, ladders, slide tunnels, conveyor belts, ceiling crushers, lava, moving platforms, lifts, headwind gusts and underwater sections you swim through.
+- **Five bosses**, each with its own attack patterns and a harder second stage once it drops below half health. The final boss has two distinct phases.
 - **Weapon system:** a chargeable blaster plus three weapons earned from bosses, each with its own energy bar.
 - **A weakness cycle:** each warden takes extra damage from another warden's weapon.
 - **Stage select** with saved progress and best times.
 - **Normal and Hard** difficulty, with best times kept for each.
-- **Boss Rush:** all four bosses back to back on one clock.
+- **Boss Rush:** all five bosses back to back on one clock.
 - **Level editor:** paint your own stage, playtest it instantly, and share it as a short text code.
 - **Synthesized soundtrack:** seven tracks, one per stage, plus a menu, boss and final-boss theme.
 - **Keyboard, gamepad and touch** controls. The touch pad appears automatically on phones and tablets.
@@ -46,10 +46,12 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 ## How to play
 
 1. On the title screen, pick **Normal** or **Hard** with ← → and press **Enter**.
-2. Choose a sector. Prism Grid, Coil Foundry and Sky Relay can be played in any order.
+2. Choose a sector. Prism Grid, Coil Foundry, Sky Relay and Tide Vault can be played in any order.
 3. Fight through to the boss arena at the end. The gate closes behind you, and the boss's health bar shows top right.
 4. Beat the boss to earn its weapon. Switch weapons with **Q / E**, and keep an eye on the energy bar under your health.
-5. Clear all three sectors to open **Null Core**. Clear that to unlock **Boss Rush**.
+5. Beat all four wardens to open **Null Core**. Clear that to unlock **Boss Rush**.
+
+**Swimming:** in water you fall slowly and move a little slower. Each tap of jump is a stroke upward, and a stroke at the surface launches you out of the water. Sliding doesn't work underwater.
 
 **Checkpoints:** gold pylons along each stage light up as you pass them. If you lose all your health ("Signal lost"), you restart at the last one with full health and refilled weapon energy.
 
@@ -65,6 +67,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 | Fire | X or J | B or X | FIRE |
 | Charge shot (Volt Buster) | hold fire, release | hold B / X | hold FIRE |
 | Slide | ↓ + Jump | down + A | ▼ + JUMP |
+| Swim up (in water) | tap Jump | tap A | tap JUMP |
 | Switch weapon | Q / E (also C) | LB / RB, Y | WPN |
 | Start / pause | Enter or P | Start | START |
 | Back / pause | Esc or Backspace | — | — |
@@ -81,6 +84,7 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 | **Prism Grid** | spike pits, a ladder wall, a tunnel you have to slide through | **Prism Warden** | hops at you, fires aimed spreads, charges into the walls. Adds ground shockwaves below half health. |
 | **Coil Foundry** | conveyor belts, ceiling crushers, lava, a high route over a lava floor | **Coil Hound** | pounces, sends sparks along the floor, charges back and forth off the walls, calls down lightning with warning lines |
 | **Sky Relay** | moving platforms, lifts, regular headwind gusts | **Gale Kite** | flies in loops dropping darts, dives at you, blows wind to push you around |
+| **Tide Vault** | flooded pools to swim through, low gaps to swim under, urchin beds on the pool floors | **Undertow** | a sea serpent that hunts you underwater, leaps across the arena in long arcs, surfaces to spit drifting bubbles, and stirs a whirlpool that drags you toward it |
 | **Null Core** (final) | all of the above, combined | **Null Engine** | Phase 1: a tethered core behind four shield orbs that block shots, with aimed fire, lightning and flying minions. Phase 2: the shields break, the core floats free and borrows every other boss's attacks. |
 
 ## Enemies
@@ -92,7 +96,8 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 | Turret | everywhere | aims and fires every couple of seconds (faster on Hard) | the barrel glows just before it fires |
 | **Shield walker** | Prism Grid, Null Core | turns to face you behind a shield that blocks shots; stops every few seconds to fire, which drops the shield | hit it while it fires, from behind, with a charged shot, or with an Arc Bolt from above |
 | **Spark hopper** | Coil Foundry, Null Core | waits, then bounds at you in big arcs | shoot it mid-air or step under the jump |
-| **Gull** | Sky Relay, Null Core | hovers high and swoops down at you in a curve, then climbs back | wait for the swoop and shoot as it comes down |
+| **Gull** | Sky Relay, Tide Vault, Null Core | hovers high and swoops down at you in a curve, then climbs back | wait for the swoop and shoot as it comes down |
+| **Jellyfish** | Tide Vault | bobs up and down in the water and drifts toward you | stings on touch; time your swim between its bobs |
 
 ## Weapons and weaknesses
 
@@ -100,8 +105,9 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 |---|---|---|---|---|
 | **Volt Buster** | start | free | Up to three quick shots on screen. Hold to charge a big piercing shot (3 damage). | — |
 | **Prism Spread** | Prism Warden | 2 | three-way fan of shots | **Coil Hound** |
-| **Arc Bolt** | Coil Hound | 3 | heavy lob (3 damage) that bounces twice along the floor | **Gale Kite** |
+| **Arc Bolt** | Coil Hound | 3 | heavy lob (3 damage) that bounces twice along the floor | **Undertow** |
 | **Gust Ring** | Gale Kite | 4 | four orbs circle you and destroy enemy bullets. Fire again to throw them. | **Prism Warden** |
+| **Tide Lance** | Undertow | 3 | fast lance (2 damage) that pierces everything in a line | **Gale Kite** |
 
 A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null Engine has no single weakness but takes +1 damage from every boss weapon. Each weapon has 28 energy.
 
@@ -109,7 +115,7 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 
 **Hard.** Pick it on the title screen. You take 50% more damage, enemies have an extra hit point, turrets fire more often, bosses take 30% less damage per hit, and health pickups heal half as much. Hard best times are saved separately.
 
-**Boss Rush.** Unlocks after the Null Core. Fight Prism Warden → Coil Hound → Gale Kite → Null Engine in a row on one clock, with a health and energy refill between fights. If you die, you restart at the current boss and the clock keeps running.
+**Boss Rush.** Unlocks after the Null Core. Fight Prism Warden → Coil Hound → Gale Kite → Undertow → Null Engine in a row on one clock, with a health and energy refill between fights. If you die, you restart at the current boss and the clock keeps running.
 
 ## Settings and accessibility
 
@@ -131,7 +137,7 @@ Each stage opens with a short card showing its name and a hint about its main ha
 Pick **Level Editor** from the bar under the stage cards.
 
 - **Canvas:** 100 columns × 17 rows. A safe start platform sits on the left and a boss arena is added after column 100 automatically.
-- **Tools:** block, spikes, ladder, belt → and belt ←, walker, shield walker, spark hopper, flyer, gull, turret, health, energy, platform (moves sideways), lift (moves up and down), crusher, checkpoint (up to three), erase.
+- **Tools:** block, spikes, water, ladder, belt → and belt ←, walker, shield walker, spark hopper, flyer, gull, jellyfish, turret, health, energy, platform (moves sideways), lift (moves up and down), crusher, checkpoint (up to three), erase.
 - **Boss and theme:** chosen with the buttons under the game. The theme sets the colours and music, and the Sky theme adds wind.
 
 | Editor action | Keyboard | Mouse / touch |
@@ -184,7 +190,7 @@ js/world.js             saved progress, options, map building, collision physics
 js/input.js             keyboard, touch pad and pointer input
 js/audio.js             sound effects, soundtrack engine and tracks, gamepad polling
 js/entities.js          run state, player, platforms, crushers, wind, regular enemies
-js/bosses.js            the four bosses and stage-clear handling
+js/bosses.js            the five bosses and stage-clear handling
 js/step.js              projectiles, pickups, particles and the per-frame step
 js/render.js            all drawing: backgrounds, tiles, sprites, HUD, menus
 js/editor.js            level editor and level codes

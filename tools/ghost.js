@@ -4,7 +4,7 @@
 // arena from the stage start without taking damage.
 //
 // node tools/ghost.js            check all four stages
-// node tools/ghost.js 2          check one stage (0 Prism, 1 Foundry, 2 Sky, 3 Core)
+// node tools/ghost.js 2          check one stage (0 Prism, 1 Foundry, 2 Sky, 3 Core, 5 Tide)
 const load = require('./harness');
 
 const MACROS = [
@@ -12,12 +12,12 @@ const MACROS = [
   // jump (held h frames) while holding right for a frames, then let go until the frame count n
   ...[4, 10, 16, 24].flatMap(h => [12, 20, 28, 40, 60].map(a => ({ jr: h, a, n: Math.max(a, 50) }))),
   { jn: 22, n: 50 }, { jl: 14, n: 40 },
-  { slide: 1 }, { up: 100 }, { down: 40 },
+  { slide: 1 }, { up: 100 }, { down: 40 }, { sw: 40 }, { sw: 80 }, { su: 40 },
 ];
 
 function runStage(si, { beam = 60, iters = 260 } = {}) {
   const G = load({ seed: 7 });
-  G.set('save', { cleared: [1, 1, 1, 1], best: [0, 0, 0, 0], bestH: [0, 0, 0, 0], rush: [0, 0] });
+  G.set('save', { cleared: [1, 1, 1, 1, 0, 1], best: [0, 0, 0, 0, 0, 0], bestH: [0, 0, 0, 0, 0, 0], rush: [0, 0] });
   G.call('startStage', si);
   G.set('E', []);
   const ST = G.get('ST'), ARENA = G.get('ARENA'), TS = 16, goal = (ARENA + 3) * TS;
@@ -42,6 +42,8 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
     if (mac.slide) { frames.push({ down: 1, jump: 1 }); for (let i = 0; i < 40; i++) frames.push({ right: 1 }); }
     if (mac.up) for (let i = 0; i < mac.up; i++) frames.push({ up: 1, right: i > mac.up - 20 });
     if (mac.down) for (let i = 0; i < mac.down; i++) frames.push({ down: 1 });
+    if (mac.sw) for (let i = 0; i < mac.sw; i++) frames.push({ right: 1, jump: i % 14 < 3 }); // swim right
+    if (mac.su) for (let i = 0; i < mac.su; i++) frames.push({ jump: i % 12 < 3 });           // swim up
     frames.push({});
     for (const f of frames) {
       G.step(1, f);
@@ -50,7 +52,7 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
       if (G.get('arena')) return true;
     }
     const P = G.get('P');
-    return P.onG || P.climb ? true : false; // only keep states that end supported
+    return P.onG || P.climb || P.wt ? true : false; // keep states that end standing, climbing or swimming
   };
 
   G.step(5, {});
@@ -79,7 +81,7 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
 
 if (require.main === module) {
   const only = process.argv[2];
-  const stages = only != null ? [+only] : [0, 1, 2, 3];
+  const stages = only != null ? [+only] : [0, 1, 2, 5, 3];
   let fail = 0;
   for (const s of stages) {
     const t = Date.now(), r = runStage(s);

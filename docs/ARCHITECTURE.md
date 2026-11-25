@@ -79,6 +79,7 @@ frame(now)                                  render.js, driven by requestAnimatio
 | `>` / `<` | conveyor belt pushing right / left (0.8 px per frame) | yes |
 | `^` | spikes or lava; kills on touch unless you're invulnerable | no |
 | `H` | ladder; its top tile is a one-way platform | no |
+| `~` | water: gravity 0.1, top falling speed 1.8, run speed 1.15, each jump press is a −3.2 stroke (−5 when the head is out at the surface); no sliding | no |
 | ` ` | empty | no |
 
 - **Collision:** `moveX` then `moveY` against tiles, axis by axis (`world.js`). `phys(p)` adds riding moving platforms and being pushed by belts.
@@ -86,6 +87,8 @@ frame(now)                                  render.js, driven by requestAnimatio
 - **Level design rules of thumb** (`tools/ghost.js` catches breaks in practice): no step-up taller than 3 tiles (48 px), no flat gap or spike run wider than 2 tiles unless there's a platform, and any platform over a hazard must be reachable from below without hitting your head on it.
 
 ## Stage data
+
+**Stage indexes:** 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay, 3 Null Core, 4 Boss Rush, 5 Tide Vault, 6 the editor's custom level (added by `editor.js`). New stages are appended so older saves keep their indexes. `CARD` gives the select-screen order, and `WFROM` maps each weapon to the stage that awards it.
 
 Each entry in `STAGES` (`core.js`):
 
@@ -125,6 +128,7 @@ All entities are plain objects in arrays, updated and drawn every frame:
 
 - `updBoss()` handles the parts every boss shares: the hit-flash timer, the health bar filling up on entry, the explosion sequence, the drop-in and intro.
 - Each boss has its own function: `updWarden`, `updHound`, `updKite`, `updNull`. They follow the same pattern: an `idle` (or `cruise` / `float`) state that picks a random attack after a delay, attack states that run on `t`, then back to idle. Below 14 health the delays shorten and the attacks get bigger.
+- Undertow (`updUndertow`) is scripted rather than physics-driven. It swims at a fixed depth under the water surface (row 12), keeps a `trail` of head positions that the body segments are drawn along, and in Boss Rush the arena floods while it's the current boss.
 - `hitBoss(shot)` applies damage. A weakness hit (`WEAK[kind] === shot.w`) does 4 damage and gives 24 frames of invulnerability. A normal hit gives 10 (16 for the Null Engine).
 - In Boss Rush, `RUSH[rushIdx]` replaces the stage's boss, and `rushWait` counts down between bosses.
 
@@ -144,7 +148,7 @@ All entities are plain objects in arrays, updated and drawn every frame:
 
 ## Saving
 
-See the storage table in the README. `save.cleared[i]` unlocks weapon `i + 1`. `coreOpen()` checks the first three stages. Option and progress writes are wrapped in try/catch, because storage can be unavailable (private browsing, sandboxed frames).
+See the storage table in the README. `save.cleared[WFROM[w]]` unlocks weapon `w`. `coreOpen()` needs the four wardens (stages 0, 1, 2 and 5); a save that already cleared the Null Core keeps access. Option and progress writes are wrapped in try/catch, because storage can be unavailable (private browsing, sandboxed frames).
 
 ## How to…
 

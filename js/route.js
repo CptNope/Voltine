@@ -6,7 +6,7 @@
 
 const RMAC=[{r:8},{r:20},{l:8},{w:12},{w:30},
   ...[4,10,16,24].flatMap(h=>[12,20,28,40,60].map(a=>({jr:h,a,n:Math.max(a,50)}))),
-  {jn:22,n:50},{jl:14,n:40},{slide:1},{up:100},{down:40}];
+  {jn:22,n:50},{jl:14,n:40},{slide:1},{up:100},{down:40},{sw:40},{sw:80},{su:40}];
 let RT=null,routeMsg=null;
 
 function routeStart(){
@@ -37,6 +37,8 @@ function routeFrames(m){
   if(m.slide){f.push({down:1,jump:1});for(let i=0;i<40;i++)f.push({right:1})}
   if(m.up)for(let i=0;i<m.up;i++)f.push({up:1,right:i>m.up-20});
   if(m.down)for(let i=0;i<m.down;i++)f.push({down:1});
+  if(m.sw)for(let i=0;i<m.sw;i++)f.push({right:1,jump:i%14<3});
+  if(m.su)for(let i=0;i<m.su;i++)f.push({jump:i%12<3});
   f.push({});return f;
 }
 // returns 'goal', 'ok' (ended supported), or 'fail'
@@ -47,7 +49,7 @@ function routeTry(m){
     if(state!=='play'||P.hp<hp0)return 'fail';
     if(arena)return 'goal';
   }
-  return P.onG||P.climb?'ok':'fail';
+  return P.onG||P.climb||P.wt?'ok':'fail';
 }
 function routeFinish(ok){
   silent=false;const bestTile=Math.floor(RT.best/TS);

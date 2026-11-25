@@ -10,7 +10,7 @@ function fightBoss(G, { maxFrames = 60 * 240, weapon = 0 } = {}) {
   G.get('P').wpn = weapon;
   for (let f = 0; f < maxFrames; f++) {
     const P = G.get('P'), B = G.get('B'), EN = G.get('EN');
-    P.inv = 5; P.hp = 28; EN[1] = EN[2] = EN[3] = 28;
+    P.inv = 5; P.hp = 28; EN.fill(28);
     const tgt = B ? B.x + B.w / 2 : P.x;
     G.step(1, { fire: f % 8 < 4, left: P.x > tgt + 20, right: P.x < tgt - 70, jump: f % 26 < 14 });
     if (G.get('state') !== 'play') return { state: G.get('state'), frames: f };
@@ -20,7 +20,7 @@ function fightBoss(G, { maxFrames = 60 * 240, weapon = 0 } = {}) {
 function toArena(G, s) {
   G.call('startStage', s);
   const W = G.get('W'), P = G.get('P');
-  P.x = (W - 31 + 5) * 16; P.y = 13 * 16; P.inv = 999;
+  P.x = (W - 31 + 5) * 16; P.y = 100; P.inv = 999;
   G.step(40, { right: 1 });
 }
 
@@ -28,19 +28,21 @@ function toArena(G, s) {
   const G = load({ seed: 1 });
   tap(G, 'start'); check('title opens stage select', G.get('state') === 'select');
   tap(G, 'down'); tap(G, 'start'); check('Boss Rush is locked on a fresh save', G.get('state') === 'select');
-  tap(G, 'up'); for (let i = 0; i < 3; i++) tap(G, 'right'); tap(G, 'start');
+  tap(G, 'up'); for (let i = 0; i < 4; i++) tap(G, 'right'); tap(G, 'start');
   check('Null Core is locked on a fresh save', G.get('state') === 'select');
-  G.get('save').cleared = [1, 1, 1, 0]; tap(G, 'start');
-  check('Null Core opens after three clears', G.get('state') === 'play' && G.get('ST').final === true);
+  G.get('save').cleared = [1, 1, 1, 0, 0, 0]; tap(G, 'start');
+  check('Null Core stays locked until Tide Vault is cleared', G.get('state') === 'select');
+  G.get('save').cleared = [1, 1, 1, 0, 0, 1]; tap(G, 'start');
+  check('Null Core opens after all four wardens', G.get('state') === 'play' && G.get('ST').final === true);
   tap(G, 'start'); check('Enter pauses', G.get('state') === 'pause'); tap(G, 'back'); check('Esc resumes', G.get('state') === 'play');
 }
 
-for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [3, 'null']]) { // every boss can be beaten
+for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow'], [3, 'null']]) { // every boss can be beaten
   const G = load({ seed: 2 + s });
-  G.get('save').cleared = [1, 1, 1, 1];
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1];
   toArena(G, s);
   const B = G.get('B');
-  const r = fightBoss(G, { weapon: s === 3 ? 2 : 0 });
+  const r = fightBoss(G, { weapon: s === 3 || s === 5 ? 2 : 0 });
   check(`${kind} spawns and can be beaten`, B && B.kind === kind && r.state === 'got', `${(r.frames / 60).toFixed(0)}s`);
 }
 
@@ -55,16 +57,16 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [3, 'null']])
 
 { // boss rush
   const G = load({ seed: 11 });
-  G.get('save').cleared = [1, 1, 1, 1];
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1];
   G.call('startStage', 4); G.step(5, {});
   const seen = new Set();
   for (let f = 0; f < 60 * 900 && G.get('state') === 'play'; f++) {
     const P = G.get('P'), B = G.get('B'), EN = G.get('EN'); if (B) seen.add(B.kind);
-    P.inv = 5; P.hp = 28; EN[1] = EN[2] = EN[3] = 28; P.wpn = B && B.kind === 'kite' ? 2 : B && B.kind === 'hound' ? 1 : 0;
+    P.inv = 5; P.hp = 28; EN.fill(28); P.wpn = B && B.kind === 'kite' ? 4 : B && B.kind === 'hound' ? 1 : B && B.kind === 'undertow' ? 2 : 0;
     const tgt = B ? B.x + B.w / 2 : P.x;
     G.step(1, { fire: f % 8 < 4, left: P.x > tgt + 20, right: P.x < tgt - 70, jump: f % 26 < 14 });
   }
-  check('Boss Rush runs all four bosses and finishes', seen.size === 4 && G.get('state') === 'got', [...seen].join(' > '));
+  check('Boss Rush runs all five bosses and finishes', seen.size === 5 && G.get('state') === 'got', [...seen].join(' > '));
   check('Boss Rush best time saved', G.get('save').rush[0] > 0);
 }
 
@@ -140,6 +142,23 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [3, 'null']])
   const ED = G.get('ED'); for (let y = 8; y < 15; y++) ED.m[y][50] = '#';
   G.call('routeStart'); for (let i = 0; i < 5 && G.get('state') === 'route'; i++) G.step(1);
   check('route check reports where a level is blocked', G.get('routeMsg').ok === 0 && Math.abs(G.get('edc').x - 50) <= 2, 'cursor ' + G.get('edc').x);
+}
+
+{ // Tide Vault: swimming, lance, jellyfish, new weakness links
+  const G = load({ seed: 18 });
+  G.get('save').cleared = [1, 1, 1, 0, 0, 1];
+  G.call('startStage', 5); G.step(5, {}); G.set('E', []);
+  const P = G.get('P'); P.x = 30 * 16; P.y = 12 * 16 + 4; P.vy = 0; P.inv = 9999; G.step(1, {});
+  const y0 = P.y; G.step(20, {}); const sink = P.y - y0;
+  check('water slows falling', sink > 0 && sink < 40, `sank ${sink.toFixed(1)} px in 20 frames`);
+  const y1 = P.y; G.step(1, { jump: 1 }); G.step(10, {});
+  check('jump swims upward in water', P.y < y1);
+  check('Tide Lance unlocks from Tide Vault', G.call('unlocked', 4) === true);
+  P.wpn = 4; G.step(1, {}); G.step(1, { fire: 1 }); const L = G.get('PB').find(b => b.k === 'l');
+  check('Tide Lance fires a piercing shot', !!L && L.pierce === 1 && Math.abs(L.vx) === 7);
+  const W = G.get('WEAK'); check('weakness cycle: Kite weak to Lance, Undertow weak to Arc', W.kite === 4 && W.undertow === 2);
+  G.call('startStage', 5); G.step(2, {});
+  check('Tide Vault has jellyfish', G.get('E').some(e => e.type === 'j'));
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');

@@ -8,8 +8,11 @@ const fit=()=>{const r=scr.getBoundingClientRect(),d=window.devicePixelRatio||1;
 const ro=new ResizeObserver(fit);ro.observe(scr);fit();
 
 /* ---------- weapons & stages ---------- */
-const WPN=[{n:'VOLT BUSTER',s:'VB',c:MINT,cost:0},{n:'PRISM SPREAD',s:'PS',c:PINK,cost:2,d:'Fires a three-way fan of shots.'},{n:'ARC BOLT',s:'AB',c:GOLD,cost:3,d:'Lobs a heavy bolt that bounces along the floor.'},{n:'GUST RING',s:'GR',c:SKY,cost:4,d:'Orbiting shield that eats bullets. Fire again to throw it.'}];
-const WEAK={warden:3,hound:1,kite:2};
+const WPN=[{n:'VOLT BUSTER',s:'VB',c:MINT,cost:0},{n:'PRISM SPREAD',s:'PS',c:PINK,cost:2,d:'Fires a three-way fan of shots.'},{n:'ARC BOLT',s:'AB',c:GOLD,cost:3,d:'Lobs a heavy bolt that bounces along the floor.'},{n:'GUST RING',s:'GR',c:SKY,cost:4,d:'Orbiting shield that eats bullets. Fire again to throw it.'},{n:'TIDE LANCE',s:'TL',c:'#4fd1c5',cost:3,d:'A fast lance that pierces everything in a line.'}];
+const WEAK={warden:3,hound:1,kite:4,undertow:2};
+const TEAL='#4fd1c5';
+// weapon index -> stage index that awards it; select-screen card order -> stage index
+const WFROM=[-1,0,1,2,5],CARD=[0,1,2,5,3];
 const STAGES=[
 {name:'Prism Grid',boss:'PRISM WARDEN',kind:'warden',W:194,cps:[2,76,152],
  th:{edge:MINT,fill:'#1b0f35',sky:['#0d0520','#24103f','#3a1446'],r1:['#6a3bd1','#170a2e'],r2:['#b0489c','#1d0c33'],spike:'tri',deco:'planet'},
@@ -45,8 +48,20 @@ const STAGES=[
 STAGES.push({name:'Boss Rush',boss:'BOSS RUSH',kind:'warden',W:33,cps:[6],rush:true,
  th:{edge:'#e8e8ff',fill:'#14101f',sky:['#050308','#1a0820','#3a0a24'],r1:['#ff5ea8','#0c0610'],r2:['#b9b4d6','#120c18'],spike:'tri',deco:'core'},
  build(f){f(0,1,0,14);f(0,32,15,16);f(31,32,0,14)},spawns:[],movers:[],crushers:[]});
-STAGES.forEach((st,i)=>st.key=['prism','foundry','sky','core','rush'][i]);
-const RUSH=['warden','hound','kite','null'],BN={warden:'PRISM WARDEN',hound:'COIL HOUND',kite:'GALE KITE',null:'NULL ENGINE'};
+STAGES.push({name:'Tide Vault',boss:'UNDERTOW',kind:'undertow',W:200,cps:[2,92,145],
+ th:{edge:TEAL,fill:'#071a24',sky:['#02101a','#06283a','#0d4152'],r1:['#2b8fb3','rgba(7,26,36,.7)'],r2:['#7fd8ff','rgba(9,34,48,.75)'],spike:'barb',deco:'tide'},
+ build(f){f(0,0,0,11);f(0,199,12,16);
+  f(21,40,12,15,'~');f(28,30,15,15,'^');f(48,50,9,11);
+  f(61,90,12,15,'~');f(70,71,12,13);f(80,81,14,15);
+  f(99,100,9,11);
+  f(111,140,12,15,'~');f(118,120,15,15,'^');f(130,132,15,15,'^');f(124,126,9,9);
+  f(172,195,12,14,'~');f(175,177,8,8);f(190,192,8,8);f(198,199,0,11)},
+ spawns:[['w',12,11],['w',55,11],['w',104,11],['w',150,11],['s',45,11],['s',95,11],['t',49,8],['t',99,8],
+  ['j',35,13],['j',66,13],['j',76,14],['j',86,13],['j',115,13],['j',128,13],['j',137,14],['g',8,6],['g',56,5],['g',104,5],['f',58,7],['f',120,7],
+  ['p',52,11],['p',108,11],['p',150,11],['e',93,11],['e',147,11]],movers:[],crushers:[]});
+STAGES.forEach((st,i)=>st.key=['prism','foundry','sky','core','rush','tide'][i]);
+const RUSH=['warden','hound','kite','undertow','null'],BN={warden:'PRISM WARDEN',hound:'COIL HOUND',kite:'GALE KITE',undertow:'UNDERTOW',null:'NULL ENGINE'};
 let rushIdx=0,rushWait=0,lastSel=0;
 
-const coreOpen=()=>!!(save.cleared[0]&&save.cleared[1]&&save.cleared[2]);
+// the Null Core opens once all four wardens are down (players who already cleared it before Tide Vault existed keep access)
+const coreOpen=()=>!!(save.cleared[0]&&save.cleared[1]&&save.cleared[2]&&(save.cleared[5]||save.cleared[3]));
