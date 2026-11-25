@@ -2,13 +2,14 @@
 
 A vector-graphics action platformer that runs in the browser, one self-contained `index.html` with no build step and no dependencies.
 
-Pick one of three sectors, fight through to its warden, and take the boss's weapon. Each warden is weak to another warden's weapon.
+Pick one of three sectors, fight through to its warden, and take the boss's weapon. Each warden is weak to another warden's weapon. Clear all three and the Null Core fortress opens, ending in a two-phase fight with the Null Engine.
 
 | Sector | Boss | Hazards | Weapon earned |
 |---|---|---|---|
 | Prism Grid | Prism Warden | spikes, ladder wall, slide tunnel | Prism Spread (3-way fan) |
 | Coil Foundry | Coil Hound | conveyors, crushers, lava | Arc Bolt (bouncing lob) |
 | Sky Relay | Gale Kite | moving platforms, headwind gusts | Gust Ring (orbit shield, throwable) |
+| Null Core (final) | Null Engine | everything above, combined | — |
 
 ## Controls
 
