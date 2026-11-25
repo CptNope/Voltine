@@ -22,8 +22,10 @@ Pick one of three sectors, fight through to its warden, and take the boss's weap
 | Slide | ↓ + Jump |
 | Switch weapon | Q / E |
 | Start / pause | Enter |
+| Music / sound toggle | M / N |
+| Difficulty | ← → on the title screen (Normal or Hard) |
 
-Touch controls appear automatically on phones and tablets. Progress (cleared sectors and best times) is saved in the browser's localStorage.
+Touch controls appear automatically on phones and tablets, and standard gamepads work (A jump, B/X fire, bumpers switch weapon, Start pauses, Select toggles music). Each stage and boss fight has its own synthesized soundtrack. Progress (cleared sectors and best times) is saved in the browser's localStorage.
 
 ## Run it
 
