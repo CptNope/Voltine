@@ -13,6 +13,21 @@ Pick one of three sectors, fight through to its warden, and take the boss's weap
 
 Beat the Null Core to unlock **Boss Rush**: all four bosses back to back on one clock, with a refill between fights. Best times are kept per difficulty.
 
+## Level editor
+
+Choose **Level Editor** on the select screen. Paint a 100-column stage with blocks, spikes, ladders, belts, enemies, pickups, moving platforms, lifts, crushers and up to three checkpoints. A boss arena is added at the end automatically; pick the boss and the theme from the panel under the game.
+
+| Editor action | Keys |
+|---|---|
+| Move cursor | arrows (hold to repeat) |
+| Paint / place | Z or click and drag |
+| Erase | X |
+| Change tool | Q / E or click the tool bar |
+| Playtest | Enter (Enter again returns to the editor) |
+| Leave | Esc |
+
+Levels save in the browser automatically. **Copy code** gives a short text code you can send to someone; they paste it and press **Load pasted code**.
+
 ## Controls
 
 | Action | Keys |
@@ -23,7 +38,7 @@ Beat the Null Core to unlock **Boss Rush**: all four bosses back to back on one 
 | Fire | X or J (hold Volt Buster to charge) |
 | Slide | ↓ + Jump |
 | Switch weapon | Q / E |
-| Start / pause | Enter |
+| Start / pause | Enter (Esc also pauses) |
 | Music / sound toggle | M / N |
 | Difficulty | ← → on the title screen (Normal or Hard) |
 
