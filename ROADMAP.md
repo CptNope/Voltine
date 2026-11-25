@@ -2,7 +2,7 @@
 
 Where the game stands, what comes next, and what's known to need work. Items in each section are in priority order. When something ships, move it to **Done** and add a line to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.12** (see the changelog). Everything listed under Done is covered by `tools/smoke.js` and `tools/ghost.js`, but **none of it has been play-tested by people yet**. That's the biggest gap, and it's why the first item under Now is a playtest pass rather than a feature.
+**Current version: 0.13** (see the changelog). Everything listed under Done is covered by `tools/smoke.js` and `tools/ghost.js`, but **none of it has been play-tested by people yet**. That's the biggest gap, and it's why the first item under Now is a playtest pass rather than a feature.
 
 ---
 
@@ -32,17 +32,15 @@ These need an owner's call before related work can go ahead.
 ## Next
 
 - **Remappable keys** in Settings, including gamepad buttons.
+- **Splits on Hard** in the Records Times page (they're recorded but not shown yet).
 - **Route check on share:** run the route check automatically before copying a level code, and mark codes that passed.
 - **High-contrast palette** option for low-vision players.
-- **Best-time splits:** show checkpoint split times against your best run.
 
 ## Later
 
 - **Endless or challenge mode:** randomized rooms stitched from hand-made chunks, with every chunk passing the route checker.
 - **A level gallery:** a curated list of community level codes in the repo, loaded from a JSON file.
 - **More sectors** with new mechanics: low gravity, water currents and rising tides, disappearing blocks. Tide Vault (0.12) set the pattern: append the stage, give it a `CARD` slot, a music track and a route-checker pass.
-- **Achievements:** local only, stored with progress.
-- **Save export and import:** a progress code like the level codes, so players can move between devices.
 - **Controller vibration** on hits and explosions, through the Gamepad API's haptics where supported.
 
 ## Ideas parking lot
@@ -69,6 +67,7 @@ Unscheduled. Promote to Next or Later when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.13 | Achievements, checkpoint splits, Records screen, lifetime stats, progress codes |
 | 0.12 | Tide Vault sector with swimming, Undertow boss, Tide Lance, jellyfish, four-link weakness cycle |
 | 0.11 | Shield walker, spark hopper and gull enemies; in-editor route check |
 | 0.10 | Pause menu, settings (volumes, shake, reduced flashing, toggle charge, assist), stage intro cards, Gale Kite rebalance |

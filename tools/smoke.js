@@ -161,5 +161,28 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   check('Tide Vault has jellyfish', G.get('E').some(e => e.type === 'j'));
 }
 
+{ // achievements, splits, records, progress codes
+  const G = load({ seed: 19 });
+  const save = G.get('save');
+  G.call('startStage', 0); G.step(5, {});
+  const P = G.get('P'); P.x = 75 * 16; P.y = 100; P.inv = 9999; G.step(30, { right: 1 });
+  check('passing a checkpoint records a split', G.get('runSplits')[0] > 0);
+  toArena(G, 0); const r = fightBoss(G);
+  check('clearing a sector unlocks First Light', save.ach.first_clear === 1);
+  check('a new best time stores splits', Array.isArray(save.splits[0]) && save.splits[0].length >= 1);
+  check('an achievement shows a toast', G.get('TOASTS').length > 0);
+  const before = save.stats.kills || 0; G.call('stat', 'kills'); check('stats count up', save.stats.kills === before + 1);
+  G.get('OPT').as = 1; G.call('ach', 'hard_core'); check('skill achievements need assist off', !save.ach.hard_core); G.get('OPT').as = 0;
+  const code = G.call('exportProgress'), back = G.call('importProgress', code);
+  check('progress code round-trips', back && back.cleared[0] === 1 && back.ach.first_clear === 1 && back.best[0] === save.best[0], code.length + ' chars');
+  check('bad progress codes are rejected', G.call('importProgress', 'nope') === null);
+  const evil = G.call('importProgress', 'VS1.' + btoa(JSON.stringify({ cleared: [1, 'x', -5], best: ['<b>', 3.7], ach: { fake: 1, weak: 1 }, stats: { kills: -9 } })));
+  check('progress codes are sanitised', evil && evil.cleared[1] === 0 && evil.best[0] === 0 && evil.best[1] === 3 && !evil.ach.fake && evil.ach.weak === 1 && evil.stats.kills === 0);
+  G.set('state', 'select'); G.set('sel', 7); tap(G, 'start'); check('Records screen opens from select', G.get('state') === 'records');
+  tap(G, 'right'); check('Records has a Times page', G.get('recPage') === 1); tap(G, 'back'); check('Esc leaves Records', G.get('state') === 'select');
+  G.call('enterEditor'); G.call('routeStart'); for (let i = 0; i < 5 && G.get('state') === 'route'; i++) G.step(1);
+  check('route checks do not touch stats', (save.stats.reboots || 0) === 0, 'reboots ' + (save.stats.reboots || 0));
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

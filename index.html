@@ -41,6 +41,13 @@ kbd{font:inherit;font-size:13px;color:var(--ink);background:#2a1650;border:1px s
 .edp label{color:var(--dim);font-size:14px}
 .edp textarea{width:100%;font:13px/1.4 ui-monospace,Menlo,monospace;color:var(--ink);background:#0d0520;border:1px solid #4a2b80;border-radius:8px;padding:8px;resize:vertical}
 #edMsg{color:var(--mint);font-size:14px}
+.prog{margin-top:16px;padding:12px 14px;border:1px solid #3b1f66;border-radius:14px;background:var(--panel);color:var(--dim);font-size:15px}
+.prog summary{cursor:pointer;color:var(--ink);min-height:28px}
+.prog p{margin:8px 0}
+.prog textarea{width:100%;font:13px/1.4 ui-monospace,Menlo,monospace;color:var(--ink);background:#0d0520;border:1px solid #4a2b80;border-radius:8px;padding:8px;resize:vertical}
+.prog button{font:500 14px "Chakra Petch",sans-serif;color:var(--ink);background:#2a1650;border:1px solid #4a2b80;border-radius:8px;padding:8px 12px;min-height:40px;cursor:pointer;margin-top:8px}
+.prog button:hover,.prog button:focus-visible{border-color:var(--mint)}
+#progMsg{color:var(--mint);font-size:14px;margin-left:8px}
 .pad{display:none;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;user-select:none;-webkit-user-select:none;touch-action:none}
 .touch .pad{display:flex}
 .touch .ctrl>span{display:none}
@@ -87,6 +94,12 @@ kbd{font:inherit;font-size:13px;color:var(--ink);background:#2a1650;border:1px s
 <textarea id="edCode" rows="3" spellcheck="false"></textarea>
 <div class="edrow"><button type="button" id="edCopy">Copy code</button><button type="button" id="edLoad">Load pasted code</button><span id="edMsg" role="status"></span></div>
 </section>
+<details class="prog">
+<summary>Move your progress to another device</summary>
+<p>Copy this code on one device and load it on another. It carries cleared sectors, best times, splits, achievements and stats. Loading replaces the progress on the device you load it on.</p>
+<textarea id="progCode" rows="3" spellcheck="false" aria-label="Progress code"></textarea>
+<div class="edrow"><button type="button" id="progCopy">Copy progress code</button><button type="button" id="progLoad">Load progress code</button><span id="progMsg" role="status"></span></div>
+</details>
 </main>
 <script src="js/core.js"></script>
 <script src="js/world.js"></script>
@@ -98,6 +111,7 @@ kbd{font:inherit;font-size:13px;color:var(--ink);background:#2a1650;border:1px s
 <script src="js/render.js"></script>
 <script src="js/editor.js"></script>
 <script src="js/route.js"></script>
+<script src="js/records.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

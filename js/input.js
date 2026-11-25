@@ -14,6 +14,6 @@ for(const b of document.querySelectorAll('.pad button')){
 }
 scr.addEventListener('pointerdown',e=>{scr.focus();audio();
   if(state==='edit'){edPointer(e,true);return}
-  if(state==='select'){const r=scr.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*VW;const y=(e.clientY-r.top)/r.height*VH;if(y>=208&&y<=230){const t=x<240?4:5;if(sel!==t){sel=t;return}}else{const i=Math.floor((x-20)/112);if(i>=0&&i<4&&y<208){if(i!==sel){sel=i;return}}}}
+  if(state==='select'){const r=scr.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*VW;const y=(e.clientY-r.top)/r.height*VH;if(y>=208&&y<=230){const t=x<165?5:x<315?6:7;if(sel!==t){sel=t;return}}else{const i=Math.floor((x-20)/90);if(i>=0&&i<5&&y<208&&(x-20)%90<84){if(i!==sel){sel=i;return}}else if(y<208)return}}
   if(state==='title'||state==='select'||state==='got'){K.start=true;setTimeout(()=>K.start=false,90)}});
 

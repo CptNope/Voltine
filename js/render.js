@@ -214,14 +214,14 @@ function drawSelect(){
     ctx.save();ctx.beginPath();ctx.rect(x+2,y+bob+2,80,104);ctx.clip();portrait(i,x+42,y+58+bob);ctx.restore();
     text(st.name,x+42,y+122+bob,10,on?th.edge:CRM,'center',on?6:0);text(st.boss,x+42,y+137+bob,8,'rgba(243,233,255,.7)','center',0);
     if(save.cleared[i]){const bt=(hard?save.bestH:save.best)[i];text(bt?'BEST '+fmt(bt):'CLEARED',x+42,y+16+bob,8,GOLD,'center',4)}}
-  {const on=sel===5,lock=!save.cleared[3];ctx.fillStyle='rgba(14,6,30,.85)';ctx.fillRect(20,208,216,22);glow(on?(lock?'#6b5a8e':PINK):'rgba(183,163,214,.35)',on&&!lock?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(20.5,208.5,215,21);ctx.shadowBlur=0;
-   const rb=save.rush[hard?1:0];text(lock?'BOSS RUSH  ·  locked':'BOSS RUSH'+(rb?'  ·  best '+fmt(rb):''),128,223,10,lock?'#6b5a8e':on?PINK:CRM,'center',on&&!lock?6:0)}
-  {const on=sel===6;ctx.fillStyle='rgba(14,6,30,.85)';ctx.fillRect(244,208,216,22);glow(on?GOLD:'rgba(183,163,214,.35)',on?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(244.5,208.5,215,21);ctx.shadowBlur=0;
-   text('LEVEL EDITOR',352,223,10,on?GOLD:CRM,'center',on?6:0)}
+  const bar3=(k,x,label,col,lock)=>{const on=sel===k;ctx.fillStyle='rgba(14,6,30,.85)';ctx.fillRect(x,208,140,22);glow(on?(lock?'#6b5a8e':col):'rgba(183,163,214,.35)',on&&!lock?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(x+.5,208.5,139,21);ctx.shadowBlur=0;text(label,x+70,223,9,lock?'#6b5a8e':on?col:CRM,'center',on&&!lock?6:0)};
+  {const rb=save.rush[hard?1:0],lock=!save.cleared[3];bar3(5,20,lock?'BOSS RUSH · locked':'BOSS RUSH'+(rb?' · '+fmt(rb):''),PINK,lock)}
+  bar3(6,170,'LEVEL EDITOR',GOLD,false);
+  {const n=ACH_IDS.filter(id=>save.ach[id]).length;bar3(7,320,'RECORDS · '+n+'/'+ACH.length,MINT,false)}
   for(const q of POP)text(q.s,q.x,q.y,10,q.c,'center',6);
   text('ARSENAL',20,252,9,'rgba(243,233,255,.6)','left',0);
-  let ax=74;for(let w=0;w<WPN.length;w++){const u=unlocked(w);ctx.strokeStyle=u?WPN[w].c:'rgba(255,255,255,.15)';ctx.lineWidth=1;ctx.strokeRect(ax+.5,243.5,30,12);text(u?WPN[w].s:'--',ax+15,253,9,u?WPN[w].c:'rgba(255,255,255,.25)','center',0);ax+=34}
-  text(save.cleared[3]?'Grid restored. Chase your best times.':coreOpen()?'The Null Core is open.':'← → choose · Enter or tap to deploy',VW-20,253,10,GOLD,'right',0);
+  let ax=70;for(let w=0;w<WPN.length;w++){const u=unlocked(w);ctx.strokeStyle=u?WPN[w].c:'rgba(255,255,255,.15)';ctx.lineWidth=1;ctx.strokeRect(ax+.5,243.5,25,12);text(u?WPN[w].s:'--',ax+12.5,253,8,u?WPN[w].c:'rgba(255,255,255,.25)','center',0);ax+=29}
+  text(save.cleared[3]?'Grid restored. Chase best times.':coreOpen()?'The Null Core is open.':'← → choose · Enter or tap to deploy',VW-20,253,9,GOLD,'right',0);
 }
 function drawEdit(){
   drawBG(ST.th);ctx.save();ctx.translate(-Math.round(camX),0);drawTiles();drawEnemies();drawWater();
@@ -246,12 +246,14 @@ function drawOpts(){dim(.8);text('SETTINGS',VW/2,48,22,MINT,'center',8);
     text((on?'▸ ':'')+it.n,VW/2-10,y,11,c,'right',on?6:0);text(optLabel(it.k),VW/2+10,y,11,on?GOLD:CRM,'left',0)});
   if(OPT.as)text('Assist is on, so best times are not recorded.',VW/2,240,9,CORAL,'center',0);
   text('↑ ↓ choose · ← → change · Esc back',VW/2,258,9,'rgba(243,233,255,.6)','center',0)}
-function draw(){
+function draw(){drawMain();drawToasts()}
+function drawMain(){
   ctx.setTransform(sc,0,0,sc,0,0);ctx.textBaseline='alphabetic';
   if(state==='route'&&RT){drawBG(ST.th);dim(.6);text('CHECKING ROUTE',VW/2,96,20,GOLD,'center',8);
     const f=Math.max(0,Math.min(1,RT.best/RT.goal));ctx.strokeStyle='rgba(243,233,255,.4)';ctx.lineWidth=1;ctx.strokeRect(VW/2-120.5,120.5,240,10);ctx.fillStyle=GOLD;ctx.fillRect(VW/2-119,122,238*f,7);
     text('furthest column '+Math.floor(RT.best/TS)+' of '+(RT.goal/TS-3)+'  ·  search step '+RT.it,VW/2,150,10,CRM,'center',0);
     text('Enemies are ignored. Esc cancels.',VW/2,170,9,'rgba(243,233,255,.6)','center',0);return}
+  if(state==='records'){drawRecords();return}
   if(state==='edit'){drawEdit();return}
   const view=state==='opts'&&optsFrom!=='pause'?optsFrom:state;
   if(view==='title'||view==='select'){drawBG(STAGES[view==='select'?CARD[Math.min(sel,4)]:0].th);

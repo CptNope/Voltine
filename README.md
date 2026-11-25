@@ -38,6 +38,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 - **Normal and Hard** difficulty, with best times kept for each.
 - **Boss Rush:** all five bosses back to back on one clock.
 - **Level editor:** paint your own stage, playtest it instantly, and share it as a short text code.
+- **Records:** 16 achievements, checkpoint splits against your best run, lifetime stats, and a progress code to move your save between devices.
 - **Synthesized soundtrack:** seven tracks, one per stage, plus a menu, boss and final-boss theme.
 - **Keyboard, gamepad and touch** controls. The touch pad appears automatically on phones and tablets.
 - **Pause menu and settings:** restart from the last checkpoint, quit to stage select, adjust music and sound volume, turn screen shake off, reduce flashing, switch the charge shot to tap-to-toggle, and turn on an assist mode.
@@ -156,17 +157,47 @@ Pick **Level Editor** from the bar under the stage cards.
 
 Your level saves in the browser as you work. **Copy code** produces a short text code, usually a few hundred characters. Paste someone else's code into the box and press **Load pasted code** to play it. Codes are checked when loaded, and anything malformed is rejected or cleaned up. The format is documented in [docs/LEVEL_CODES.md](docs/LEVEL_CODES.md).
 
+## Records, achievements and splits
+
+Choose **Records** from the bar under the stage cards. It has two pages; switch between them with ← →.
+
+- **Achievements:** 16 of them, with a pop-up when one unlocks. Ones marked * need assist off.
+
+  | Achievement | How |
+  |---|---|
+  | First Light | clear any sector |
+  | Pressure Point | land a weakness hit on a boss |
+  | Full Charge | defeat an enemy with a charged shot |
+  | Around the Shield | defeat a shield walker |
+  | Sting Operation | defeat a jellyfish |
+  | Untouched * | beat a boss without taking a hit |
+  | Clean Run * | clear a sector without a reboot |
+  | Full Arsenal | own all four boss weapons |
+  | Wardens Down | beat all four wardens |
+  | The Grid Is Free | clear the Null Core |
+  | Hard Light * | clear the Null Core on Hard |
+  | Gauntlet | finish Boss Rush |
+  | Iron Gauntlet * | finish Boss Rush on Hard |
+  | Prism Sprint * | clear Prism Grid in under 2:30 |
+  | Centurion | defeat 100 enemies |
+  | Architect | beat a level you built in the editor |
+
+- **Times:** your best time per sector on Normal and Hard, Boss Rush bests, the split times from your best Normal run, and lifetime stats (enemies defeated, pickups, reboots).
+- **Splits during a run:** each checkpoint, the boss gate and the clear are split points. If you have a best run for that sector and difficulty, crossing one shows how far ahead (green, −) or behind (red, +) you are. A new best time saves that run's splits. Splits aren't kept while assist is on.
+
 ## Saving, install and offline play
 
 Progress lives in your browser's `localStorage` on this device:
 
 | Key | Holds |
 |---|---|
-| `voltline-v2` | cleared sectors, best times (Normal and Hard), Boss Rush bests |
+| `voltline-v2` | cleared sectors, best times and splits (Normal and Hard), Boss Rush bests, achievements, lifetime stats |
 | `voltline-opts` | music and sound toggles, difficulty, and every setting above |
 | `voltline-edit` | your current editor level |
 
 **Reset progress** (under the game) clears the first one. It asks you to click twice.
+
+**Moving to another device:** open *Move your progress to another device* under the game, press **Copy progress code**, and on the other device paste it and press **Load progress code**. Loading replaces that device's progress, so it asks you to click twice. Codes start with `VS1.` and are checked and cleaned when loaded.
 
 When served from `*.github.io`, the game registers a service worker (`sw.js`) and has an app manifest, so it can be installed to a home screen or desktop and played offline after the first visit.
 
@@ -195,6 +226,7 @@ js/step.js              projectiles, pickups, particles and the per-frame step
 js/render.js            all drawing: backgrounds, tiles, sprites, HUD, menus
 js/editor.js            level editor and level codes
 js/route.js             in-browser route checker for the editor
+js/records.js           achievements, splits, stats, Records screen, progress codes
 js/main.js              starts the loop, registers the service worker
 tools/harness.js        loads the game headless in Node for testing
 tools/smoke.js          smoke tests for menus, bosses, modes, editor and music

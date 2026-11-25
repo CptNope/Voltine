@@ -2,6 +2,16 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.13 — Records
+
+- **Achievements:** 16, with a pop-up on unlock. Skill achievements need assist off.
+- **Checkpoint splits:** every checkpoint, the boss gate and the clear show how far ahead or behind your best run you are. A new best time saves its splits.
+- **Records screen** (a new bar under the stage cards): an achievements page and a times page with best times, Hard bests, Boss Rush bests, best-run splits and lifetime stats.
+- **Progress codes** (`VS1.`): move a save between devices. They're validated and cleaned when loaded.
+- Fixed: tapping the select screen used the old four-card layout, so touch players could pick the wrong card or bar. It now matches the five cards and three bars.
+- Route checks don't touch stats or achievements.
+- Smoke tests: 59 checks.
+
 ## 0.12 — Tide Vault
 
 - New sector, **Tide Vault**: flooded pools, a pillar to swim under, a bump to swim over, urchin beds and floating stepping stones.

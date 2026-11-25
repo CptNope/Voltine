@@ -26,11 +26,12 @@ function onLadder(p){const cx=Math.floor((p.x+p.w/2)/TS);for(let ty=Math.floor(p
 function endSlide(){P.slide=0;P.y-=10;P.h=22}
 function hurt(d){
   if(P.inv>0||state!=='play')return;
+  if(B)bossHurt=true;
   if(OPT.as===2){P.inv=40;return}if(hard)d=Math.ceil(d*1.5);if(OPT.as===1)d=Math.ceil(d/2);P.hp-=d;P.inv=80;P.hurt=14;P.vy=-2;P.climb=false;if(P.slide&&rectFree(P.x,P.y-10,P.w,22))endSlide();
   snd(220,.18,'sawtooth',90,.06);shake=OPT.shake?6:0;burst(P.x+6,P.y+10,ORG,6);
   if(P.hp<=0)die();
 }
-function die(){P.hp=0;state='dead';deadT=0;deaths++;snd(400,.6,'triangle',60,.08);for(let i=0;i<16;i++){const a=i/16*6.283;PT.push({x:P.x+6,y:P.y+11,vx:Math.cos(a)*2,vy:Math.sin(a)*2,l:70,c:i%2?MINT:ORG,orb:1})}}
+function die(){P.hp=0;state='dead';deadT=0;deaths++;stat('reboots');snd(400,.6,'triangle',60,.08);for(let i=0;i<16;i++){const a=i/16*6.283;PT.push({x:P.x+6,y:P.y+11,vx:Math.cos(a)*2,vy:Math.sin(a)*2,l:70,c:i%2?MINT:ORG,orb:1})}}
 function swap(d){let w=P.wpn;const n=WPN.length;for(let i=0;i<n;i++){w=(w+d+n)%n;if(unlocked(w))break}if(w!==P.wpn){P.wpn=w;P.charge=0;P.charging=false;PB=PB.filter(b=>b.k!=='o');snd(700,.06,'square',900,.03);POP.push({x:P.x+6,y:P.y-6,s:WPN[w].n,c:WPN[w].c,l:50})}}
 function fire(){
   const w=P.wpn,y=P.y+(P.slide?5:9),x0=P.face>0?P.x+P.w+2:P.x-2;
@@ -95,7 +96,7 @@ function envCheck(){
   if(p.y>H*TS+20){die();return}
   if(p.inv===0)for(let ty=Math.floor((p.y+3)/TS);ty<=Math.floor((p.y+p.h-1)/TS);ty++)for(let tx=Math.floor((p.x+2)/TS);tx<=Math.floor((p.x+p.w-2)/TS);tx++)if(tile(tx,ty)==='^'){if(OPT.as){hurt(6);P.vy=-4.5;return}die();return}
   for(const c of CR)if(p.x+p.w>c.cx-12&&p.x<c.cx+12&&p.y<c.bot){hurt(6);break}
-  for(let i=ST.cps.length-1;i>cp;i--)if(p.x>ST.cps[i]*TS){cp=i;snd(660,.1,'triangle',990,.05);burst(ST.cps[i]*TS+8,13*TS,GOLD,12);break}
+  for(let i=ST.cps.length-1;i>cp;i--)if(p.x>ST.cps[i]*TS){cp=i;split(i-1);snd(660,.1,'triangle',990,.05);burst(ST.cps[i]*TS+8,13*TS,GOLD,12);break}
 }
 
 /* ---------- world: movers, crushers, wind ---------- */

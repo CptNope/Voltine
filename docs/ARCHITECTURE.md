@@ -5,7 +5,7 @@ How Voltline is put together, and how to extend it. Read this before changing an
 ## Principles
 
 - **No build step, no dependencies.** The repo is what ships. Opening `index.html` from disk must keep working.
-- **Classic scripts in one shared global scope.** The eleven files in `js/` are plain `<script src>` tags, not ES modules, because modules don't load from `file://`. A top-level `const`, `let` or `function` in one file is visible to every file loaded after it.
+- **Classic scripts in one shared global scope.** The twelve files in `js/` are plain `<script src>` tags, not ES modules, because modules don't load from `file://`. A top-level `const`, `let` or `function` in one file is visible to every file loaded after it.
 - **Everything is drawn and synthesized in code.** No images, sprite sheets or audio files. Shapes are canvas paths. Sounds and music are Web Audio oscillators and filtered noise.
 - **Fixed 60 Hz simulation.** Game logic runs in whole frames, so physics and timings behave the same on every machine.
 
@@ -23,9 +23,10 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 6 | `bosses.js` | `spawnBoss`, `hitBoss`, `updBoss`, one update function per boss, `winStage` | nothing |
 | 7 | `step.js` | `updShots`, `updParts`, `startStage`, `step()` | nothing |
 | 8 | `render.js` | every `draw*` function, `draw()`, `frame()` | nothing |
-| 9 | `editor.js` | `ED`, `TOOLS`, `CUSTOM` stage (index 5), editor input, level codes | loads the saved editor level, pushes `CUSTOM` onto `STAGES` |
+| 9 | `editor.js` | `ED`, `TOOLS`, `CUSTOM` stage (index 6), editor input, level codes | loads the saved editor level, pushes `CUSTOM` onto `STAGES` |
 | 10 | `route.js` | `routeStart`, `routeSlice`, `routeMsg`: the editor's route checker | nothing |
-| 11 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
+| 11 | `records.js` | `ACH`, `ach()`, `stat()`, `split()`, the Records screen, toasts, `exportProgress` / `importProgress` | fills in missing save fields, wires the progress-code buttons |
+| 12 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
 
 **Rules that keep this safe:**
 
@@ -64,6 +65,7 @@ frame(now)                                  render.js, driven by requestAnimatio
 | `opts` | settings (`OPT_ITEMS`, cursor `om`); returns to `optsFrom` | `title`, `select` or `pause` |
 | `dead` | 90-frame "Signal lost", then `resetRun(false)` at the checkpoint | `play` |
 | `got` | stage clear, weapon earned, ending or rush result | `select` or `edit` |
+| `records` | achievements and times pages (`recPage`) | `select` |
 | `edit` | level editor | `play` (playtest), `route`, `select` |
 | `route` | editor route check running in about 10 ms slices per frame; `step()` hands off to `routeSlice()` | `edit` |
 
@@ -173,6 +175,9 @@ See the storage table in the README. `save.cleared[WFROM[w]]` unlocks weapon `w`
 
 ### How the route check works
 `routeStart()` builds the custom stage with no enemies, then `routeSlice()` runs a beam search. It takes a frontier of saved states (`routeSnap()`: the player, `tick` and checkpoint), tries each input macro from `RMAC` with the real `step()`, and keeps new states that end up standing or climbing without taking damage. States are deduplicated by position, plus a time bucket when platforms or crushers make timing matter, and the furthest-right ones carry over to the next round. Sounds are muted with `silent` while it runs. `tools/ghost.js` is the same algorithm for Node, run against the built-in stages.
+
+### Add an achievement
+Add a row to `ACH` in `records.js` (`[id, name, description, skill]`; `skill` 1 means assist must be off). Call `ach('id')` where it's earned. It's safe to call repeatedly, and it does nothing while the route checker runs (`silent`). The Records page lays achievements out in two columns of eight, so a 17th needs a layout change.
 
 ### After any change
 - Bump `VERSION` in `sw.js` so installed copies update.
