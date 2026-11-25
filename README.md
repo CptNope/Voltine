@@ -6,7 +6,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 
 > **Play it:** **https://cptnope.github.io/Voltine/**, served by GitHub Pages from `main`. You can also open `index.html` straight from a download.
 
-![checks](https://github.com/CptNope/Voltine/actions/workflows/checks.yml/badge.svg)
+![checks](https://github.com/CptNope/Voltine/actions/workflows/checks.yml/badge.svg) ![license: MIT](https://img.shields.io/badge/license-MIT-5ef2c4)
 
 ---
 
@@ -25,6 +25,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 - [Development tools](#development-tools)
 - [Documentation](#documentation)
 - [Status](#status)
+- [License](#license)
 
 ---
 
@@ -255,7 +256,7 @@ Contribution workflow and conventions are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Documentation
 
-- [ROADMAP.md](ROADMAP.md): what's done, what's next, known issues and open decisions
+- [ROADMAP.md](ROADMAP.md): vision, milestones from 0.14 to 1.0 with done-when checks, the engineering track, decisions and known issues
 - [CHANGELOG.md](CHANGELOG.md): what changed in each version
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): engine design and how-to guides for extending it
 - [docs/LEVEL_CODES.md](docs/LEVEL_CODES.md): the shareable level format
@@ -265,4 +266,6 @@ Contribution workflow and conventions are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 All content is in place and covered by the automated checks above, but the game hasn't been play-tested by people yet. Difficulty, boss pacing and music volume are first-pass values. See [ROADMAP.md](ROADMAP.md) for what's planned and what's known to need work.
 
-The repository has no license yet, so all rights are reserved by default. See the open decisions in the roadmap.
+## License
+
+[MIT](LICENSE). You're free to use, copy, modify and share the code, including commercially, as long as the copyright and license notice stay with it.

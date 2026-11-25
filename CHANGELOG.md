@@ -4,6 +4,9 @@ Versions are informal milestones. Newest first.
 
 ## 0.13 — Records
 
+- **Licensed under MIT** (`LICENSE`).
+- **Roadmap rewritten:** vision and pillars, milestones 0.14 to 1.0 with sizes and done-when checks, an engineering track, a decision log and the 1.0 release checklist.
+
 - **Achievements:** 16, with a pop-up on unlock. Skill achievements need assist off.
 - **Checkpoint splits:** every checkpoint, the boss gate and the clear show how far ahead or behind your best run you are. A new best time saves its splits.
 - **Records screen** (a new bar under the stage cards): an achievements page and a times page with best times, Hard bests, Boss Rush bests, best-run splits and lifetime stats.

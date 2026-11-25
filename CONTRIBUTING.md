@@ -2,6 +2,10 @@
 
 Thanks for helping build Voltline. The project is small and has no tooling to install, so the main things to know are the rules that keep it that way.
 
+## License
+
+Voltline is [MIT licensed](LICENSE). By contributing, you agree that your contribution is released under the same license.
+
 ## Ground rules
 
 1. **No build step and no dependencies.** If a change needs `npm install` to run the game, it doesn't belong here.
@@ -22,7 +26,7 @@ Thanks for helping build Voltline. The project is small and has no tooling to in
    Both need to pass. If you changed a stage, `ghost.js` tells you how far its search got if a jump is now impossible.
 4. Play the part you changed yourself, on a keyboard and ideally on a phone. The tools prove things *work*, not that they *feel* right.
 5. Bump `VERSION` in `sw.js`.
-6. Add a line to [CHANGELOG.md](CHANGELOG.md), and move or add items in [ROADMAP.md](ROADMAP.md).
+6. Add a line to [CHANGELOG.md](CHANGELOG.md), and tick off or add items in [ROADMAP.md](ROADMAP.md). New items need a size (S/M/L) and a "done when" check.
 7. Commit with a message that says what changed and why.
 
 ## Code style
