@@ -2,7 +2,7 @@
 
 Where the game stands, what comes next, and what's known to need work. Items in each section are in priority order. When something ships, move it to **Done** and add a line to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.10** (see the changelog). Everything listed under Done is covered by `tools/smoke.js` and `tools/ghost.js`, but **none of it has been play-tested by people yet**. That's the biggest gap, and it's why the first item under Now is a playtest pass rather than a feature.
+**Current version: 0.11** (see the changelog). Everything listed under Done is covered by `tools/smoke.js` and `tools/ghost.js`, but **none of it has been play-tested by people yet**. That's the biggest gap, and it's why the first item under Now is a playtest pass rather than a feature.
 
 ---
 
@@ -31,9 +31,8 @@ These need an owner's call before related work can go ahead.
 ## Next
 
 - **Remappable keys** in Settings, including gamepad buttons.
+- **Route check on share:** run the route check automatically before copying a level code, and mark codes that passed.
 - **High-contrast palette** option for low-vision players.
-- **Run the route checker on custom levels:** a "Check route" button in the editor that runs the same search and tells you whether your level can be finished.
-- **More enemy types,** at least one new one per sector (a shielded walker for Prism, a hopping spark for Foundry, a diving gull for Sky).
 - **Best-time splits:** show checkpoint split times against your best run.
 
 ## Later
@@ -69,6 +68,7 @@ Unscheduled. Promote to Next or Later when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.11 | Shield walker, spark hopper and gull enemies; in-editor route check |
 | 0.10 | Pause menu, settings (volumes, shake, reduced flashing, toggle charge, assist), stage intro cards, Gale Kite rebalance |
 | 0.9 | Route checker and smoke tests in `tools/`; fixed four impossible or near-impossible jumps it found; full documentation |
 | 0.8 | Code split into ten ordered script files; visual fixes from real-browser screenshots (background contrast, phone layout, select portraits) |

@@ -2,6 +2,17 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.11 — New enemies and in-editor route check
+
+- Three new enemies:
+  - **Shield walker** (Prism Grid, Null Core): blocks shots from the front, and drops its shield while firing.
+  - **Spark hopper** (Coil Foundry, Null Core): leaps at you in arcs.
+  - **Gull** (Sky Relay, Null Core): swoops down in a curve aimed at you.
+- All three are in the level editor (18 tools) and allowed in level codes (`s`, `h`, `g`).
+- **Check route** in the editor (R, or the button): runs the route search in the browser in 10 ms slices, then reports success or moves the cursor to where the route breaks.
+- The editor's starter level had a 3-tile spike strip that the new check flagged; it's now 2 tiles.
+- Smoke tests: 37 checks.
+
 ## 0.10 — Pause menu, settings, intro cards
 
 - Pause menu: Resume, Weapon, Restart from checkpoint, Settings, Quit to stage select (Back to editor in custom levels).

@@ -11,8 +11,9 @@ function updShots(){
     if(B&&B.kind==='null'&&B.st==='p1'){for(const o of B.sh){if(o.hp<=0)continue;const q=orbPos(B,o);if(Math.hypot(q.x-s.x,q.y-s.y)<s.r+6){s.dead=1;o.hp-=s.dmg;o.fl=6;
       if(o.hp<=0){burst(q.x,q.y,CORAL,12);snd(150,.25,'sawtooth',50,.05)}else snd(1400,.04,'square',900,.02);break}}if(s.dead)continue}
     const r={x:s.x-s.r,y:s.y-s.r,w:s.r*2,h:s.r*2};
-    for(const e of E){if(e.dead||!hit(r,e))continue;if(s.pierce&&e.flash>0)continue;e.hp-=s.dmg;e.flash=8;if(!s.pierce)s.dead=1;
-      if(e.hp<=0){e.dead=1;burst(e.x+7,e.y+7,e.type==='w'?GOLD:e.type==='f'?PINK:CORAL,14);snd(150,.2,'sawtooth',50,.05);const r=Math.random();if(r<.3)PU.push({x:e.x+3,y:e.y,w:8,h:8,v:3,t:0,vy:-2,drop:1,en:r<.12})}
+    for(const e of E){if(e.dead||!hit(r,e))continue;if(s.pierce&&e.flash>0)continue;
+      if(e.type==='s'&&!e.open&&s.k!=='B'&&Math.sign(s.vx)===-e.dir&&Math.abs(s.vy)<2.5){if(!s.pierce){s.dead=1;burst(s.x,s.y,SKY,3,1);snd(1800,.04,'square',1200,.02)}break}e.hp-=s.dmg;e.flash=8;if(!s.pierce)s.dead=1;
+      if(e.hp<=0){e.dead=1;burst(e.x+7,e.y+7,{w:GOLD,f:PINK,s:GOLD,h:ORG,g:'#e6efff'}[e.type]||CORAL,14);snd(150,.2,'sawtooth',50,.05);const r=Math.random();if(r<.3)PU.push({x:e.x+3,y:e.y,w:8,h:8,v:3,t:0,vy:-2,drop:1,en:r<.12})}
       else snd(600,.04,'square',400,.02);if(s.dead)break}
     if(!s.dead&&B&&B.st!=='drop'&&B.st!=='intro'&&B.st!=='boom'&&B.st!=='break'&&hit(r,B)){if(!s.pierce)s.dead=1;hitBoss(s)}
     if(s.k==='B'&&tick%2===0)PT.push({x:s.x,y:s.y,vx:-s.vx*.1,vy:0,l:10,c:MINT});
@@ -40,6 +41,7 @@ function optChange(k,d){if(k==='mv'||k==='sv')OPT[k]=Math.max(0,Math.min(10,OPT[
 function optLabel(k){const v=OPT[k];return k==='mv'||k==='sv'?'■'.repeat(v)+'□'.repeat(10-v):k==='shake'?(v?'On':'Off'):k==='rf'?(v?'Reduced':'Full'):k==='tc'?(v?'Tap to toggle':'Hold'):k==='as'?['Off','Half damage','Invincible'][v]:''}
 function startStage(i){S=i;rushIdx=0;rushWait=0;resetRun(true);state='play';introT=200;snd(440,.1,'square',880,.04)}
 function step(){
+  if(state==='route'){routeSlice();return}
   tick++;pollPad();if(pr('music'))togM();if(pr('sfx'))togS();
   if(state==='title'){if(pr('opts'))openOpts('title');if(pr('left')||pr('right')){hard=!hard;saveOpts();snd(600,.05,'square',0,.03)}if(pr('start')||pr('jump')){state='select';snd(440,.1,'square',880,.04)}camX=(tick*.4)%2000}
   else if(state==='select'){camX=(tick*.4)%2000;
@@ -78,14 +80,15 @@ function step(){
     const k=TOOLS[edc.tool][0],tileT=' #^H><'.includes(k);
     if(tileT?K.jump:pr('jump')){edCell(edc.x,edc.y,edc.tool);edRefresh()}
     if(K.fire){edCell(edc.x,edc.y,TOOLS.length-1);edRefresh()}
-    if(pr('start'))edTest();else if(pr('back')){saveED();state='select';sel=5}
+    if(routeMsg&&routeMsg.t>0)routeMsg.t--;
+    if(pr('route'))routeStart();else if(pr('start'))edTest();else if(pr('back')){saveED();state='select';sel=5}
     if(edc.dirty&&tick%60===0){edc.dirty=0;saveED()}
     const t=Math.max(0,Math.min(W*TS-VW,edc.x*TS+8-VW/2));camX+=(t-camX)*.25}
   else if(state==='got'){gotT++;if(gotT>60&&(pr('start')||pr('jump'))){if(ST.custom){enterEditor();return}state='select';if(ST.rush)sel=4;else{sel=save.cleared.indexOf(0);if(sel<0||(sel===3&&!coreOpen()))sel=0}}}
   if(state==='play'||state==='dead'||state==='pause'){const t=arena?ARENA*TS:Math.max(0,Math.min(W*TS-VW,P.x+P.w/2-VW/2+P.face*24));camX+=(t-camX)*(arena?.08:.18)}
   if(introT>0&&state==='play')introT--;if(!OPT.shake)shake=0;
   updParts();if(shake>0)shake*=.85;if(shake<.3)shake=0;
-  setTrack(state==='title'||state==='select'||state==='edit'||(state==='opts'&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===3?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:ST.key):null);
+  if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||(state==='opts'&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===3?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:ST.key):null);
   const ev=state==='edit';if(edp.hidden===ev)edp.hidden=!ev;
   Object.assign(prev,K);
 }

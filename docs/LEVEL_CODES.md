@@ -15,7 +15,7 @@ The `VL1.` prefix is the format version. The decoder also accepts the bare base6
 | `b` | string | boss: `warden`, `hound`, `kite` or `null` |
 | `t` | integer 0–3 | theme: 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay (adds wind), 3 Null Core. This sets colours and music. |
 | `r` | array of 17 strings | the tile rows, top to bottom, run-length encoded (below) |
-| `s` | array of `[type, x, y]` | entities. `type` is `w` walker, `f` flyer, `t` turret, `p` health, `e` energy |
+| `s` | array of `[type, x, y]` | entities. `type` is `w` walker, `s` shield walker, `h` spark hopper, `f` flyer, `g` gull, `t` turret, `p` health, `e` energy |
 | `v` | array of `[x, y, vertical]` | moving platforms. `vertical` 0 moves sideways (±40 px over 180 frames), 1 moves up and down (±28 px over 150 frames) |
 | `c` | array of `x` | crusher columns |
 | `k` | array of `x` | checkpoint columns (up to 3; the start is always column 2) |

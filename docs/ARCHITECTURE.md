@@ -5,7 +5,7 @@ How Voltline is put together, and how to extend it. Read this before changing an
 ## Principles
 
 - **No build step, no dependencies.** The repo is what ships. Opening `index.html` from disk must keep working.
-- **Classic scripts in one shared global scope.** The ten files in `js/` are plain `<script src>` tags, not ES modules, because modules don't load from `file://`. A top-level `const`, `let` or `function` in one file is visible to every file loaded after it.
+- **Classic scripts in one shared global scope.** The eleven files in `js/` are plain `<script src>` tags, not ES modules, because modules don't load from `file://`. A top-level `const`, `let` or `function` in one file is visible to every file loaded after it.
 - **Everything is drawn and synthesized in code.** No images, sprite sheets or audio files. Shapes are canvas paths. Sounds and music are Web Audio oscillators and filtered noise.
 - **Fixed 60 Hz simulation.** Game logic runs in whole frames, so physics and timings behave the same on every machine.
 
@@ -24,7 +24,8 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 7 | `step.js` | `updShots`, `updParts`, `startStage`, `step()` | nothing |
 | 8 | `render.js` | every `draw*` function, `draw()`, `frame()` | nothing |
 | 9 | `editor.js` | `ED`, `TOOLS`, `CUSTOM` stage (index 5), editor input, level codes | loads the saved editor level, pushes `CUSTOM` onto `STAGES` |
-| 10 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
+| 10 | `route.js` | `routeStart`, `routeSlice`, `routeMsg`: the editor's route checker | nothing |
+| 11 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
 
 **Rules that keep this safe:**
 
@@ -63,7 +64,8 @@ frame(now)                                  render.js, driven by requestAnimatio
 | `opts` | settings (`OPT_ITEMS`, cursor `om`); returns to `optsFrom` | `title`, `select` or `pause` |
 | `dead` | 90-frame "Signal lost", then `resetRun(false)` at the checkpoint | `play` |
 | `got` | stage clear, weapon earned, ending or rush result | `select` or `edit` |
-| `edit` | level editor | `play` (playtest), `select` |
+| `edit` | level editor | `play` (playtest), `route`, `select` |
+| `route` | editor route check running in about 10 ms slices per frame; `step()` hands off to `routeSlice()` | `edit` |
 
 ## World and physics
 
@@ -110,7 +112,7 @@ All entities are plain objects in arrays, updated and drawn every frame:
 | Array | Contents | Updated in |
 |---|---|---|
 | `P` | the player | `entities.js` `updPlayer` |
-| `E` | walkers, flyers, turrets; only updated when within about 40 px of the screen | `entities.js` `updEnemies` |
+| `E` | enemies, by `type`: `w` walker, `s` shield walker (`open` while firing), `h` spark hopper, `f` flyer, `g` gull (`mode` 1 while swooping), `t` turret. Only updated when within about 40 px of the screen. | `entities.js` `updEnemies` |
 | `PB` | player shots. `k` = `b` buster, `B` charged, `p` prism, `a` arc, `o` gust orb. `w` = weapon index for weakness checks | `step.js` `updShots` |
 | `EB` | enemy and boss bullets (`sp` = ground spark) | `step.js` |
 | `PU` | pickups (`en` = energy) | `step.js` |
@@ -164,6 +166,9 @@ See the storage table in the README. `save.cleared[i]` unlocks weapon `i + 1`. `
 1. Add an entry to `WPN` (`core.js`): name, short label, colour, cost, description.
 2. Handle firing in `fire()` (`entities.js`), movement and collision in `updShots` (`step.js`), and drawing in `drawShots` (`render.js`). Set `w` on the shot so weaknesses work.
 3. Decide how it unlocks. `unlocked(w)` currently maps weapon `w` to `save.cleared[w − 1]`.
+
+### How the route check works
+`routeStart()` builds the custom stage with no enemies, then `routeSlice()` runs a beam search. It takes a frontier of saved states (`routeSnap()`: the player, `tick` and checkpoint), tries each input macro from `RMAC` with the real `step()`, and keeps new states that end up standing or climbing without taking damage. States are deduplicated by position, plus a time bucket when platforms or crushers make timing matter, and the furthest-right ones carry over to the next round. Sounds are muted with `silent` while it runs. `tools/ghost.js` is the same algorithm for Node, run against the built-in stages.
 
 ### After any change
 - Bump `VERSION` in `sw.js` so installed copies update.

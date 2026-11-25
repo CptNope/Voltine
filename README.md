@@ -30,7 +30,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 
 ## Features
 
-- **Four stages** with their own hazards: spike pits, ladders, slide tunnels, conveyor belts, ceiling crushers, lava, moving platforms, lifts and headwind gusts.
+- **Four stages** with their own hazards and enemies: spike pits, ladders, slide tunnels, conveyor belts, ceiling crushers, lava, moving platforms, lifts and headwind gusts.
 - **Four bosses**, each with its own attack patterns and a harder second stage once it drops below half health. The final boss has two distinct phases.
 - **Weapon system:** a chargeable blaster plus three weapons earned from bosses, each with its own energy bar.
 - **A weakness cycle:** each warden takes extra damage from another warden's weapon.
@@ -83,6 +83,17 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 | **Sky Relay** | moving platforms, lifts, regular headwind gusts | **Gale Kite** | flies in loops dropping darts, dives at you, blows wind to push you around |
 | **Null Core** (final) | all of the above, combined | **Null Engine** | Phase 1: a tethered core behind four shield orbs that block shots, with aimed fire, lightning and flying minions. Phase 2: the shields break, the core floats free and borrows every other boss's attacks. |
 
+## Enemies
+
+| Enemy | Found in | Behaviour | Tip |
+|---|---|---|---|
+| Walker | everywhere | patrols and turns at ledges | anything works |
+| Flyer | everywhere | drifts toward you in a wave | shoot it as it lines up |
+| Turret | everywhere | aims and fires every couple of seconds (faster on Hard) | the barrel glows just before it fires |
+| **Shield walker** | Prism Grid, Null Core | turns to face you behind a shield that blocks shots; stops every few seconds to fire, which drops the shield | hit it while it fires, from behind, with a charged shot, or with an Arc Bolt from above |
+| **Spark hopper** | Coil Foundry, Null Core | waits, then bounds at you in big arcs | shoot it mid-air or step under the jump |
+| **Gull** | Sky Relay, Null Core | hovers high and swoops down at you in a curve, then climbs back | wait for the swoop and shoot as it comes down |
+
 ## Weapons and weaknesses
 
 | Weapon | From | Cost | What it does | Extra damage against |
@@ -120,7 +131,7 @@ Each stage opens with a short card showing its name and a hint about its main ha
 Pick **Level Editor** from the bar under the stage cards.
 
 - **Canvas:** 100 columns × 17 rows. A safe start platform sits on the left and a boss arena is added after column 100 automatically.
-- **Tools:** block, spikes, ladder, belt → and belt ←, walker, flyer, turret, health, energy, platform (moves sideways), lift (moves up and down), crusher, checkpoint (up to three), erase.
+- **Tools:** block, spikes, ladder, belt → and belt ←, walker, shield walker, spark hopper, flyer, gull, turret, health, energy, platform (moves sideways), lift (moves up and down), crusher, checkpoint (up to three), erase.
 - **Boss and theme:** chosen with the buttons under the game. The theme sets the colours and music, and the Sky theme adds wind.
 
 | Editor action | Keyboard | Mouse / touch |
@@ -130,9 +141,12 @@ Pick **Level Editor** from the bar under the stage cards.
 | Erase | X | Erase tool |
 | Change tool | Q / E | click the tool bar |
 | Scroll | move the cursor | ◀ ▶ at the screen edges |
+| Check route | R | Check route button |
 | Playtest | Enter | Playtest button |
 | Back to the editor from a playtest | Enter | START |
 | Leave | Esc | Exit editor button |
+
+**Check route** runs the same search as `tools/ghost.js` inside the browser, ignoring enemies. It either confirms the level can be finished or moves the cursor to where the search got stuck. It usually takes a few seconds, and Esc cancels.
 
 Your level saves in the browser as you work. **Copy code** produces a short text code, usually a few hundred characters. Paste someone else's code into the box and press **Load pasted code** to play it. Codes are checked when loaded, and anything malformed is rejected or cleaned up. The format is documented in [docs/LEVEL_CODES.md](docs/LEVEL_CODES.md).
 
@@ -174,6 +188,7 @@ js/bosses.js            the four bosses and stage-clear handling
 js/step.js              projectiles, pickups, particles and the per-frame step
 js/render.js            all drawing: backgrounds, tiles, sprites, HUD, menus
 js/editor.js            level editor and level codes
+js/route.js             in-browser route checker for the editor
 js/main.js              starts the loop, registers the service worker
 tools/harness.js        loads the game headless in Node for testing
 tools/smoke.js          smoke tests for menus, bosses, modes, editor and music

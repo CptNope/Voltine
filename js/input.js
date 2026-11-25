@@ -2,7 +2,7 @@
 // Classic script (no modules) so the game also runs from file://. Load order is set in index.html.
 /* ---------- input ---------- */
 const K={},prev={};
-const KM={ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right',ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',z:'jump',Z:'jump',k:'jump',K:'jump',' ':'jump',x:'fire',X:'fire',j:'fire',J:'fire',Enter:'start',p:'start',P:'start',Escape:'back',Backspace:'back',q:'prev',Q:'prev',e:'next',E:'next',c:'next',C:'next',m:'music',M:'music',n:'sfx',N:'sfx',o:'opts',O:'opts'};
+const KM={ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right',ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',z:'jump',Z:'jump',k:'jump',K:'jump',' ':'jump',x:'fire',X:'fire',j:'fire',J:'fire',Enter:'start',p:'start',P:'start',Escape:'back',Backspace:'back',q:'prev',Q:'prev',e:'next',E:'next',c:'next',C:'next',m:'music',M:'music',n:'sfx',N:'sfx',o:'opts',O:'opts',r:'route',R:'route'};
 addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='TEXTAREA'||tg==='INPUT')return;const k=KM[e.key];if(k&&!(tg==='BUTTON'&&(e.key===' '||e.key==='Enter'))){K[k]=true;e.preventDefault();audio()}});
 addEventListener('keyup',e=>{const k=KM[e.key];if(k)K[k]=false});
 addEventListener('blur',()=>{for(const k in K)K[k]=false});

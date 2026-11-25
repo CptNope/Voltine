@@ -1,11 +1,11 @@
 // Voltline · audio.js · Sound effects, the synthesized soundtrack and gamepad polling.
 // Classic script (no modules) so the game also runs from file://. Load order is set in index.html.
 /* ---------- audio ---------- */
-let ac=null;
+let ac=null,silent=false;
 let mg=null,nbuf=null;
 function audio(){if(ac){if(ac.state==='suspended')ac.resume();return}try{ac=new (window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();mg.gain.value=.8;mg.connect(ac.destination)}catch(e){ac=null}}
 function snd(f,d,type='square',f2=0,vol=.04){
-  if(!ac||!sfxOn)return;try{const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);
+  if(!ac||!sfxOn||silent)return;try{const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);
   if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(Math.max(.0002,vol*OPT.sv/8),t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
   o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}
 }

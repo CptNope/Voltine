@@ -3,10 +3,10 @@
 /* ---------- level editor ---------- */
 const EW=100,THN=['Prism Grid','Coil Foundry','Sky Relay','Null Core'];
 const TOOLS=[['#','BL','Block',MINT],['^','SP','Spikes',CORAL],['H','LD','Ladder',GOLD],['>','B>','Belt right',GOLD],['<','B<','Belt left',GOLD],
- ['w','WK','Walker',GOLD],['f','FL','Flyer',PINK],['t','TU','Turret',CORAL],['p','HP','Health',MINT],['e','EN','Energy',GOLD],
+ ['w','WK','Walker',GOLD],['s','SH','Shield walker',SKY],['h','HO','Spark hopper',ORG],['f','FL','Flyer',PINK],['g','GU','Gull','#e6efff'],['t','TU','Turret',CORAL],['p','HP','Health',MINT],['e','EN','Energy',GOLD],
  ['m','PL','Platform',SKY],['l','LF','Lift',SKY],['c','CR','Crusher',ORG],['k','CP','Checkpoint',GOLD],[' ','ER','Erase','#b7a3d6']];
 function blankED(){const m=[];for(let y=0;y<H;y++)m.push(new Array(EW).fill(' '));for(let x=0;x<EW;x++){m[15][x]='#';m[16][x]='#'}
-  for(const x of[40,41,42]){m[15][x]=' ';m[16][x]=' '}for(let x=20;x<=22;x++){m[13][x]='#';m[14][x]='#'}for(let x=60;x<=62;x++)m[14][x]='^';
+  for(const x of[40,41,42]){m[15][x]=' ';m[16][x]=' '}for(let x=20;x<=22;x++){m[13][x]='#';m[14][x]='#'}for(let x=60;x<=61;x++)m[14][x]='^';
   return {b:'warden',th:0,m,sp:[['w',30,14],['t',21,12],['f',50,9],['p',70,14]],mv:[[40,12,0]],cr:[],cps:[55]}}
 let ED=blankED();
 try{const o=JSON.parse(localStorage.getItem('voltline-edit')||'null');const d=o&&validLevel(o);if(d)ED=d}catch(e){}
@@ -14,7 +14,7 @@ function validLevel(o){
   if(!o||!Array.isArray(o.m)||o.m.length!==H||!RUSH.includes(o.b)||!(o.th>=0&&o.th<=3))return null;
   const m=o.m.map(r=>Array.isArray(r)?r:String(r).split(''));if(m.some(r=>r.length!==EW||r.some(c=>!' #^H><'.includes(c))))return null;
   const inX=x=>Number.isInteger(x)&&x>=0&&x<EW,inY=y=>Number.isInteger(y)&&y>=0&&y<H;
-  const sp=(o.sp||[]).filter(a=>Array.isArray(a)&&'wftpe'.includes(a[0])&&String(a[0]).length===1&&inX(a[1])&&inY(a[2])).slice(0,120).map(a=>[a[0],a[1],a[2]]);
+  const sp=(o.sp||[]).filter(a=>Array.isArray(a)&&'wftpeshg'.includes(a[0])&&String(a[0]).length===1&&inX(a[1])&&inY(a[2])).slice(0,120).map(a=>[a[0],a[1],a[2]]);
   const mv=(o.mv||[]).filter(a=>Array.isArray(a)&&inX(a[0])&&inY(a[1])).slice(0,30).map(a=>[a[0],a[1],a[2]?1:0]);
   const cr=(o.cr||[]).filter(inX).slice(0,20),cps=(o.cps||[]).filter(inX).slice(0,3);
   return {b:o.b,th:o.th,m,sp,mv,cr,cps};
@@ -37,7 +37,7 @@ function edCell(x,y,tool){
   const k=TOOLS[tool][0];
   const clearEnt=()=>{ED.sp=ED.sp.filter(a=>!(a[1]===x&&a[2]===y));ED.mv=ED.mv.filter(a=>!(a[0]===x&&a[1]===y));};
   if(' #^H><'.includes(k)){if(k===' '){clearEnt();ED.cr=ED.cr.filter(c=>c!==x);ED.cps=ED.cps.filter(c=>c!==x)}if(ED.m[y][x]===k&&k!==' ')return;ED.m[y][x]=k}
-  else if('wftpe'.includes(k)){clearEnt();ED.sp.push([k,x,y])}
+  else if('wftpeshg'.includes(k)){clearEnt();ED.sp.push([k,x,y])}
   else if(k==='m'||k==='l'){clearEnt();ED.mv.push([x,y,k==='l'?1:0])}
   else if(k==='c'){ED.cr=ED.cr.includes(x)?ED.cr.filter(c=>c!==x):[...ED.cr,x]}
   else if(k==='k'){ED.cps=ED.cps.includes(x)?ED.cps.filter(c=>c!==x):[...ED.cps,x].slice(-3)}
@@ -50,6 +50,7 @@ const edSay=t=>{edMsg.textContent=t;clearTimeout(edSay.t);edSay.t=setTimeout(()=
 document.getElementById('edBoss').addEventListener('click',()=>{ED.b=RUSH[(RUSH.indexOf(ED.b)+1)%4];edc.dirty=1;edUI();edRefresh()});
 document.getElementById('edTheme').addEventListener('click',()=>{ED.th=(ED.th+1)%4;edc.dirty=1;edUI();edRefresh()});
 document.getElementById('edTest').addEventListener('click',()=>{audio();edTest()});
+document.getElementById('edRoute').addEventListener('click',()=>{if(state==='edit'){routeStart();scr.focus()}});
 document.getElementById('edExit').addEventListener('click',()=>{saveED();state='select';sel=5;scr.focus()});
 let clrArm=0;document.getElementById('edClear').addEventListener('click',e=>{const b=e.currentTarget;if(!clrArm){clrArm=1;b.textContent='Click again to clear';setTimeout(()=>{clrArm=0;b.textContent='Clear level'},3000);return}
   clrArm=0;b.textContent='Clear level';const m=[];for(let y=0;y<H;y++)m.push(new Array(EW).fill(' '));for(let x=0;x<EW;x++){m[15][x]='#';m[16][x]='#'}ED={b:ED.b,th:ED.th,m,sp:[],mv:[],cr:[],cps:[]};edc.dirty=1;edRefresh();edSay('Level cleared.')});
@@ -61,7 +62,7 @@ function edTest(){saveED();rushIdx=0;rushWait=0;S=ED_I;resetRun(true);state='pla
 function enterEditor(){state='edit';edRefresh();camX=Math.max(0,Math.min(W*TS-VW,edc.x*TS-VW/2));edUI();scr.focus()}
 function edPointer(e,down){
   const r=scr.getBoundingClientRect(),sx=(e.clientX-r.left)/r.width*VW,sy=(e.clientY-r.top)/r.height*VH;
-  if(down&&sy<22){const i=Math.floor((sx-4)/31);if(i>=0&&i<TOOLS.length){edc.tool=i;snd(600,.04,'square',0,.03)}return}
+  if(down&&sy<22){const i=Math.floor((sx-3)/26);if(i>=0&&i<TOOLS.length){edc.tool=i;snd(600,.04,'square',0,.03)}return}
   if(down&&sy>110&&sy<170&&(sx<22||sx>VW-22)){edc.x=Math.max(0,Math.min(W-1,edc.x+(sx<22?-12:12)));return}
   if(sy<22||sy>VH-16)return;
   const tx=Math.floor((sx+camX)/TS),ty=Math.floor(sy/TS);edc.x=Math.max(0,Math.min(W-1,tx));edc.y=Math.max(0,Math.min(H-1,ty));

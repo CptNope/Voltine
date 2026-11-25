@@ -7,7 +7,7 @@ function spawnAll(){
   E=[];PU=[];
   for(const [t,x,y] of ST.spawns){
     if(t==='p'||t==='e'){PU.push({x:x*TS+3,y:(y+1)*TS-10,w:10,h:10,v:8,t:0,en:t==='e'});continue}
-    const e={type:t,x:x*TS,y:0,w:t==='t'?16:14,h:14,vx:0,vy:0,dir:-1,t:Math.floor(Math.random()*60),hp:(t==='w'?3:t==='f'?2:4)+(hard?1:0),flash:0,onG:false};
+    const e={type:t,x:x*TS,y:0,w:t==='t'?16:14,h:14,vx:0,vy:0,dir:-1,t:Math.floor(Math.random()*60),hp:({w:3,f:2,t:4,s:3,h:2,g:2}[t]||2)+(hard?1:0),flash:0,onG:false,cd:30+Math.floor(Math.random()*40)};
     e.y=(y+1)*TS-e.h;e.y0=e.y;E.push(e);
   }
 }
@@ -115,6 +115,21 @@ function updEnemies(){
     }else if(e.type==='f'){
       if(Math.abs(px-e.x)<150){e.x+=Math.sign(px-e.x-7)*.7;e.y0+=Math.sign(py-8-e.y0)*.25}
       e.y=e.y0+Math.sin(e.t*.07)*12;
+    }else if(e.type==='s'){ // shield walker: faces you, shield up; stops to fire, which opens the shield
+      const ph=e.t%150;e.open=ph>=110;
+      if(Math.abs(px-e.x-7)<170)e.dir=px<e.x+7?-1:1;
+      e.vx=e.open?0:e.dir*.45;e.vy=Math.min(e.vy+G,6);if(moveX(e))e.dir*=-1;moveY(e,false);
+      if(e.onG&&!e.open){const ax=Math.floor((e.dir>0?e.x+e.w+1:e.x-1)/TS);if(!solid(ax,Math.floor((e.y+e.h+2)/TS))){e.x-=e.vx;}}
+      if(ph===125&&Math.abs(px-e.x)<220){EB.push({x:e.x+7+e.dir*8,y:e.y+7,vx:e.dir*2.4,vy:0,r:3});snd(300,.08,'square',200,.025)}
+      if(e.y>H*TS)e.dead=1;
+    }else if(e.type==='h'){ // spark hopper: waits, then bounds toward you
+      e.vy=Math.min(e.vy+G,6);
+      if(e.onG){e.vx=0;if(--e.cd<=0&&Math.abs(px-e.x)<200){e.vy=-4.6;e.vx=Math.sign(px-e.x-7)*1.5;e.cd=45+Math.floor(Math.random()*30);snd(500,.06,'triangle',800,.02)}}
+      if(moveX(e))e.vx*=-1;const was=e.onG;moveY(e,false);if(e.onG&&!was)burst(e.x+7,e.y+14,ORG,3,1);
+      if(e.y>H*TS)e.dead=1;
+    }else if(e.type==='g'){ // gull: hovers high, swoops down at you in an arc, climbs back
+      if(!e.mode){e.x+=Math.sin(e.t*.03)*.6;e.y=e.y0+Math.sin(e.t*.08)*4;if(--e.cd<=0&&Math.abs(px-e.x-7)<110&&py>e.y+24){e.mode=1;e.vy=Math.max(2,Math.sqrt(.26*Math.max(0,py-e.y-6)));e.vx=Math.max(-3.5,Math.min(3.5,(px-e.x-7)/(e.vy/.13)));snd(900,.15,'sawtooth',400,.02)}}
+      else{e.x+=e.vx;e.y+=e.vy;e.vy-=.13;if(e.vy<0&&e.y<=e.y0){e.y=e.y0;e.mode=0;e.cd=90}}
     }else{
       e.aim=Math.atan2(py-(e.y+4),px-(e.x+8));
       if(e.t%(hard?80:110)===0&&Math.hypot(px-e.x,py-e.y)<230){EB.push({x:e.x+8+Math.cos(e.aim)*9,y:e.y+4+Math.sin(e.aim)*9,vx:Math.cos(e.aim)*2,vy:Math.sin(e.aim)*2,r:3});snd(300,.08,'square',200,.025)}

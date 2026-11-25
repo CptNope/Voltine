@@ -116,5 +116,31 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [3, 'null']])
   check('toggle charge: tap starts charging, tap again releases a charged shot', G.get('PB').some(b => b.k === 'B'), `${n0} shots before`);
 }
 
+{ // new enemy types
+  const G = load({ seed: 16 });
+  G.call('startStage', 0); G.step(10, {}); G.set('E', []);
+  const P = G.get('P'); P.x = 20 * 16; P.y = 14 * 16 - 22; P.inv = 9999; G.step(5, {});
+  const mk = (type, x, y) => { const e = { type, x: x * 16, y: (y + 1) * 16 - 14, w: 14, h: 14, vx: 0, vy: 0, dir: -1, t: 0, hp: 3, flash: 0, onG: false, cd: 1 }; e.y0 = e.y; G.get('E').push(e); return e; };
+  const sh = mk('s', 26, 14); G.step(10, {});
+  G.get('PB').push({ k: 'b', w: 0, x: sh.x - 10, y: sh.y + 7, vx: 5, vy: 0, r: 2.5, dmg: 1 }); G.step(6, {});
+  check('shield walker blocks shots from the front', sh.hp === 3 && sh.dir === -1);
+  sh.t = 115; G.step(1, {}); G.get('PB').push({ k: 'b', w: 0, x: sh.x - 10, y: sh.y + 7, vx: 5, vy: 0, r: 2.5, dmg: 1 }); G.step(6, {});
+  check('shield walker can be hit while it fires', sh.hp < 3);
+  const ho = mk('h', 30, 14); G.step(3, {}); const y0 = ho.y; let minY = y0; for (let i = 0; i < 40; i++) { G.step(1, {}); minY = Math.min(minY, ho.y); }
+  check('spark hopper jumps toward the player', minY < y0 - 20 && ho.x < 30 * 16);
+  const gu = mk('g', 22, 6); let maxY = gu.y; for (let i = 0; i < 80; i++) { G.step(1, {}); maxY = Math.max(maxY, gu.y); }
+  check('gull swoops down toward the player', maxY > 9 * 16);
+}
+
+{ // in-editor route check
+  const G = load({ seed: 17 });
+  G.call('enterEditor'); G.step(2, {});
+  G.call('routeStart'); for (let i = 0; i < 5 && G.get('state') === 'route'; i++) G.step(1);
+  check('route check passes the starter level', G.get('state') === 'edit' && G.get('routeMsg').ok === 1);
+  const ED = G.get('ED'); for (let y = 8; y < 15; y++) ED.m[y][50] = '#';
+  G.call('routeStart'); for (let i = 0; i < 5 && G.get('state') === 'route'; i++) G.step(1);
+  check('route check reports where a level is blocked', G.get('routeMsg').ok === 0 && Math.abs(G.get('edc').x - 50) <= 2, 'cursor ' + G.get('edc').x);
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);
