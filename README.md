@@ -97,6 +97,19 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 | **Phase Lab** | pink and blue blocks that swap between solid and empty every 1.5 seconds, blink drones, phase mines | **Mirror** | mirrors your position across the arena, copies your current weapon, and raises a shield that only its weakness gets through |
 | **Null Core** (final) | all of the above, combined | **Null Engine** | Phase 1: a tethered core behind four shield orbs that block shots, with aimed fire, lightning and flying minions. Phase 2: the shields break, the core floats free and borrows every other boss's attacks. |
 
+### Mid-bosses
+
+Each warden sector has a mid-boss in a walled-off section just after its middle checkpoint. The walls stay up and the camera locks until it's beaten. If you die during the fight, you restart at that checkpoint. Once it's beaten, it stays beaten for the rest of that attempt at the sector. The Null Core has none; it's a gauntlet already.
+
+| Sector | Mid-boss | What it does |
+|---|---|---|
+| Prism Grid | **Prism Sentry** | weaves through the air firing aimed fans, then a ring of shots |
+| Coil Foundry | **Drop Press** | tracks you along the ceiling, slams down and throws sparks both ways along the floor. The stage's crushers park during the fight. |
+| Sky Relay | **Drone Carrier** | sweeps overhead, dips low, launches flyers (three at most) and drops bombs |
+| Tide Vault | **Giant Clam** | stays shut (shots bounce off), then opens to spit drifting bubbles. Only hurt while open. |
+| Orbit Deck | **Meteor Head** | bounces around the arena, stopping to burst rocks in eight directions |
+| Phase Lab | **Phase Core** | rises behind a shield and fires rings on the blue beat; sinks to shooting height and can be hurt on the pink beat |
+
 ## Enemies
 
 | Enemy | Found in | Behaviour | Tip |

@@ -16,6 +16,7 @@ function updShots(){
       if(e.type==='s'&&!e.open&&s.k!=='B'&&Math.sign(s.vx)===-e.dir&&Math.abs(s.vy)<2.5){if(!s.pierce){s.dead=1;burst(s.x,s.y,SKY,3,1);snd(1800,.04,'square',1200,.02)}break}e.hp-=s.dmg;e.flash=8;if(!s.pierce)s.dead=1;
       if(e.hp<=0){e.dead=1;stat('kills');if(s.k==='B')ach('charged');if(e.type==='s')ach('shield');if(e.type==='j')ach('jelly');burst(e.x+7,e.y+7,{w:GOLD,f:PINK,s:GOLD,h:ORG,g:'#e6efff'}[e.type]||CORAL,14);snd(150,.2,'sawtooth',50,.05);const r=Math.random();if(r<.3)PU.push({x:e.x+3,y:e.y,w:8,h:8,v:3,t:0,vy:-2,drop:1,en:r<.12})}
       else snd(600,.04,'square',400,.02);if(s.dead)break}
+    if(!s.dead&&MB&&hit(r,MB))hitMid(s);
     if(!s.dead&&B&&B.st!=='drop'&&B.st!=='intro'&&B.st!=='boom'&&B.st!=='break'&&hit(r,B)){if(!s.pierce)s.dead=1;hitBoss(s)}
     if(s.k==='B'&&tick%2===0)PT.push({x:s.x,y:s.y,vx:-s.vx*.1,vy:0,l:10,c:MINT});
   }
@@ -87,6 +88,7 @@ function step(){
       if(hitStop>0)hitStop--;else{
       clock++;updWorld();updPlayer();if(state==='play'){updEnemies();
       if(!arena&&P.x>(ARENA+3)*TS){arena=true;split(ST.cps.length-1);for(let y=0;y<15;y++)map[y][ARENA]='#';spawnBoss();snd(110,.5,'sawtooth',220,.06)}
+      midCheck();if(MB)updMid();
       if(B)updBoss();else if(rushWait>0&&--rushWait===0){spawnBoss();snd(110,.5,'sawtooth',220,.06)}}if(state==='play'||state==='dead')updShots();}
     }
   }else if(state==='dead'){deadT++;updWorld();if(deadT>90){resetRun(false);state='play'}}
@@ -107,10 +109,10 @@ function step(){
   else if(state==='records')recordsStep();
   else if(state==='gallery')galleryStep();
   else if(state==='got'){gotT++;if(gotT>60&&(pr('start')||pr('jump'))){if(ST.custom){if(sharedMode){const b=endShared();state=b==='gallery'?'gallery':'title';return}enterEditor();return}state='select';if(ST.rush)sel=B_RUSH;else{sel=CARD.findIndex(i=>!save.cleared[i]&&(i!==3||coreOpen()));if(sel<0)sel=0}}}
-  if(state==='play'||state==='dead'||state==='pause'){camLook+=(P.face*36-camLook)*.05;const t=arena?ARENA*TS:Math.max(0,Math.min(W*TS-VW,P.x+P.w/2-VW/2+camLook));camX+=(t-camX)*(arena?.08:.14)}
+  if(state==='play'||state==='dead'||state==='pause'){camLook+=(P.face*36-camLook)*.05;const t=arena?ARENA*TS:MBlock?midCam(midOf()):Math.max(0,Math.min(W*TS-VW,P.x+P.w/2-VW/2+camLook));camX+=(t-camX)*(arena||MBlock?.08:.14)}
   if(introT>0&&state==='play')introT--;if(!OPT.shake)shake=0;
   updParts();if(shake>0)shake*=.85;if(shake<.3)shake=0;
-  if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||state==='records'||state==='gallery'||((state==='opts'||state==='keys')&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===RUSH.length-1?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:ST.key):null);
+  if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||state==='records'||state==='gallery'||((state==='opts'||state==='keys')&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===RUSH.length-1?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:MB&&MB.st!=='boom'?'boss':ST.key):null);
   const ev=state==='edit';if(edp.hidden===ev)edp.hidden=!ev;
   Object.assign(prev,K);
 }

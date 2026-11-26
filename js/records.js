@@ -18,7 +18,9 @@ const ACH=[
  ['rush_hard','Iron Gauntlet','Finish Boss Rush on Hard',1],
  ['speed','Prism Sprint','Clear Prism Grid in under 2:30',1],
  ['kills','Centurion','Defeat 100 enemies',0],
- ['maker','Architect','Beat a level you built in the editor',0]];
+ ['maker','Architect','Beat a level you built in the editor',0],
+ ['mid','Gatecrasher','Beat a mid-boss',0],
+ ['mid_clean','Clean Break','Beat a mid-boss without taking a hit',1]];
 const ACH_IDS=ACH.map(a=>a[0]);
 if(!save.ach||typeof save.ach!=='object')save.ach={};
 if(!save.stats||typeof save.stats!=='object')save.stats={kills:0,pickups:0,reboots:0};
@@ -96,7 +98,8 @@ function drawRecords(){
   text((recPage?'◀ Achievements':'Achievements')+'   ·   '+(recPage?'Times':'Times ▶'),VW/2,46,9,'rgba(243,233,255,.6)','center',0);
   if(recPage===0){
     const got=ACH_IDS.filter(id=>save.ach&&save.ach[id]).length;text(got+' of '+ACH.length+' unlocked',VW-16,30,9,GOLD,'right',0);
-    ACH.forEach((a,i)=>{const col=i<8?0:1,row=i%8,x=20+col*226,y=66+row*22,on=!!(save.ach&&save.ach[a[0]]);
+    const per=Math.ceil(ACH.length/2),gap=Math.min(22,160/(per-1)); // two columns that grow with the list
+    ACH.forEach((a,i)=>{const col=i<per?0:1,row=i%per,x=20+col*226,y=66+row*gap,on=!!(save.ach&&save.ach[a[0]]);
       ctx.strokeStyle=on?GOLD:'rgba(255,255,255,.2)';ctx.lineWidth=1;ctx.strokeRect(x+.5,y-8.5,9,9);if(on){ctx.fillStyle=GOLD;ctx.fillRect(x+2,y-7,6,6)}
       text(a[1]+(a[3]?' *':''),x+16,y,10,on?GOLD:CRM,'left',on?4:0,205);text(a[2],x+16,y+(OPT.big?11:10),8,'rgba(243,233,255,.55)','left',0,205)});
     text('* needs assist off',20,252,8,'rgba(243,233,255,.5)','left',0);

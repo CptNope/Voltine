@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.17.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.17.1.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -42,7 +42,7 @@ Every feature should support at least one of these pillars and break none of the
 | | Now (0.13) | Target for 1.0 |
 |---|---|---|
 | Sectors | 7 (adds Orbit Deck and Phase Lab in 0.17) | 7 |
-| Bosses | 7 | 7, plus a mid-boss in each sector |
+| Bosses | 7, plus 6 mid-bosses | 7, plus a mid-boss in each sector |
 | Boss weapons | 6, plus the Volt Buster | 6 |
 | Enemy types | 11 (adds asteroid, UFO, blink drone, phase mine) | 11 to 13 |
 | Music tracks | 8 | 10, plus a phase-2 layer for each boss |
@@ -126,7 +126,7 @@ Every feature should support at least one of these pillars and break none of the
 | ✅ **Level gallery:** a curated `levels.json` in the repo, browsable from a Gallery screen | M | At least 10 levels, each passing the route check in CI |
 | ✅ **Levels by pull request:** a documented way to add a gallery level | S | `CONTRIBUTING.md` section, with CI validating every entry |
 
-**Follow-ups from 0.17:** mid-bosses in every sector (moved here from 0.17); a weakness chart on the Records screen; gallery levels that use the new themes.
+**Follow-ups from 0.17:** a weakness chart on the Records screen; gallery levels that use the new themes.
 
 **Follow-ups from 0.16:** selecting, copying and pasting a region in the editor; gallery levels from the community; showing the gallery level's boss and theme as a small preview.
 
@@ -140,7 +140,7 @@ Every feature should support at least one of these pillars and break none of the
 | ✅ Sector A, **Orbit Deck**: stage, Orbiter boss, Orbit Disc, music, background | L | Passes `ghost.js`; boss beatable in smoke tests; documented |
 | ✅ Sector B, **Phase Lab**: Mirror boss, Echo Shot, music, background | L | Same as Sector A |
 | ✅ **Extend the weakness cycle to six wardens** | S | One closed loop (done); the Records weakness chart is still to do |
-| **Mid-bosses:** one halfway through each sector (next) | M | Each has a health bar and a checkpoint after it |
+| ✅ **Mid-bosses:** one halfway through each sector (0.17.1; the Null Core has none) | M | Each has a health bar and a checkpoint after it |
 | ✅ **New enemies:** two per new sector (asteroid, UFO, blink drone, phase mine) | M | Each is in the editor and allowed in level codes |
 
 **Sector shortlist:**
@@ -249,6 +249,7 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.17.1 | Six mid-bosses, each in a walled section after the middle checkpoint; two new achievements |
 | 0.17 | Orbit Deck and Phase Lab sectors (Orbiter, Mirror, Orbit Disc, Echo Shot, four new enemies, low gravity, phase blocks), six-warden weakness loop, two-row stage select, seven-boss Rush |
 | 0.16 | Level gallery (10 route-checked levels, checked in CI), play links, verified codes, names and authors, undo/redo, levels up to 200 columns, checkpoint safety |
 | 0.15 | Remappable keys and buttons, high-contrast palette (colour-blind simulated), large text, game speed, auto-fire, hold to swim, Hard splits, accessibility statement |

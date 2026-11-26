@@ -324,5 +324,28 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   tap(G, 'down'); check('down from the second row reaches the bars', G.get('sel') === G.get('B_RUSH'));
 }
 
+for (const s of [0, 1, 2, 5, 7, 8]) { // 0.17.1 mid-bosses: lock, beat, walls back, stays beaten after a death
+  const G = load({ seed: 40 + s });
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; G.call('startStage', s);
+  const m = G.call('midOf'), walls = () => { const o = []; for (let y = 0; y < 15; y++) o.push(G.call('solid', m.l, y), G.call('solid', m.r, y)); return o.join(); };
+  const before = walls(); let P = G.get('P'); P.x = (m.l + 4) * 16; P.y = G.call('midFloor', m) - 40; G.set('introT', 0); G.step(30, {});
+  const name = G.get('MBN')[m.k], locked = G.get('MBlock') && walls() !== before;
+  let f = 0, stuck = 0, lx = 0;
+  for (; f < 60 * 120 && G.get('MB'); f++) { const P = G.get('P'), B = G.get('MB'); P.hp = 28; const tx = B.x + B.w / 2;
+    stuck = Math.abs(P.x - lx) < .1 ? stuck + 1 : 0; lx = P.x; const want = P.x > tx + 20 ? 'left' : P.x < tx - 80 ? 'right' : null;
+    G.step(1, { fire: f % 8 < 4, [want || 'x']: 1, jump: (B.y + B.h < P.y + 4 || stuck > 10) && f % 30 < 14 });
+    const Q = G.get('P'); if (!want) { if (Q.x > tx && Q.face > 0) G.step(1, { left: 1 }); if (Q.x < tx && Q.face < 0) G.step(1, { right: 1 }); } }
+  check(`${name} locks the arena, can be beaten and opens it again`, locked && G.get('MBdone') && walls() === before, `${(f / 60).toFixed(0)}s`);
+  G.call('die', 'hit'); G.step(100, {}); P = G.get('P'); P.x = (m.l + 4) * 16; P.y = G.call('midFloor', m) - 40; G.step(30, {});
+  check(`${name} stays beaten after a death`, !G.get('MB') && !G.get('MBlock'));
+}
+{ // dying to a mid-boss resets the fight
+  const G = load({ seed: 50 }); G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; G.call('startStage', 0);
+  const m = G.call('midOf'); const P = G.get('P'); P.x = (m.l + 4) * 16; P.y = 180; G.step(30, {});
+  const had = !!G.get('MB'); G.call('die', 'hit'); G.step(100, {});
+  check('dying to a mid-boss puts you back before it with the walls down', had && !G.get('MB') && !G.get('MBlock') && !G.get('MBdone') && G.get('cp') === 1);
+  check('custom levels and Boss Rush have no mid-boss', (G.call('startStage', 6), G.call('midOf') === null) && (G.call('startStage', 4), G.call('midOf') === null));
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

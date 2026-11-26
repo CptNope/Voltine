@@ -21,6 +21,7 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 4 | `audio.js` | `snd()`, music tracks `TR`, `setTrack`, `musicTick`, `pollPad` | nothing |
 | 5 | `entities.js` | run state (`state`, `P`, `E`, `PB`, `EB`, …), `resetRun`, player update, `updWorld`, enemies | `buildMap(); resetRun(true)` |
 | 6 | `bosses.js` | `spawnBoss`, `hitBoss`, `updBoss`, one update function per boss, `winStage` | nothing |
+| 6b | `midbosses.js` | `MIDS` (one walled section per sector), `midCheck`, `updMid`, `hitMid`, `drawMid`, `drawMidHUD` | nothing |
 | 7 | `step.js` | `updShots`, `updParts`, `startStage`, `step()` | nothing |
 | 8 | `render.js` | every `draw*` function, `draw()`, `frame()` | nothing |
 | 9 | `editor.js` | `ED`, `TOOLS`, `CUSTOM` stage (index 6), editor input, level codes | loads the saved editor level, pushes `CUSTOM` onto `STAGES` |
@@ -29,6 +30,8 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 11 | `records.js` | `ACH`, `ach()`, `stat()`, `split()`, the Records screen, toasts, `exportProgress` / `importProgress` | fills in missing save fields, wires the progress-code buttons |
 | 12 | `gallery.js` | `GAL`, `loadGallery()`, the Gallery screen | nothing (it fetches `levels.json` when the screen opens) |
 | 13 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
+
+**Mid-bosses:** `midbosses.js` holds a `MIDS` entry per sector, keyed by stage name: wall columns `l` and `r` and the kind. Run state (`MB`, `MBlock`, `MBdone`, `MBhit`) is declared in `entities.js` because `resetRun` runs at load. `midCheck()` raises the walls (saving the tiles it replaced in `MBwall`), removes enemies inside, parks crushers and spawns `MB`. `resetRun(false)` clears the fight but keeps `MBdone`; only a full reset clears it. The route checkers set `MBdone` so they treat mid-bosses like enemies.
 
 **Phase blocks:** `world.js` keeps `PHASE` (0 or 1, from `floor(tick/90)%2`) and `HASPHASE`; `solid()` treats `A` as solid in phase 0 and `B` in phase 1. When the phase flips, `updWorld` pushes the player out of any block that turned solid around them. The route checkers include the phase in their state so timing is searched.
 

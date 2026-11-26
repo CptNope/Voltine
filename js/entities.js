@@ -1,7 +1,7 @@
 // Voltline · entities.js · Run state, the player, moving platforms, crushers, wind and regular enemies.
 // Classic script (no modules) so the game also runs from file://. Load order is set in index.html.
 /* ---------- state ---------- */
-let state='title',sel=0,P,E=[],PB=[],EB=[],PT=[],PU=[],B=null,arena=false,cp=0,camX=0,shake=0,deadT=0,gotT=0,clock=0,deaths=0,tick=0,EN=[28,28,28,28,28],gust=0,lastWin=0;
+let state='title',sel=0,P,E=[],PB=[],EB=[],PT=[],PU=[],B=null,arena=false,cp=0,camX=0,shake=0,deadT=0,gotT=0,clock=0,deaths=0,tick=0,EN=[28,28,28,28,28],gust=0,lastWin=0,MB=null,MBlock=false,MBdone=false,MBhit=false;
 const stars=Array.from({length:70},()=>({x:Math.random()*VW*2,y:Math.random()*170,r:Math.random()<.2?1.4:.8}));
 function spawnAll(){
   E=[];PU=[];
@@ -13,8 +13,8 @@ function spawnAll(){
 }
 function groundY(tx){for(let y=0;y<H;y++)if(solid(tx,y))return y*TS;return 15*TS}
 function resetRun(full){
-  buildMap();spawnAll();PB=[];EB=[];PT=[];WARN=[];POP=[];B=null;arena=false;gust=0;rushWait=0;EN=[28,28,28,28,28];
-  if(full){cp=0;clock=0;deaths=0}
+  buildMap();spawnAll();PB=[];EB=[];PT=[];WARN=[];POP=[];B=null;MB=null;MBlock=false;arena=false;gust=0;rushWait=0;EN=[28,28,28,28,28];
+  if(full){cp=0;clock=0;deaths=0;MBdone=false}
   const w=P?P.wpn:0;
   P={x:ST.cps[cp]*TS,y:groundY(ST.cps[cp])-22,w:12,h:22,vx:0,vy:0,face:1,onG:false,climb:false,slide:0,hp:28,inv:60,charge:0,shootT:0,hurt:0,anim:0,mv:null,wpn:unlocked(w)?w:0};
   camX=Math.max(0,Math.min(W*TS-VW,P.x-VW/2));
@@ -26,7 +26,7 @@ function onLadder(p){const cx=Math.floor((p.x+p.w/2)/TS);for(let ty=Math.floor(p
 function endSlide(){P.slide=0;P.y-=10;P.h=22}
 function hurt(d){
   if(P.inv>0||state!=='play')return;
-  if(B)bossHurt=true;
+  if(B)bossHurt=true;if(MB)MBhit=true;
   if(OPT.as===2){P.inv=40;return}if(hard)d=Math.ceil(d*1.5);if(OPT.as===1)d=Math.ceil(d/2);P.hp-=d;P.inv=80;P.hurt=14;P.vy=-2;P.climb=false;if(P.slide&&rectFree(P.x,P.y-10,P.w,22))endSlide();
   snd(220,.18,'sawtooth',90,.06);shake=OPT.shake?6:0;burst(P.x+6,P.y+10,ORG,6);
   if(P.hp<=0)die('hit');
@@ -116,6 +116,7 @@ function updWorld(){
       if(!moved)hurt(4)}}}
   for(const m of MV){const a=tick/m.per*6.283+m.ph,nx=m.bx+Math.sin(a)*m.ax,ny=m.by+Math.sin(a)*m.ay;m.dx=nx-m.x;m.dy=ny-m.y;m.x=nx;m.y=ny}
   for(const c of CR){const t=(tick+c.ph)%160,prevB=c.bot;
+    if(c.off){c.bot=Math.max(40,c.bot-5);continue} // parked during a mid-boss fight
     c.bot=t<60?40:t<80?40+(t%4<2?2:0):t<90?40+(t-80)*20:t<120?240:240-(t-120)*5;
     if(prevB<240&&c.bot>=240&&Math.abs(c.cx-camX-VW/2)<VW/2+20){shake=Math.max(shake,4);snd(70,.2,'square',40,.05);burst(c.cx,240,ORG,6,1.5)}}
   if(ST.wind){const t=tick%360;gust=t>=220?1:0;if(gust&&!arena&&tick%2===0)PT.push({x:camX+VW+4,y:Math.random()*220+10,vx:-5-Math.random()*3,vy:0,l:110,c:'rgba(207,224,255,.6)',wind:1})}

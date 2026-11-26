@@ -327,9 +327,10 @@ function drawMain(){
     else drawSelect();if(state==='opts')drawOpts();else if(state==='keys')drawKeys();return}
   drawBG(ST.th);
   ctx.save();const sx=shake?(Math.random()-.5)*shake:0,sy=shake?(Math.random()-.5)*shake:0;ctx.translate(-Math.round(camX)+sx,sy);
-  drawTiles();drawEnemies();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
+  drawTiles();drawEnemies();drawMid();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
   text('CORE',8,15,9,CRM,'left',0);bar(36,8,P.hp,28,MINT);
   if(P.wpn){text(WPN[P.wpn].s,8,27,9,WPN[P.wpn].c,'left',0);bar(36,20,EN[P.wpn],28,WPN[P.wpn].c)}
+  drawMidHUD();
   if(B&&B.st!=='drop'){text(BN[B.kind],VW-8,28,9,CRM,'right',0,150);bar(VW-8,8,Math.min(B.shown,B.hp),28,B.hp<=14?CORAL:PINK,true)}
   text(fmt(clock)+(hard?'  HARD':''),VW/2,15,9,hard?CORAL:'rgba(243,233,255,.7)','center',0);
   if(ST.wind&&gust&&!arena)text('GUST',VW/2,28,9,SKY,'center',4);

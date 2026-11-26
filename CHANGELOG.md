@@ -2,6 +2,14 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.17.1 — Mid-bosses
+
+- **Six mid-bosses**, one in each warden sector, each in a walled section just after the middle checkpoint: Prism Sentry, Drop Press, Drone Carrier, Giant Clam, Meteor Head and Phase Core. The camera locks, a health bar and name appear, and the boss music plays. Beating one drops a health pickup and opens the walls.
+- Dying during the fight restarts it from the checkpoint. Once beaten, a mid-boss stays beaten for the rest of that attempt at the sector, even if you die before the next checkpoint.
+- Stage crushers inside the Drop Press arena park during that fight.
+- Two new achievements: **Gatecrasher** (beat a mid-boss) and **Clean Break** (beat one without taking a hit). The achievements page now fits any number of entries in two columns.
+- The route checkers skip mid-bosses the way they skip enemies. Smoke tests: 124 checks, including a bot beating every mid-boss, the walls coming down, and the beaten state surviving a death.
+
 ## 0.17 — New sectors
 
 - **Orbit Deck:** low-gravity fields (`o` tiles) that turn jumps into long floaty arcs, a spike corridor crossed on floating platforms, asteroids and UFOs. Boss: **Orbiter**, a satellite that circles the arena, sweeps telegraphed laser beams and launches orbiting mines. Weapon: **Orbit Disc**, a piercing boomerang.

@@ -1,5 +1,5 @@
 // Route checker: searches for a way through each stage using the real engine and physics.
-// Enemies are removed (they can be shot or tanked); pits, spikes, lava, crushers, belts,
+// Enemies and mid-bosses are removed (they can be shot or tanked); pits, spikes, lava, crushers, belts,
 // moving platforms and wind all stay on. A run fails if the search cannot reach the boss
 // arena from the stage start without taking damage.
 //
@@ -27,7 +27,7 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
 
   const snap = () => { const P = G.get('P'); return { P: { ...P, mv: P.mv ? MV().indexOf(P.mv) : -1 }, tick: G.get('tick'), cp: G.get('cp') }; };
   const restore = s => {
-    G.set('tick', s.tick); G.set('cp', s.cp); G.set('state', 'play'); if (G.get('HASPHASE')) G.set('PHASE', Math.floor(s.tick / 90) % 2); G.set('E', []); G.set('EB', []); G.set('PB', []);
+    G.set('tick', s.tick); G.set('cp', s.cp); G.set('state', 'play'); G.set('MBdone', true); // mid-bosses are fights, not terrain; the route check skips them like other enemies if (G.get('HASPHASE')) G.set('PHASE', Math.floor(s.tick / 90) % 2); G.set('E', []); G.set('EB', []); G.set('PB', []);
     for (const m of MV()) { const a = s.tick / m.per * 6.283 + m.ph; m.x = m.bx + Math.sin(a) * m.ax; m.y = m.by + Math.sin(a) * m.ay; m.dx = m.dy = 0; }
     const P = { ...s.P }; P.mv = P.mv >= 0 ? MV()[P.mv] : null; G.set('P', P);
   };
