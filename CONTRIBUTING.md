@@ -29,6 +29,21 @@ Voltline is [MIT licensed](LICENSE). By contributing, you agree that your contri
 6. Add a line to [CHANGELOG.md](CHANGELOG.md), and tick off or add items in [ROADMAP.md](ROADMAP.md). New items need a size (S/M/L) and a "done when" check.
 7. Commit with a message that says what changed and why.
 
+## Adding a gallery level
+
+1. Build your level in the editor. Give it a **name** and an **author**.
+2. Press **Check route** until it passes. The editor shows *Route verified*.
+3. Press **Copy code** and add an entry to `levels.json`:
+   ```json
+   { "code": "VL1.…" }
+   ```
+4. Run `node tools/check-gallery.js`. It decodes every level, checks the verified mark, rejects duplicates, and re-runs the route search. CI runs the same check on every pull request.
+5. Open a pull request, and include a screenshot or short clip of the hardest part.
+
+Levels by the project itself are written as recipes in `tools/build-gallery.js`. Running `node tools/build-gallery.js` rebuilds `levels.json` from those recipes, but only if every recipe passes the route check. If you add a recipe there, keep community levels by also re-adding their entries.
+
+**What makes a good gallery level:** a clear idea (one mechanic explored well beats everything at once), a fair first look at each hazard before it gets hard, a checkpoint at least every 50 columns, and a boss and theme that match its mood.
+
 ## Code style
 
 - Match the surrounding code: compact, two-space indent, short names inside hot loops, descriptive names for anything other files use.

@@ -219,10 +219,11 @@ function drawSelect(){
     ctx.save();ctx.beginPath();ctx.rect(x+2,y+bob+2,80,104);ctx.clip();portrait(i,x+42,y+58+bob);ctx.restore();
     text(st.name,x+42,y+122+bob,10,on?th.edge:CRM,'center',on?6:0,78);text(st.boss,x+42,y+137+bob,8,'rgba(243,233,255,.7)','center',0,78);
     if(save.cleared[i]){const bt=(hard?save.bestH:save.best)[i];text(bt?'BEST '+fmt(bt):'CLEARED',x+42,y+16+bob,8,GOLD,'center',4)}}
-  const bar3=(k,x,label,col,lock)=>{const on=sel===k;ctx.fillStyle='rgba(14,6,30,.85)';ctx.fillRect(x,208,140,22);glow(on?(lock?'#6b5a8e':col):'rgba(183,163,214,.35)',on&&!lock?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(x+.5,208.5,139,21);ctx.shadowBlur=0;text(label,x+70,223,9,lock?'#6b5a8e':on?col:CRM,'center',on&&!lock?6:0)};
-  {const rb=save.rush[hard?1:0],lock=!save.cleared[3];bar3(5,20,lock?'BOSS RUSH · locked':'BOSS RUSH'+(rb?' · '+fmt(rb):''),PINK,lock)}
-  bar3(6,170,'LEVEL EDITOR',GOLD,false);
-  {const n=ACH_IDS.filter(id=>save.ach&&save.ach[id]).length;bar3(7,320,'RECORDS · '+n+'/'+ACH.length,MINT,false)}
+  const bar3=(k,x,label,col,lock)=>{const on=sel===k;ctx.fillStyle='rgba(14,6,30,.85)';ctx.fillRect(x,208,106,22);glow(on?(lock?'#6b5a8e':col):'rgba(183,163,214,.35)',on&&!lock?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(x+.5,208.5,105,21);ctx.shadowBlur=0;text(label,x+53,223,9,lock?'#6b5a8e':on?col:CRM,'center',on&&!lock?6:0,98)};
+  {const rb=save.rush[hard?1:0],lock=!save.cleared[3];bar3(5,20,lock?'RUSH · locked':'BOSS RUSH'+(rb?' '+fmt(rb):''),PINK,lock)}
+  bar3(8,131,'GALLERY',SKY,false);
+  bar3(6,242,'LEVEL EDITOR',GOLD,false);
+  {const n=ACH_IDS.filter(id=>save.ach&&save.ach[id]).length;bar3(7,353,'RECORDS '+n+'/'+ACH.length,MINT,false)}
   for(const q of POP)text(q.s,q.x,q.y,10,q.c,'center',6);
   text('ARSENAL',20,252,9,'rgba(243,233,255,.6)','left',0);
   let ax=70;for(let w=0;w<WPN.length;w++){const u=unlocked(w);ctx.strokeStyle=u?WPN[w].c:'rgba(255,255,255,.15)';ctx.lineWidth=1;ctx.strokeRect(ax+.5,243.5,25,12);text(u?WPN[w].s:'--',ax+12.5,253,8,u?WPN[w].c:'rgba(255,255,255,.25)','center',0);ax+=29}
@@ -231,7 +232,7 @@ function drawSelect(){
 function drawEdit(){
   drawBG(ST.th);ctx.save();ctx.translate(-Math.round(camX),0);drawTiles();drawEnemies();drawWater();
   const a=Math.floor(camX/TS);ctx.beginPath();for(let x=a;x<=a+31;x++){ctx.moveTo(x*TS+.5,0);ctx.lineTo(x*TS+.5,VH)}for(let y=0;y<=H;y++){ctx.moveTo(a*TS,y*TS+.5);ctx.lineTo((a+31)*TS,y*TS+.5)}ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='rgba(255,94,168,.08)';ctx.fillRect(EW*TS,0,31*TS,VH);text('BOSS ARENA · '+BN[ED.b],EW*TS+12,44,10,PINK,'left',4);
+  ctx.fillStyle='rgba(255,94,168,.08)';ctx.fillRect(ED.w*TS,0,31*TS,VH);text('BOSS ARENA · '+BN[ED.b],ED.w*TS+12,44,10,PINK,'left',4);
   ctx.fillStyle='rgba(94,242,196,.12)';ctx.fillRect(TS,15*TS,4*TS,2*TS);text('START',3*TS,14*TS-4,9,MINT,'center',4);
   for(const c of ED.cr){ctx.setLineDash([2,4]);ctx.strokeStyle='rgba(255,138,61,.5)';ctx.beginPath();ctx.moveTo(c*TS+8,40);ctx.lineTo(c*TS+8,240);ctx.stroke();ctx.setLineDash([])}
   const cx=edc.x*TS,cy=edc.y*TS;glow(tick%30<15?GOLD:CRM,6);ctx.lineWidth=1.5;ctx.strokeRect(cx+.5,cy+.5,TS-1,TS-1);ctx.shadowBlur=0;
@@ -273,11 +274,12 @@ function drawMain(){
     text('furthest column '+Math.floor(RT.best/TS)+' of '+(RT.goal/TS-3)+'  ·  search step '+RT.it,VW/2,150,10,CRM,'center',0);
     text('Enemies are ignored. Esc cancels.',VW/2,170,9,'rgba(243,233,255,.6)','center',0);return}
   if(state==='records'){drawRecords();return}
+  if(state==='gallery'){drawGallery();return}
   if(state==='edit'){drawEdit();return}
   const view=(state==='opts'||state==='keys')&&optsFrom!=='pause'?optsFrom:state;
   if(view==='title'||view==='select'){drawBG(STAGES[view==='select'?CARD[Math.min(sel,4)]:0].th);
-    if(view==='title'){dim(.35);text('VOLTLINE',VW/2,104,46,MINT,'center',18);text('a vector action run in three sectors',VW/2,128,12,CRM,'center',0);
-      text('◀  '+(hard?'HARD':'NORMAL')+'  ▶',VW/2,160,14,hard?CORAL:MINT,'center',8);text(hard?'Hits sting harder, enemies are tougher, pickups heal less':'The standard run',VW/2,176,10,'rgba(243,233,255,.7)','center',0);if(tick%60<40)text('Press Enter or tap to start',VW/2,204,13,GOLD);text('Z jump · X fire (hold to charge) · Down+Z slide · Q/E weapons · O settings',VW/2,240,10,'rgba(243,233,255,.75)','center',0);text('v'+VERSION,VW-8,VH-8,8,'rgba(243,233,255,.4)','right',0)}
+    if(view==='title'){dim(.35);text('VOLTLINE',VW/2,104,46,MINT,'center',18);text('a vector action run across five sectors',VW/2,128,12,CRM,'center',0);
+      text('◀  '+(hard?'HARD':'NORMAL')+'  ▶',VW/2,160,14,hard?CORAL:MINT,'center',8);text(hard?'Hits sting harder, enemies are tougher, pickups heal less':'The standard run',VW/2,176,10,'rgba(243,233,255,.7)','center',0);if(tick%60<40)text('Press Enter or tap to start',VW/2,204,13,GOLD);text('Z jump · X fire (hold to charge) · Down+Z slide · Q/E weapons · O settings',VW/2,240,10,'rgba(243,233,255,.75)','center',0);text('v'+VERSION,VW-8,VH-8,8,'rgba(243,233,255,.4)','right',0);if(pendingShared){ctx.fillStyle='rgba(8,3,20,.9)';ctx.fillRect(60,186,360,34);ctx.strokeStyle=GOLD;ctx.lineWidth=1;ctx.strokeRect(60.5,186.5,359,33);text('Shared level: '+(pendingShared.n||'Untitled')+(pendingShared.a?' by '+pendingShared.a:''),VW/2,200,10,GOLD,'center',4,340);text('Press Enter to play it',VW/2,213,9,CRM,'center',0)}}
     else drawSelect();if(state==='opts')drawOpts();else if(state==='keys')drawKeys();return}
   drawBG(ST.th);
   ctx.save();const sx=shake?(Math.random()-.5)*shake:0,sy=shake?(Math.random()-.5)*shake:0;ctx.translate(-Math.round(camX)+sx,sy);
@@ -289,7 +291,7 @@ function drawMain(){
   if(ST.wind&&gust&&!arena)text('GUST',VW/2,28,9,SKY,'center',4);
   if(B&&B.st==='intro')text(BN[B.kind],VW/2,110,22,ST.th.edge);
   if(ST.rush)text('RUSH '+(rushIdx+1)+'/'+RUSH.length,VW/2,28,9,PINK,'center',4);
-  if(ST.custom&&state==='play')text('Enter: back to editor',VW-8,VH-6,9,'rgba(243,233,255,.55)','right',0);
+  if(ST.custom&&state==='play')text(sharedMode?'Enter: leave level':'Enter: back to editor',VW-8,VH-6,9,'rgba(243,233,255,.55)','right',0);
   if(state==='pause'){dim(.7);text('PAUSED',VW/2,58,24,GOLD);
     const L={resume:'Resume',weapon:'Weapon  ◀ '+WPN[P.wpn].n+' ▶',restart:'Restart from checkpoint',settings:'Settings',quit:ST.custom?'Back to editor':'Quit to stage select'};
     PAUSE_ITEMS.forEach((it,i)=>{const on=i===pm;text((on?'▸ ':'')+L[it],VW/2,92+i*22,12,on?(it==='weapon'?WPN[P.wpn].c:MINT):'rgba(243,233,255,.75)','center',on?6:0)});
@@ -297,10 +299,10 @@ function drawMain(){
     text('↑ ↓ choose · Enter select · Q/E weapon · O settings · Esc resume',VW/2,252,9,'rgba(243,233,255,.6)','center',0)}
   else if(state==='opts')drawOpts();else if(state==='keys')drawKeys();
   else if(state==='play'&&introT>0&&!B){const al=Math.max(0,Math.min(1,introT/40,(200-introT)/20));ctx.globalAlpha=al;ctx.fillStyle='rgba(8,3,20,.8)';ctx.fillRect(VW/2-170,44,340,52);ctx.strokeStyle=ST.th.edge;ctx.lineWidth=1;ctx.strokeRect(VW/2-169.5,44.5,339,51);
-    text(ST.name.toUpperCase(),VW/2,66,16,ST.th.edge,'center',8);text(INTRO[ST.key]||'',VW/2,84,9,CRM,'center',0);ctx.globalAlpha=1}
+    text((ST.custom?(ED.n||(sharedMode?'Shared level':'Your level')):ST.name).toUpperCase(),VW/2,66,16,ST.th.edge,'center',8,320);text(ST.custom?(ED.a?'by '+ED.a:'')+(isVerified()?(ED.a?'  ·  ':'')+'route verified':''):(INTRO[ST.key]||''),VW/2,84,9,CRM,'center',0,320);ctx.globalAlpha=1}
   else if(state==='dead'&&deadT>40){text('SIGNAL LOST',VW/2,130,20,CORAL);text('rebooting at checkpoint',VW/2,150,10,CRM,'center',0)}
-  else if(state==='got'&&lastWin.custom){dim(Math.min(.8,gotT/50));text('LEVEL CLEAR',VW/2,100,28,GOLD,'center',12);text('Time '+fmt(clock)+'  ·  Reboots '+deaths,VW/2,130,12,CRM,'center',0);
-    if(gotT>60&&tick%60<40)text('Press Enter to return to the editor',VW/2,200,12,GOLD)}
+  else if(state==='got'&&lastWin.custom){dim(Math.min(.8,gotT/50));text('LEVEL CLEAR',VW/2,100,28,GOLD,'center',12);if(ED.n)text(ED.n,VW/2,120,11,CRM,'center',0,400);text('Time '+fmt(clock)+'  ·  Reboots '+deaths,VW/2,130,12,CRM,'center',0);
+    if(gotT>60&&tick%60<40)text(lastWin.shared?(sharedMode==='gallery'?'Press Enter to return to the gallery':'Press Enter to continue'):'Press Enter to return to the editor',VW/2,200,12,GOLD)}
   else if(state==='got'&&lastWin.rush){dim(Math.min(.8,gotT/50));
     text('BOSS RUSH COMPLETE',VW/2,90,24,PINK,'center',12);text(fmt(clock),VW/2,136,34,MINT,'center',14);
     text((lastWin.pb?'New best':'Best '+fmt(save.rush[hard?1:0]))+'  ·  Reboots '+deaths+(hard?'  ·  Hard':''),VW/2,164,11,CRM,'center',0);

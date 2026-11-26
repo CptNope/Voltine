@@ -9,12 +9,12 @@ const RMAC=[{r:8},{r:20},{l:8},{w:12},{w:30},
   {jn:22,n:50},{jl:14,n:40},{slide:1},{up:100},{down:40},{sw:40},{sw:80},{su:40}];
 let RT=null,routeMsg=null;
 
-function routeStart(){
+function routeStart(opt){
   saveED();silent=true;
   S=ED_I;resetRun(true);E=[];PU=[];P.inv=0;
   for(let i=0;i<5;i++)routeStep({});
   const goal=(ARENA+3)*TS,timed=MV.length>0||CR.length>0;
-  RT={frontier:[routeSnap()],seen:new Set(),it:0,best:P.x,bestSnap:null,goal,timed,t0:performance.now(),q:[],qi:0,next:[]};
+  RT={share:opt&&opt.share||null,frontier:[routeSnap()],seen:new Set(),it:0,best:P.x,bestSnap:null,goal,timed,t0:performance.now(),q:[],qi:0,next:[]};
   routeMsg=null;state='route';
 }
 const RKEYS=['left','right','up','down','jump','fire','start','back','next','prev','opts','music','sfx','route'];
@@ -54,7 +54,9 @@ function routeTry(m){
 function routeFinish(ok){
   silent=false;const bestTile=Math.floor(RT.best/TS);
   routeMsg=ok?{ok:1,s:'Route found: the level can be finished.',t:240}:{ok:0,s:'No route found past column '+bestTile+'. Cursor moved there.',t:300};
-  if(!ok)edc.x=Math.max(1,Math.min(EW-1,bestTile+1));
+  if(!ok)edc.x=Math.max(1,Math.min(ED.w-1,bestTile+1));
+  if(ok){ED.ok=levelHash(ED);saveED()}
+  if(RT.share)routeMsg.s=ok?'Route verified. Press '+(RT.share==='link'?'Copy play link':'Copy code')+' again to copy.':'No route past column '+bestTile+'. Press copy again to share it unverified.';
   RT=null;for(const k in K)K[k]=false;enterEditor();
 }
 // one time slice; called from step() while state==='route'

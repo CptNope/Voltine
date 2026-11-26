@@ -261,5 +261,38 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   check('high contrast and large text draw every screen', ok);
 }
 
+{ // 0.16 community levels
+  const G = load({ seed: 24 });
+  G.call('enterEditor'); G.step(2, {});
+  const ED = () => G.get('ED'), edc = G.get('edc');
+  const before = ED().m[10][30]; G.call('edPushUndo'); G.call('edCell', 30, 10, 0);
+  check('editor paints a block', ED().m[10][30] === '#');
+  G.call('edUndo'); check('undo restores the previous state', ED().m[10][30] === before);
+  G.call('edRedo'); check('redo re-applies the change', ED().m[10][30] === '#');
+  G.call('edResize', 150); check('levels can be widened to 150 columns', ED().w === 150 && ED().m[15].length === 150 && G.get('W') === 181);
+  ED().n = 'Test <b>Level</b>'; ED().a = 'Me';
+  const code = G.call('encodeLevel'), back = G.call('decodeLevel', code);
+  check('wide levels, names and authors survive a code round trip', back && back.w === 150 && back.a === 'Me' && !/[<>]/.test(back.n));
+  const old = 'VL1.' + btoa(JSON.stringify({ b: 'kite', t: 1, r: Array(15).fill('99 1 ').concat(['99#1#', '99#1#']), s: [], v: [], c: [], k: [] }));
+  check('older 100-column codes still load', G.call('decodeLevel', old).w === 100);
+  check('a level is not verified before its route check', !G.call('isVerified'));
+  G.call('routeStart', { share: 'code' }); for (let i = 0; i < 6 && G.get('state') === 'route'; i++) G.step(1);
+  check('a passing route check marks the level verified', G.call('isVerified') && /Press Copy code again/.test(G.get('routeMsg').s));
+  G.call('edCell', 50, 8, 0); check('editing a verified level clears the mark', !G.call('isVerified'));
+  G.call('edCell', 41, 10, G.get('TOOLS').findIndex(t => t[0] === 'k'));
+  check('checkpoints cannot be placed over a pit', !ED().cps.includes(41));
+  const mine = G.call('encodeLevel');
+  const gal = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'levels.json'), 'utf8')).levels;
+  check('the gallery has at least 10 levels', gal.length >= 10);
+  const L = G.call('decodeLevel', gal[0].code); G.set('state', 'gallery');
+  G.call('playShared', L, 'gallery'); check('playing a shared level starts it', G.get('state') === 'play' && G.get('sharedMode') === 'gallery' && G.get('ED').n === L.n);
+  tap(G, 'start'); check('leaving a shared level returns to the gallery and restores your own level', G.get('state') === 'gallery' && G.call('encodeLevel') === mine);
+  G.call('playShared', L, 'gallery'); toArena(G, 6); fightBoss(G);
+  check('clearing a gallery level records a gallery best, not Architect', Object.keys(G.get('save').gal || {}).length === 1 && !G.get('save').ach.maker);
+  G.step(70, {}); tap(G, 'start'); check('after a gallery clear Enter returns to the gallery', G.get('state') === 'gallery' && G.call('encodeLevel') === mine);
+  G.set('state', 'select'); G.set('sel', 5); tap(G, 'right'); check('the Gallery bar sits next to Boss Rush', G.get('sel') === 8);
+  check('play links point at the Pages site', /^https:\/\/cptnope\.github\.io\/Voltline\/\?level=VL1\./.test(G.call('playLink', mine)));
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

@@ -110,7 +110,7 @@ function updUndertow(b){
     if(b.t>140){b.st='swim';b.t=0}}
 }
 function winStage(){
-  if(ST.custom){ach('maker');lastWin={custom:1};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
+  if(ST.custom){if(sharedMode){if(!assistOn()){const h=levelHash(ED);if(!save.gal||typeof save.gal!=='object')save.gal={};if(!save.gal[h]||clock<save.gal[h])save.gal[h]=clock;persist()}}else ach('maker');lastWin={custom:1,shared:!!sharedMode};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
   if(ST.rush){ach('rush');if(hard)ach('rush_hard');const i=hard?1:0,pb=!assistOn()&&(!save.rush[i]||clock<save.rush[i]);if(pb)save.rush[i]=clock;persist();lastWin={rush:1,pb};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
   logEv({e:'clear',t:clock,d:deaths});split(ST.cps.length);const first=!save.cleared[S];save.cleared[S]=1;const bt=hard?save.bestH:save.best;if(!assistOn()&&(!bt[S]||clock<bt[S])){bt[S]=clock;saveSplits()}persist();
   ach('first_clear');if(deaths===0)ach('no_reboot');if(save.cleared[0]&&save.cleared[1]&&save.cleared[2]&&save.cleared[5])ach('all_wardens');

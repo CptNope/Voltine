@@ -70,6 +70,7 @@ function importProgress(code){
     const out={cleared:nums(o.cleared,6).map(v=>v?1:0),best:nums(o.best,6),bestH:nums(o.bestH,6),rush:nums(o.rush,2),ach:{},stats:{},splits:spl(o.splits),splitsH:spl(o.splitsH)};
     for(const id of ACH_IDS)if(o.ach&&o.ach[id])out.ach[id]=1;
     for(const k of['kills','pickups','reboots'])out.stats[k]=nums([o.stats&&o.stats[k]],1)[0];
+    out.gal={};if(o.gal&&typeof o.gal==='object')for(const [k,v] of Object.entries(o.gal).slice(0,200))if(/^[a-z0-9]{1,12}$/.test(k)&&Number.isFinite(v)&&v>0)out.gal[k]=Math.floor(v);
     return out}catch(e){return null}
 }
 {

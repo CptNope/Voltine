@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.15.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.16.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -49,6 +49,7 @@ Every feature should support at least one of these pillars and break none of the
 | Achievements | 16 | about 25 |
 | Modes | Story, Hard, Boss Rush, Editor | adds Challenge rooms, Practice and Ghost replays |
 | Automated checks | 60 smoke checks, plus a route check on every stage | adds browser screenshot tests and a performance budget |
+| Gallery levels | 10 | 25 or more, including community levels |
 | Human playtesters | 0 | at least 5, including one gamepad player and one phone player |
 
 ## Decisions
@@ -116,14 +117,16 @@ Every feature should support at least one of these pillars and break none of the
 
 | Item | Size | Done when |
 |---|---|---|
-| **Route check before sharing:** Copy code runs it first and marks codes that passed | S | Codes carry a "verified" flag that gets re-checked on load |
-| **Play links:** `?level=VL1…` opens straight into a level on the Pages site | S | The link works on Pages and fails gracefully elsewhere |
-| **Level names and authors** in codes | S | Shown on the playtest card; length and characters filtered |
-| **Editor undo and redo**, plus selecting, copying and pasting a region | M | Ctrl/Cmd+Z, Y, C and V work, with a 50-step history |
-| **Longer levels:** up to 200 columns, with a resize control | M | Old 100-column codes still load |
-| **Checkpoint safety:** block checkpoints over pits | S | The editor refuses them with a message |
-| **Level gallery:** a curated `levels.json` in the repo, browsable from a Gallery screen | M | At least 10 levels, each passing the route check in CI |
-| **Levels by pull request:** a documented way to add a gallery level | S | `CONTRIBUTING.md` section, with CI validating every entry |
+| ✅ **Route check before sharing:** Copy code runs it first and marks codes that passed | S | Codes carry a "verified" flag that gets re-checked on load |
+| ✅ **Play links:** `?level=VL1…` opens straight into a level on the Pages site | S | The link works on Pages and fails gracefully elsewhere |
+| ✅ **Level names and authors** in codes | S | Shown on the playtest card; length and characters filtered |
+| ✅ **Editor undo and redo** (region copy and paste moved to Next) | M | Ctrl/Cmd+Z and Y work, with a 50-step history |
+| ✅ **Longer levels:** up to 200 columns, with a resize control | M | Old 100-column codes still load |
+| ✅ **Checkpoint safety:** block checkpoints over pits | S | The editor refuses them with a message |
+| ✅ **Level gallery:** a curated `levels.json` in the repo, browsable from a Gallery screen | M | At least 10 levels, each passing the route check in CI |
+| ✅ **Levels by pull request:** a documented way to add a gallery level | S | `CONTRIBUTING.md` section, with CI validating every entry |
+
+**Follow-ups from 0.16:** selecting, copying and pasting a region in the editor; gallery levels from the community; showing the gallery level's boss and theme as a small preview.
 
 ### 0.17 · New sectors
 
@@ -236,7 +239,6 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 | Issue | Severity | Planned |
 |---|---|---|
 | Not play-tested by people | high | 0.14 |
-| A custom level whose checkpoint is over a pit makes you die on every respawn | low | 0.16 |
 | Font falls back to monospace until Google Fonts loads | low | 0.19, if the font gets bundled |
 | `sw.js` `VERSION` has to be bumped by hand | low | Engineering track |
 | Maskable icon art comes close to the safe-zone edge | cosmetic | 0.19 |
@@ -245,6 +247,7 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.16 | Level gallery (10 route-checked levels, checked in CI), play links, verified codes, names and authors, undo/redo, levels up to 200 columns, checkpoint safety |
 | 0.15 | Remappable keys and buttons, high-contrast palette (colour-blind simulated), large text, game speed, auto-fire, hold to swim, Hard splits, accessibility statement |
 | 0.14 | Repo renamed to Voltline; coyote time, jump buffering, hit-stop, camera easing, playtest log and kit |
 | 0.13 | Achievements, checkpoint splits, Records screen, lifetime stats, progress codes; MIT license |

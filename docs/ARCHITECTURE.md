@@ -5,7 +5,7 @@ How Voltline is put together, and how to extend it. Read this before changing an
 ## Principles
 
 - **No build step, no dependencies.** The repo is what ships. Opening `index.html` from disk must keep working.
-- **Classic scripts in one shared global scope.** The twelve files in `js/` are plain `<script src>` tags, not ES modules, because modules don't load from `file://`. A top-level `const`, `let` or `function` in one file is visible to every file loaded after it.
+- **Classic scripts in one shared global scope.** The thirteen files in `js/` are plain `<script src>` tags, not ES modules, because modules don't load from `file://`. A top-level `const`, `let` or `function` in one file is visible to every file loaded after it.
 - **Everything is drawn and synthesized in code.** No images, sprite sheets or audio files. Shapes are canvas paths. Sounds and music are Web Audio oscillators and filtered noise.
 - **Fixed 60 Hz simulation.** Game logic runs in whole frames, so physics and timings behave the same on every machine.
 
@@ -26,7 +26,8 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 9 | `editor.js` | `ED`, `TOOLS`, `CUSTOM` stage (index 6), editor input, level codes | loads the saved editor level, pushes `CUSTOM` onto `STAGES` |
 | 10 | `route.js` | `routeStart`, `routeSlice`, `routeMsg`: the editor's route checker | nothing |
 | 11 | `records.js` | `ACH`, `ach()`, `stat()`, `split()`, the Records screen, toasts, `exportProgress` / `importProgress` | fills in missing save fields, wires the progress-code buttons |
-| 12 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
+| 12 | `gallery.js` | `GAL`, `loadGallery()`, the Gallery screen | nothing (it fetches `levels.json` when the screen opens) |
+| 13 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
 
 **Rules that keep this safe:**
 
@@ -66,6 +67,7 @@ frame(now)                                  render.js, driven by requestAnimatio
 | `dead` | 90-frame "Signal lost", then `resetRun(false)` at the checkpoint | `play` |
 | `got` | stage clear, weapon earned, ending or rush result | `select` or `edit` |
 | `records` | achievements and times pages (`recPage`) | `select` |
+| `gallery` | the level gallery | `play` (shared level), `select` |
 | `edit` | level editor | `play` (playtest), `route`, `select` |
 | `route` | editor route check running in about 10 ms slices per frame; `step()` hands off to `routeSlice()` | `edit` |
 
@@ -180,6 +182,12 @@ See the storage table in the README. `save.cleared[WFROM[w]]` unlocks weapon `w`
 1. Add an entry to `WPN` (`core.js`): name, short label, colour, cost, description.
 2. Handle firing in `fire()` (`entities.js`), movement and collision in `updShots` (`step.js`), and drawing in `drawShots` (`render.js`). Set `w` on the shot so weaknesses work.
 3. Decide how it unlocks. `unlocked(w)` currently maps weapon `w` to `save.cleared[w − 1]`.
+
+### Shared levels and the editor level
+The custom stage (`CUSTOM`, index 6) always plays `ED`. To play a level that isn't the player's own (a gallery level or a play link), `playShared(L, from)` parks the player's level in `ED_SAVED`, sets `sharedMode` to where it came from (`gallery` or `title`), and plays `L`. `endShared()` puts the player's level back. `saveED()` does nothing while `sharedMode` is set, so a shared level can never overwrite the saved editor level. Clears of shared levels record a best time in `save.gal`, keyed by `levelHash()`. Clears of your own level earn Architect.
+
+### Editor undo
+`edPushUndo()` stores a snapshot of `ED` (rows joined to strings) before each stroke: a pointer press, a keyboard Z or X press, or a button such as Clear, Width, Boss or Theme. `edUndo()` and `edRedo()` swap snapshots, and the history is capped at 50.
 
 ### How the route check works
 `routeStart()` builds the custom stage with no enemies, then `routeSlice()` runs a beam search. It takes a frontier of saved states (`routeSnap()`: the player, `tick` and checkpoint), tries each input macro from `RMAC` with the real `step()`, and keeps new states that end up standing or climbing without taking damage. States are deduplicated by position, plus a time bucket when platforms or crushers make timing matter, and the furthest-right ones carry over to the next round. Sounds are muted with `silent` while it runs. `tools/ghost.js` is the same algorithm for Node, run against the built-in stages.

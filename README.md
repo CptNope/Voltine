@@ -18,6 +18,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 - [Sectors and bosses](#sectors-and-bosses)
 - [Weapons and weaknesses](#weapons-and-weaknesses)
 - [Modes](#modes)
+- [Level gallery](#level-gallery)
 - [Level editor](#level-editor)
 - [Saving, install and offline play](#saving-install-and-offline-play)
 - [Running locally](#running-locally)
@@ -38,7 +39,8 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 - **Stage select** with saved progress and best times.
 - **Normal and Hard** difficulty, with best times kept for each.
 - **Boss Rush:** all five bosses back to back on one clock.
-- **Level editor:** paint your own stage, playtest it instantly, and share it as a short text code.
+- **Level editor:** paint your own stage (up to 200 columns), undo and redo, playtest it instantly, and share it as a short code or a play link once the route check has verified it.
+- **Level gallery:** ten hand-built levels, each route-checked on every push, with your best time on each.
 - **Records:** 16 achievements, checkpoint splits against your best run, lifetime stats, and a progress code to move your save between devices.
 - **Synthesized soundtrack:** seven tracks, one per stage, plus a menu, boss and final-boss theme.
 - **Keyboard, gamepad and touch** controls. The touch pad appears automatically on phones and tablets.
@@ -166,13 +168,22 @@ Voltline aims to be playable by as many people as possible. Every option is in t
 
 Please report problems the way [CONTRIBUTING.md](CONTRIBUTING.md#reporting-balance-problems) describes; accessibility reports are top priority.
 
+## Level gallery
+
+Choose **Gallery** from the bar under the stage cards. It lists curated levels from [`levels.json`](levels.json) with name, author, boss, length, a ✓ for levels whose route is verified, and your best time on each (Normal, assist off). Playing a gallery level never touches the level in your own editor. Enter during play, or after the clear, takes you back to the gallery.
+
+Want a level in the gallery? See [CONTRIBUTING.md](CONTRIBUTING.md#adding-a-gallery-level).
+
 ## Level editor
 
 Pick **Level Editor** from the bar under the stage cards.
 
 - **Canvas:** 100 columns × 17 rows. A safe start platform sits on the left and a boss arena is added after column 100 automatically.
 - **Tools:** block, spikes, water, ladder, belt → and belt ←, walker, shield walker, spark hopper, flyer, gull, jellyfish, turret, health, energy, platform (moves sideways), lift (moves up and down), crusher, checkpoint (up to three), erase.
-- **Boss and theme:** chosen with the buttons under the game. The theme sets the colours and music, and the Sky theme adds wind.
+- **Boss, theme and width:** chosen with the buttons under the game. The theme sets the colours and music, and the Sky theme adds wind. Width goes from 100 to 200 columns in steps of 25; shrinking a level that would lose content asks first.
+- **Name and author:** typed into the boxes under the game, and shown on the level's intro card and in the gallery. Letters, numbers and basic punctuation only.
+- **Undo and redo:** Ctrl/Cmd+Z and Ctrl/Cmd+Y (or Shift+Z), or the buttons. Each stroke is one step, and 50 steps are kept.
+- **Checkpoints** can only go in a column with solid ground somewhere in it, so a respawn can't drop you into a pit.
 
 | Editor action | Keyboard | Mouse / touch |
 |---|---|---|
@@ -182,13 +193,16 @@ Pick **Level Editor** from the bar under the stage cards.
 | Change tool | Q / E | click the tool bar |
 | Scroll | move the cursor | ◀ ▶ at the screen edges |
 | Check route | R | Check route button |
+| Undo / redo | Ctrl+Z / Ctrl+Y | Undo / Redo buttons |
 | Playtest | Enter | Playtest button |
 | Back to the editor from a playtest | Enter | START |
 | Leave | Esc | Exit editor button |
 
 **Check route** runs the same search as `tools/ghost.js` inside the browser, ignoring enemies. It either confirms the level can be finished or moves the cursor to where the search got stuck. It usually takes a few seconds, and Esc cancels.
 
-Your level saves in the browser as you work. **Copy code** produces a short text code, usually a few hundred characters. Paste someone else's code into the box and press **Load pasted code** to play it. Codes are checked when loaded, and anything malformed is rejected or cleaned up. The format is documented in [docs/LEVEL_CODES.md](docs/LEVEL_CODES.md).
+Your level saves in the browser as you work.
+
+**Sharing:** **Copy code** gives a short text code, and **Copy play link** gives a URL such as `https://cptnope.github.io/Voltline/?level=VL1…` that opens straight into your level. If the level hasn't passed a route check since its last change, the first press runs the check. Press again to copy: the copy carries a *route verified* mark if the check passed. You can still share an unverified level with that second press. To play someone else's level, paste their code or link into the box and press **Load pasted code** (that replaces your editor level, and Undo brings yours back), or just open their play link. A play link plays the level without touching your own. Codes are checked when loaded, and anything malformed is rejected or cleaned up. The format is in [docs/LEVEL_CODES.md](docs/LEVEL_CODES.md).
 
 ## Records, achievements and splits
 
@@ -262,10 +276,14 @@ js/render.js            all drawing: backgrounds, tiles, sprites, HUD, menus
 js/editor.js            level editor and level codes
 js/route.js             in-browser route checker for the editor
 js/records.js           achievements, splits, stats, Records screen, progress codes
+js/gallery.js           the level gallery screen
+levels.json             gallery levels (built by tools/build-gallery.js)
 js/main.js              starts the loop, registers the service worker
 tools/harness.js        loads the game headless in Node for testing
 tools/smoke.js          smoke tests for menus, bosses, modes, editor and music
 tools/ghost.js          route checker that proves each stage can be finished
+tools/build-gallery.js  gallery level recipes; writes levels.json only if every level passes the route check
+tools/check-gallery.js  CI check that every gallery level decodes, is verified and passes the route check
 sw.js                   offline cache (bump VERSION when files change)
 manifest.webmanifest    install metadata
 icon-192.png, icon-512.png

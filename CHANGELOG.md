@@ -2,6 +2,19 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.16 — Community levels
+
+- **Level gallery:** a new Gallery bar on stage select lists ten hand-built levels from `levels.json` (100 to 200 columns, every boss and theme), each with your best time. Playing one never touches your own editor level.
+- **Play links:** `?level=VL1…` opens straight into a level. The title screen names it and Enter plays it. **Copy play link** in the editor makes one.
+- **Verified codes:** Copy code and Copy play link run the route check first if the level changed since its last pass. A pass adds a *route verified* mark that's recomputed on load. A second press shares the level anyway.
+- **Names and authors** in level codes, shown on the intro card and in the gallery. Only plain characters are kept.
+- **Undo and redo** in the editor (Ctrl/Cmd+Z, Ctrl/Cmd+Y or Shift+Z, or the buttons), one step per stroke, 50 steps kept.
+- **Longer levels:** 100 to 200 columns in steps of 25. Shrinking asks first if content would be lost.
+- **Checkpoint safety:** checkpoints can't go in a column without solid ground.
+- `tools/build-gallery.js` writes `levels.json` from recipes, but only if every level passes the route check. `tools/check-gallery.js` re-checks the gallery in CI (now three checks: smoke, route, gallery).
+- The title tagline now says five sectors.
+- Smoke tests: 98 checks.
+
 ## 0.15 — Access for everyone
 
 - **Remappable controls:** Settings → Controls lists every action with its keyboard and gamepad bindings. Rebinding moves a key away from any action that had it and warns if that action is left without one. Includes Reset to defaults; Esc and Enter always work in menus. Saved in `voltline-keys`.

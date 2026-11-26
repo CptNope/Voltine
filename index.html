@@ -39,6 +39,9 @@ kbd{font:inherit;font-size:13px;color:var(--ink);background:#2a1650;border:1px s
 .edp button{font:500 14px "Chakra Petch",sans-serif;color:var(--ink);background:#2a1650;border:1px solid #4a2b80;border-radius:8px;padding:8px 12px;min-height:40px;cursor:pointer}
 .edp button:hover,.edp button:focus-visible{border-color:var(--mint)}
 .edp label{color:var(--dim);font-size:14px}
+.edp .inl{display:flex;gap:6px;align-items:center}
+.edp input{font:15px "Chakra Petch",sans-serif;color:var(--ink);background:#0d0520;border:1px solid #4a2b80;border-radius:8px;padding:6px 8px;min-height:36px;width:13em}
+#edVerified{font-size:14px;color:var(--dim)}#edVerified.ok{color:var(--mint)}
 .edp textarea{width:100%;font:13px/1.4 ui-monospace,Menlo,monospace;color:var(--ink);background:#0d0520;border:1px solid #4a2b80;border-radius:8px;padding:8px;resize:vertical}
 #edMsg{color:var(--mint);font-size:14px}
 .prog{margin-top:16px;padding:12px 14px;border:1px solid #3b1f66;border-radius:14px;background:var(--panel);color:var(--dim);font-size:15px}
@@ -90,10 +93,11 @@ kbd{font:inherit;font-size:13px;color:var(--ink);background:#2a1650;border:1px s
 <div class="opts"><button id="optsBtn" type="button">Settings</button><button id="mus" type="button">Music on</button><button id="sfx" type="button">Sound on</button><button id="reset" type="button">Reset progress</button></div>
 </div>
 <section class="edp" id="edp" hidden>
-<div class="edrow"><button type="button" id="edBoss">Boss: Prism Warden</button><button type="button" id="edTheme">Theme: Prism Grid</button><button type="button" id="edTest">Playtest</button><button type="button" id="edRoute">Check route</button><button type="button" id="edClear">Clear level</button><button type="button" id="edExit">Exit editor</button></div>
-<label for="edCode">Level code. Copy it to share, or paste one in and load it.</label>
+<div class="edrow"><label class="inl">Name <input id="edName" maxlength="32" autocomplete="off"></label><label class="inl">Author <input id="edAuthor" maxlength="24" autocomplete="off"></label><span id="edVerified"></span></div>
+<div class="edrow"><button type="button" id="edBoss">Boss: Prism Warden</button><button type="button" id="edTheme">Theme: Prism Grid</button><button type="button" id="edWidth">Width: 100</button><button type="button" id="edUndo">Undo</button><button type="button" id="edRedo">Redo</button><button type="button" id="edTest">Playtest</button><button type="button" id="edRoute">Check route</button><button type="button" id="edClear">Clear level</button><button type="button" id="edExit">Exit editor</button></div>
+<label for="edCode">Level code or play link. Copy one to share (the route is checked first), or paste one in and load it.</label>
 <textarea id="edCode" rows="3" spellcheck="false"></textarea>
-<div class="edrow"><button type="button" id="edCopy">Copy code</button><button type="button" id="edLoad">Load pasted code</button><span id="edMsg" role="status"></span></div>
+<div class="edrow"><button type="button" id="edCopy">Copy code</button><button type="button" id="edLink">Copy play link</button><button type="button" id="edLoad">Load pasted code</button><span id="edMsg" role="status"></span></div>
 </section>
 <details class="prog">
 <summary>Move your progress, or share a playtest report</summary>
@@ -114,6 +118,7 @@ kbd{font:inherit;font-size:13px;color:var(--ink);background:#2a1650;border:1px s
 <script src="js/editor.js"></script>
 <script src="js/route.js"></script>
 <script src="js/records.js"></script>
+<script src="js/gallery.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
