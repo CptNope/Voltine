@@ -16,7 +16,7 @@ function resetRun(full){
   buildMap();spawnAll();PB=[];EB=[];PT=[];WARN=[];POP=[];B=null;MB=null;MBlock=false;arena=false;gust=0;rushWait=0;EN=[28,28,28,28,28];
   if(full){cp=0;clock=0;deaths=0;MBdone=false}
   const w=P?P.wpn:0;
-  P={x:ST.cps[cp]*TS,y:groundY(ST.cps[cp])-22,w:12,h:22,vx:0,vy:0,face:1,onG:false,climb:false,slide:0,hp:28,inv:60,charge:0,shootT:0,hurt:0,anim:0,mv:null,wpn:unlocked(w)?w:0};
+  P={x:ST.cps[cp]*TS,y:groundY(ST.cps[cp])-22,w:12,h:22,vx:0,vy:0,face:1,onG:false,climb:false,slide:0,hp:28,inv:60,charge:0,shootT:0,hurt:0,anim:0,mv:null,spawnT:30,wpn:unlocked(w)?w:0};
   if(PRAC&&PRAC.x!==undefined){P.x=PRAC.x;P.y=PRAC.y} // practice from a mid-boss or boss respawns at its door
   if(cp>0||PRAC)E=E.filter(e=>Math.abs(e.x+7-(P.x+6))>64); // never respawn on top of an enemy
   camX=Math.max(0,Math.min(W*TS-VW,P.x-VW/2));
@@ -107,7 +107,7 @@ function envCheck(){
   if(p.y>H*TS+20){die('pit');return}
   if(p.inv===0)for(let ty=Math.floor((p.y+3)/TS);ty<=Math.floor((p.y+p.h-1)/TS);ty++)for(let tx=Math.floor((p.x+2)/TS);tx<=Math.floor((p.x+p.w-2)/TS);tx++)if(tile(tx,ty)==='^'){if(OPT.as){hurt(6);P.vy=-4.5;return}die('spikes');return}
   for(const c of CR)if(p.x+p.w>c.cx-12&&p.x<c.cx+12&&p.y<c.bot){hurt(6);break}
-  for(let i=ST.cps.length-1;i>cp;i--)if(p.x>ST.cps[i]*TS){cp=i;split(i-1);snd(660,.1,'triangle',990,.05);burst(ST.cps[i]*TS+8,13*TS,GOLD,12);break}
+  for(let i=ST.cps.length-1;i>cp;i--)if(p.x>ST.cps[i]*TS){cp=i;split(i-1);snd(660,.1,'triangle',990,.05);burst(ST.cps[i]*TS+8,13*TS,GOLD,12);checkpointFx(ST.cps[i]*TS+8,groundY(ST.cps[i]));break}
 }
 
 /* ---------- world: movers, crushers, wind ---------- */

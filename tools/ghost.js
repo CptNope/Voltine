@@ -29,12 +29,11 @@ function runStage(si, { beam = 60, iters = 260, room = null } = {}) {
   const snap = (f = 0) => { const P = G.get('P'); return { P: { ...P, mv: P.mv ? MV().indexOf(P.mv) : -1 }, tick: G.get('tick'), cp: G.get('cp'), clock: G.get('clock'), f }; };
   const done = () => G.get('arena') || G.get('state') === 'got'; // a boss arena, or a challenge room's exit
   const restore = s => {
-    G.set('tick', s.tick); G.set('cp', s.cp); G.set('clock', s.clock); G.set('state', 'play'); G.set('MBdone', true); // mid-bosses are fights, not terrain; the route check skips them like other enemies if (G.get('HASPHASE')) G.set('PHASE', Math.floor(s.tick / 90) % 2); G.set('E', []); G.set('EB', []); G.set('PB', []);
+    G.set('tick', s.tick); G.set('cp', s.cp); G.set('clock', s.clock); G.set('state', 'play'); G.set('MBdone', true); /* mid-bosses are fights, not terrain; the route check skips them like other enemies */ if (G.get('HASPHASE')) G.set('PHASE', Math.floor(s.tick / 90) % 2); G.set('E', []); G.set('EB', []); G.set('PB', []);
     for (const m of MV()) { const a = s.tick / m.per * 6.283 + m.ph; m.x = m.bx + Math.sin(a) * m.ax; m.y = m.by + Math.sin(a) * m.ay; m.dx = m.dy = 0; }
     const P = { ...s.P }; P.mv = P.mv >= 0 ? MV()[P.mv] : null; G.set('P', P);
   };
-  const play = (mac) => {
-    const hp0 = G.get('P').hp;
+  const framesOf = (mac) => {
     const frames = [];
     if (mac.r) for (let i = 0; i < mac.r; i++) frames.push({ right: 1 });
     if (mac.l) for (let i = 0; i < mac.l; i++) frames.push({ left: 1 });
@@ -48,7 +47,11 @@ function runStage(si, { beam = 60, iters = 260, room = null } = {}) {
     if (mac.sw) for (let i = 0; i < mac.sw; i++) frames.push({ right: 1, jump: i % 14 < 3 }); // swim right
     if (mac.su) for (let i = 0; i < mac.su; i++) frames.push({ jump: i % 12 < 3 });           // swim up
     frames.push({});
-    for (const f of frames) {
+    return frames;
+  };
+  const play = (mac) => {
+    const hp0 = G.get('P').hp;
+    for (const f of framesOf(mac)) {
       G.step(1, f);
       if (done()) return true;
       if (G.get('state') !== 'play') return false;
@@ -62,11 +65,11 @@ function runStage(si, { beam = 60, iters = 260, room = null } = {}) {
   let frontier = [snap()], best = frontier[0].P.x, seen = new Set();
   for (let it = 0; it < iters; it++) {
     const next = [];
-    for (const s of frontier) for (const mac of MACROS) {
+    for (const s of frontier) for (const [mi, mac] of MACROS.entries()) {
       restore(s);
       if (!play(mac)) continue;
-      const n = snap();
-      if (done()) return { ok: true, stage: G.get('ST').name, iters: it, x: n.P.x / TS, frames: G.get('clock') };
+      const n = snap(); n.path = [...(s.path || []), mi];
+      if (done()) return { ok: true, stage: G.get('ST').name, iters: it, x: n.P.x / TS, frames: G.get('clock'), path: n.path };
       const key = `${Math.round(n.P.x / 8)},${Math.round(n.P.y / 8)},${n.P.climb ? 1 : 0},${n.P.mv}` + (timed ? `,${Math.floor(n.tick / 15) % 16}` : '');
       if (seen.has(key)) continue;
       seen.add(key); next.push(n);
@@ -95,3 +98,4 @@ if (require.main === module) {
   process.exit(fail ? 1 : 0);
 }
 module.exports = runStage;
+module.exports.MACROS = MACROS;

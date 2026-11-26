@@ -4,7 +4,7 @@
 const AL=()=> (ARENA+1)*TS, AR=()=>(W-2)*TS;
 function spawnBoss(){
   bossHurt=false;bossT0=clock;
-  const k=ST.rush?RUSH[rushIdx]:ST.kind;B={kind:k,x:(W-9)*TS,y:-50,w:28,h:34,vx:0,vy:0,hp:28,shown:0,st:'drop',t:0,face:-1,inv:0,onG:false};
+  const k=ST.rush?RUSH[rushIdx]:ST.kind;bossCardOpen(k);B={kind:k,x:(W-9)*TS,y:-50,w:28,h:34,vx:0,vy:0,hp:28,shown:0,st:'drop',t:0,face:-1,inv:0,onG:false};
   if(k==='hound'){B.w=34;B.h=22}
   if(k==='kite'){B.w=32;B.h=20;B.y=-30}
   if(ST.rush)for(let y=12;y<=14;y++)for(let x=3;x<=30;x++)map[y][x]=k==='undertow'?'~':' '; // flood the rush arena for Undertow only
@@ -152,6 +152,6 @@ function winStage(){
   logEv({e:'clear',t:clock,d:deaths});split(ST.cps.length);const first=!save.cleared[S];save.cleared[S]=1;const bt=hard?save.bestH:save.best;if(!assistOn()&&(!bt[S]||clock<bt[S])){bt[S]=clock;saveSplits();ghostSave()}persist();
   ach('first_clear');if(deaths===0)ach('no_reboot');if(WARDENS.every(i=>save.cleared[i]))ach('all_wardens');
   if([1,2,3,4,5,6].every(unlocked))ach('all_weapons');if(S===3){ach('core');if(hard)ach('hard_core')}if(S===0&&clock<150*60)ach('speed');
-  lastWin={first,w:WFROM.indexOf(S),all:coreOpen(),fin:!!ST.final};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(659,.2,'square',0,.05),180);setTimeout(()=>snd(784,.4,'square',0,.05),360);
+  lastWin={first,w:WFROM.indexOf(S),all:coreOpen(),fin:!!ST.final};state='got';gotT=0;if(ST.final&&!silent)startStory(STORY_END,()=>{state='got';gotT=0});snd(523,.2,'square',0,.05);setTimeout(()=>snd(659,.2,'square',0,.05),180);setTimeout(()=>snd(784,.4,'square',0,.05),360);
 }
 

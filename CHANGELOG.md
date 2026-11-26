@@ -2,6 +2,15 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.19 — Presentation, part 1
+
+- **Story:** four short cards before your first stage select and three after the Null Core, each typing itself out. About 25 seconds in total. Jump moves on and Enter skips.
+- **Boss intro cards:** the first time each warden appears in a run, a card shows its portrait, name and one line about it. The fight and the clock wait until it closes, and jump skips it. Boss Rush shows each card once.
+- **Reboot and respawn:** dying now shows a SIGNAL LOST screen with a reboot progress bar and scan lines (no scan lines with reduced flashing), and says where you'll restart. You materialise in a beam of light. Passing a checkpoint shows a ring and a CHECKPOINT label.
+- **Attract mode:** after 20 seconds on the title screen, the game plays the start of Prism Grid by itself, with no sound and nothing recorded. The inputs come from a route the route checker found (`tools/build-demo.js`), and seeded runs make it play out the same way every time. Any key, click or tap ends it.
+- **Route checker fix:** since 0.17.1 a misplaced comment had switched off part of the checker's reset between search steps (enemy bullets and Phase Lab block timing). Fixed; every stage and room still passes.
+- Smoke tests: 170 checks.
+
 ## 0.18 — Challenge rooms and the Daily run
 
 - **Challenge rooms:** 20 short rooms (three per sector, two for the Null Core), each a sprint to an exit gate with gold, silver and bronze times. They open as you clear their sectors. Best times and medals are saved per room, and each room keeps its own ghost.

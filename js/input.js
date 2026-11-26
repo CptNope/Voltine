@@ -34,6 +34,7 @@ function keyName(k){return {' ':'Space',ArrowLeft:'←',ArrowRight:'→',ArrowUp
 function padName(i){return ['A','B','X','Y','LB','RB','LT','RT','Select','Start','L-stick','R-stick'][i]||('Button '+i)}
 loadBinds();
 addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='TEXTAREA'||tg==='INPUT')return;
+  if(demoInput()){e.preventDefault();audio();return} // a key during the demo only ends the demo
   if(capture){e.preventDefault();if(e.key==='Escape'){capture=null;return}if(capture.kind==='key'&&!e.repeat){bindKey(capture.act,e.key);capture=null}return}
   const k=KM[normKey(e.key)];if(k&&!(tg==='BUTTON'&&(e.key===' '||e.key==='Enter'))){K[k]=true;e.preventDefault();audio()}});
 addEventListener('keyup',e=>{const k=KM[normKey(e.key)];if(k)K[k]=false});
@@ -44,7 +45,7 @@ for(const b of document.querySelectorAll('.pad button')){
   const k=b.dataset.k,on=e=>{e.preventDefault();K[k]=true;b.classList.add('on');audio()},off=e=>{e.preventDefault();K[k]=false;b.classList.remove('on')};
   b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('pointerleave',off);
 }
-scr.addEventListener('pointerdown',e=>{scr.focus();audio();
+scr.addEventListener('pointerdown',e=>{scr.focus();audio();if(demoInput())return;
   if(state==='edit'){edPointer(e,true);return}
   if(state==='select'){const r=scr.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*VW,y=(e.clientY-r.top)/r.height*VH;
     if(y>=208&&y<=230){const t=BAR[Math.max(0,Math.min(3,Math.floor((x-20)/111)))];if(sel!==t){sel=t;return}}

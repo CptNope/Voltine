@@ -11,7 +11,7 @@ module.exports = function load(opts = {}) {
     '\nglobalThis.__get=n=>eval(n);globalThis.__set=(n,v)=>{globalThis.__v=v;eval(n+"=globalThis.__v")};\n';
 
   // Minimal stand-ins for the browser APIs the game touches.
-  const ctx = new Proxy({}, { get: (t, k) => k in t ? t[k] : (k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {}), set: (t, k, v) => (t[k] = v, true) });
+  const ctx = new Proxy({}, { get: (t, k) => k in t ? t[k] : (k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : k === 'measureText' ? s => ({ width: String(s).length * 7 }) : () => {}), set: (t, k, v) => (t[k] = v, true) });
   const el = () => ({ getContext: () => ctx, getBoundingClientRect: () => ({ left: 0, top: 0, width: 960, height: 544 }), addEventListener() {}, focus() {}, setAttribute() {}, select() {}, value: '', hidden: true, textContent: '', dataset: {}, classList: { add() {}, remove() {} }, width: 0, height: 0 });
   const els = {};
   const store = {};

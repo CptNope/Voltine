@@ -146,6 +146,10 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 
 **Boss Rush.** Unlocks after the Null Core. Fight all seven bosses (Prism Warden → Coil Hound → Gale Kite → Undertow → Orbiter → Mirror → Null Engine) in a row on one clock, with a health and energy refill between fights. If you die, you restart at the current boss and the clock keeps running.
 
+**Story.** Four short cards the first time you start, and three after the Null Core, each typing itself out. Jump moves on and Enter skips the rest. Each warden's first appearance in a run opens a card with its portrait and one line about it. The fight and the clock wait until the card closes (jump skips it).
+
+**Attract mode.** Leave the title screen alone for 20 seconds and the game plays the start of Prism Grid by itself. Any key, click or tap ends it.
+
 **Challenge rooms.** The Challenges card on stage select opens 20 short rooms, three for each sector plus two for the Null Core. Each one is a sprint to an exit gate with gold, silver and bronze times. A room opens once you've cleared its sector (Prism Grid's rooms are open from the start). Your best time and medal are saved for each room, and each room keeps its own ghost.
 
 **Daily run.** At the top of the room list. Three rooms picked from the date, the same for everyone that day, played back to back on one clock. It works offline because the choice comes from the date alone. Your best total is kept for the day.

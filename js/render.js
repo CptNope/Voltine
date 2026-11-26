@@ -312,7 +312,7 @@ function drawKeys(){dim(.95);text('CONTROLS',VW/2,34,18,MINT,'center',8);
     text(cap&&capture.kind==='pad'?'press a button…':pp,372,y,10,cap&&capture.kind==='pad'?GOLD:on&&kc===1&&a in DEF_PAD?GOLD:(pp==='—'?CORAL:'rgba(243,233,255,.6)'),'left',0)});
   if(bindMsg&&bindMsg.t>0)text(bindMsg.s,VW/2,246,9,bindMsg.bad?CORAL:MINT,'center',0);
   text(capture?'Esc cancels':'↑ ↓ choose · ← → keyboard or gamepad · Enter change · Esc back',VW/2,262,9,'rgba(243,233,255,.6)','center',0)}
-function draw(){drawMain();drawToasts()}
+function draw(){drawMain();drawDemo();drawToasts()}
 function drawMain(){
   ctx.setTransform(sc,0,0,sc,0,0);ctx.textBaseline='alphabetic';
   if(state==='route'&&RT){drawBG(ST.th);dim(.6);text('CHECKING ROUTE',VW/2,96,20,GOLD,'center',8);
@@ -321,6 +321,7 @@ function drawMain(){
     text('Enemies are ignored. Esc cancels.',VW/2,170,9,'rgba(243,233,255,.6)','center',0);return}
   if(state==='records'){drawRecords();return}
   if(state==='rooms'){drawRooms();return}
+  if(state==='story'){drawStory();return}
   if(state==='gallery'){drawGallery();return}
   if(state==='edit'){drawEdit();return}
   const view=(state==='opts'||state==='keys')&&optsFrom!=='pause'?optsFrom:state;
@@ -330,14 +331,14 @@ function drawMain(){
     else drawSelect();if(state==='opts')drawOpts();else if(state==='keys')drawKeys();return}
   drawBG(ST.th);
   ctx.save();const sx=shake?(Math.random()-.5)*shake:0,sy=shake?(Math.random()-.5)*shake:0;ctx.translate(-Math.round(camX)+sx,sy);
-  drawTiles();drawRoomGoal();drawEnemies();drawMid();drawGhost();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
+  drawTiles();drawRoomGoal();drawEnemies();drawMid();drawGhost();drawWorldFx();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
   text('CORE',8,15,9,CRM,'left',0);bar(36,8,P.hp,28,MINT);
   if(P.wpn){text(WPN[P.wpn].s,8,27,9,WPN[P.wpn].c,'left',0);bar(36,20,EN[P.wpn],28,WPN[P.wpn].c)}
   drawMidHUD();
   if(B&&B.st!=='drop'){text(BN[B.kind],VW-8,28,9,CRM,'right',0,150);bar(VW-8,8,Math.min(B.shown,B.hp),28,B.hp<=14?CORAL:PINK,true)}
   text((DAILY?'DAILY '+(DAILY.i+1)+'/3  '+fmtR(DAILY.total+clock):ST.room?fmtR(clock):fmt(clock))+(hard?'  HARD':''),VW/2,15,9,hard?CORAL:'rgba(243,233,255,.7)','center',0);
   if(ST.wind&&gust&&!arena)text('GUST',VW/2,28,9,SKY,'center',4);
-  if(B&&B.st==='intro')text(BN[B.kind],VW/2,110,22,ST.th.edge);
+  if(bossCard>0)drawBossCard();else if(B&&B.st==='intro')text(BN[B.kind],VW/2,110,22,ST.th.edge);
   if(ST.rush)text('RUSH '+(rushIdx+1)+'/'+RUSH.length,VW/2,28,9,PINK,'center',4);
   if(ST.custom&&state==='play')text(sharedMode?'Enter: leave level':'Enter: back to editor',VW-8,VH-6,9,'rgba(243,233,255,.55)','right',0);
   if(state==='pause'){dim(.7);text('PAUSED',VW/2,58,24,GOLD);
@@ -348,7 +349,7 @@ function drawMain(){
   else if(state==='opts')drawOpts();else if(state==='keys')drawKeys();
   else if(state==='play'&&introT>0&&!B){const al=Math.max(0,Math.min(1,introT/40,(200-introT)/20));ctx.globalAlpha=al;ctx.fillStyle='rgba(8,3,20,.8)';ctx.fillRect(VW/2-170,44,340,52);ctx.strokeStyle=ST.th.edge;ctx.lineWidth=1;ctx.strokeRect(VW/2-169.5,44.5,339,51);
     text((ST.custom?(ED.n||(sharedMode?'Shared level':'Your level')):ST.name).toUpperCase(),VW/2,66,16,ST.th.edge,'center',8,320);text(ST.room?(()=>{const r=roomOf(roomId);return 'Gold '+fmtR(r.m[0])+'  ·  Silver '+fmtR(r.m[1])+'  ·  Bronze '+fmtR(r.m[2])})():ST.custom?(ED.a?'by '+ED.a:'')+(isVerified()?(ED.a?'  ·  ':'')+'route verified':''):(INTRO[ST.key]||''),VW/2,84,9,CRM,'center',0,320);ctx.globalAlpha=1}
-  else if(state==='dead'&&deadT>40){text('SIGNAL LOST',VW/2,130,20,CORAL);text('rebooting at checkpoint',VW/2,150,10,CRM,'center',0)}
+  else if(state==='dead')drawReboot();
   else if(state==='got'&&lastWin.custom){dim(Math.min(.8,gotT/50));text('LEVEL CLEAR',VW/2,100,28,GOLD,'center',12);if(ED.n)text(ED.n,VW/2,120,11,CRM,'center',0,400);text('Time '+fmt(clock)+'  ·  Reboots '+deaths,VW/2,130,12,CRM,'center',0);
     if(gotT>60&&tick%60<40)text(lastWin.shared?(sharedMode==='gallery'?'Press Enter to return to the gallery':'Press Enter to continue'):'Press Enter to return to the editor',VW/2,200,12,GOLD)}
   else if(state==='got'&&lastWin.room){const r=roomOf(roomId);dim(Math.min(.8,gotT/50));text('ROOM CLEAR',VW/2,84,24,GOLD,'center',10);text(fmtR(clock),VW/2,120,30,lastWin.med?MEDC[lastWin.med]:MINT,'center',10);

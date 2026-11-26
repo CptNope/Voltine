@@ -26,7 +26,7 @@ function toArena(G, s) {
 
 { // menus and locks
   const G = load({ seed: 1 });
-  tap(G, 'start'); check('title opens stage select', G.get('state') === 'select');
+  tap(G, 'start'); check('a fresh save shows the story intro first', G.get('state') === 'story'); tap(G, 'start'); check('title opens stage select', G.get('state') === 'select');
   G.set('sel', G.get('B_RUSH')); tap(G, 'start'); check('Boss Rush is locked on a fresh save', G.get('state') === 'select');
   G.set('sel', G.get('CARD').indexOf(3)); tap(G, 'start');
   check('Null Core is locked on a fresh save', G.get('state') === 'select');
@@ -43,7 +43,8 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   toArena(G, s);
   const B = G.get('B');
   const r = fightBoss(G, { weapon: s === 3 || s === 5 ? 2 : 0 });
-  check(`${kind} spawns and can be beaten`, B && B.kind === kind && r.state === 'got', `${(r.frames / 60).toFixed(0)}s`);
+  const ended = kind === 'null' && r.state === 'story'; if (ended) { tap(G, 'start'); check('beating the Null Engine plays the ending, then the clear screen', G.get('state') === 'got'); }
+  check(`${kind} spawns and can be beaten`, B && B.kind === kind && (r.state === 'got' || ended), `${(r.frames / 60).toFixed(0)}s`);
 }
 
 { // weaknesses deal extra damage
@@ -93,7 +94,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
 { // music follows the game state
   const G = load({ seed: 14 });
   G.step(2, {}); const a = G.get('mus').id;
-  tap(G, 'start'); tap(G, 'start'); const b = G.get('mus').id;
+  tap(G, 'start'); tap(G, 'start'); tap(G, 'start'); const b = G.get('mus').id; // title > story intro > select > stage
   check('menu and stage tracks switch', a === 'menu' && b === 'prism', `${a} > ${b}`);
 }
 
@@ -411,6 +412,36 @@ for (const s of [0, 1, 2, 5, 7, 8]) { // 0.17.1 mid-bosses: lock, beat, walls ba
   G.call('startRoom', ROOMS[1]); G.set('state', 'pause'); G.set('pm', G.get('PAUSE_ITEMS').indexOf('quit')); tap(G, 'start'); check('quitting a room returns to the room list', G.get('state') === 'rooms');
   const code = G.call('exportProgress'); const back = G.call('importProgress', code); check('progress codes keep room times and the daily best', back && back.rooms.r01 === sv.rooms.r01 && back.daily.t === sv.daily.t);
   G.set('state', 'rooms'); let drew = true; try { G.draw(); G.set('state', 'select'); G.draw(); } catch (e) { drew = false; } check('the room list and select card draw without errors', drew);
+}
+
+{ // 0.19 presentation: story, boss cards, reboot and checkpoint feedback
+  const G = load({ seed: 80 }); G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1];
+  G.call('startStory', G.get('STORY_INTRO'), () => G.set('state', 'select')); let f = 0;
+  while (G.get('state') === 'story' && f < 60 * 40) { G.step(1, {}); f++; }
+  check('the story intro plays itself out in under 30 seconds', G.get('state') === 'select' && f < 30 * 60, `${(f / 60).toFixed(1)}s`);
+  toArena(G, 0); G.step(5, {}); check('a boss intro card opens and pauses the fight', G.get('bossCard') > 0);
+  const c0 = G.get('clock'); G.step(30, {}); check('the clock stops while the card is up', G.get('clock') === c0);
+  tap(G, 'jump'); G.step(25, {}); check('jump skips the card', G.get('bossCard') === 0);
+  G.call('die', 'hit'); G.step(100, {}); G.set('P', Object.assign(G.get('P'), { x: (G.get('W') - 26) * 16, y: 100 })); G.step(60, { right: 1 });
+  check('the card shows only once per run', G.get('bossCard') === 0);
+  G.call('startStage', 0); G.step(2, {}); check('a fresh spawn materialises', G.get('P').spawnT > 0);
+  const P = G.get('P'); P.x = (G.get('ST').cps[1] + 1) * 16; P.y = 100; G.step(30, {}); check('passing a checkpoint shows the checkpoint ring', !!G.get('cpFx') || G.get('POP').some(p => p.s === 'CHECKPOINT'));
+  G.call('die', 'hit'); let drew = true; try { for (let i = 0; i < 90; i++) { G.step(1, {}); if (i % 15 === 0) G.draw(); } G.set('state', 'story'); G.call('startStory', G.get('STORY_END'), () => {}); G.draw(); } catch (e) { drew = false; }
+  check('the reboot screen and story cards draw without errors', drew);
+}
+
+{ // 0.19 attract mode
+  const run = () => { const G = load({ seed: 90 }); const sv = G.get('save'); sv.story = 1; const kills0 = (sv.stats && sv.stats.kills) || 0;
+    G.step(20 * 60 + 2, {}); const started = G.get('demoOn') && G.get('state') === 'play' && G.get('S') === 0;
+    let maxX = 0, alive = true; while (G.get('demoOn')) { G.step(1); if (G.get('state') === 'dead') alive = false; maxX = Math.max(maxX, G.get('P').x); }
+    return { started, alive, tiles: Math.floor(maxX / 16), state: G.get('state'), clean: !G.get('GHOSTS')['0n'] && (((sv.stats && sv.stats.kills) || 0) === kills0) && !sv.best[0] }; };
+  const a = run(), b = run();
+  check('the demo starts after 20 seconds on the title', a.started);
+  check('the demo plays through the start of Prism Grid without dying', a.alive && a.tiles > 60, `reached tile ${a.tiles}`);
+  check('the demo plays out the same way every time', a.tiles === b.tiles);
+  check('the demo returns to the title and records nothing', a.state === 'title' && a.clean);
+  const G = load({ seed: 91 }); G.get('save').story = 1; G.step(20 * 60 + 30, {}); G.call('demoInput');
+  check('a key press ends the demo', !G.get('demoOn') && G.get('state') === 'title' && G.get('hard') === false && G.get('silent') === false);
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
