@@ -108,7 +108,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   tap(G, 'start'); tap(G, 'down'); tap(G, 'down'); tap(G, 'down'); tap(G, 'start');
   check('Settings opens from the pause menu', G.get('state') === 'opts');
   const OPT = G.get('OPT'); tap(G, 'left'); check('volume changes with left/right', OPT.mv === 7);
-  for (let i = 0; i < 5; i++) tap(G, 'down'); tap(G, 'right'); check('assist cycles', OPT.as === 1);
+  G.set('om', G.get('OPT_ITEMS').findIndex(o => o.k === 'as')); tap(G, 'right'); check('assist cycles', OPT.as === 1);
   tap(G, 'back'); check('Esc returns to the pause menu', G.get('state') === 'pause');
   tap(G, 'down'); tap(G, 'start'); check('Quit returns to stage select', G.get('state') === 'select');
   G.get('save').cleared = [1, 1, 1, 1]; G.get('save').best = [0, 0, 0, 0];
@@ -229,6 +229,36 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   check('playtest report summarises deaths and boss times', /Prism Grid: 1 clear/.test(rep) && /pit/.test(rep) && /boss PRISM WARDEN: 1 win/.test(rep));
   const n = L2.length; G.call('enterEditor'); G.call('routeStart'); for (let i = 0; i < 5 && G.get('state') === 'route'; i++) G.step(1);
   check('route checks and custom levels are not logged', G.get('save').log.length === n);
+}
+
+{ // 0.15 access: remapping, auto-fire, hold to swim, slow mode, high contrast, large text
+  const G = load({ seed: 23 });
+  const KM = () => G.get('KM'), BIND = G.get('BIND');
+  G.call('bindKey', 'jump', 'L');
+  check('rebinding a key maps it and removes the old keys', KM().l === 'jump' && KM().z === undefined && G.get('BIND').jump.length === 1);
+  G.call('bindKey', 'fire', 'l');
+  check('taking a key from another action warns when it leaves that action without a key', G.get('BIND').jump.length === 0 && G.get('bindMsg').bad === true);
+  check('Esc and Enter always work in menus', KM().Escape === 'back' && KM().Enter === 'start');
+  G.call('resetBinds'); check('reset restores the default keys', KM().z === 'jump' && KM().x === 'fire');
+  G.call('bindPad', 'jump', 3); check('gamepad buttons can be rebound', G.get('PADB').jump[0] === 3 && !G.get('PADB').next.includes(3));
+  G.call('resetBinds');
+  G.set('state', 'opts'); G.set('optsFrom', 'title'); G.set('om', G.get('OPT_ITEMS').findIndex(o => o.k === 'keys')); tap(G, 'start');
+  check('Settings > Controls opens the controls screen', G.get('state') === 'keys');
+  tap(G, 'start'); check('Enter on a row waits for a new key', G.get('capture') && G.get('capture').kind === 'key');
+  G.set('capture', null);
+  const OPT = G.get('OPT');
+  OPT.af = 1; G.call('startStage', 0); G.step(5, {}); G.set('E', []); G.set('introT', 0);
+  let shots = 0, before = 0; for (let i = 0; i < 40; i++) { G.step(1, { fire: 1 }); const n = G.get('PB').length; if (n > before) shots += n - before; before = n; }
+  check('auto-fire keeps shooting while fire is held', shots >= 3, shots + ' shots');
+  OPT.af = 0; OPT.hs = 1; G.get('save').cleared = [1, 1, 1, 0, 0, 1]; G.call('startStage', 5); G.step(3, {}); G.set('E', []);
+  const P = G.get('P'); P.x = 66 * 16; P.y = 13 * 16 + 4; P.vy = 0; P.inv = 9999; G.step(2, {}); const y0 = G.get('P').y;
+  G.step(1, { jump: 1 }); G.step(60, { jump: 1 }); check('hold to swim keeps rising while jump is held', G.get('P').y < y0 - 10);
+  OPT.hs = 0; OPT.spd = 1; check('slow mode counts as assist', G.call('assistOn') === true);
+  G.get('save').best[0] = 0; toArena(G, 0); fightBoss(G); check('slow mode runs do not record best times', G.get('save').best[0] === 0);
+  OPT.spd = 0; OPT.hc = 1; OPT.big = 1; let ok = true;
+  try { for (const st of ['title', 'select', 'records', 'opts', 'keys', 'pause', 'play', 'edit']) { G.set('state', st); if (st === 'edit') G.call('enterEditor'); G.draw(); } G.call('startStage', 5); G.step(10, {}); G.draw(); }
+  catch (e) { ok = false; console.log(e.stack); }
+  check('high contrast and large text draw every screen', ok);
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');

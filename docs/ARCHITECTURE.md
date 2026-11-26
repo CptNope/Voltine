@@ -146,11 +146,15 @@ All entities are plain objects in arrays, updated and drawn every frame:
 
 ## Settings
 
-`OPT` (`world.js`) holds the player settings: `mv` and `sv` volumes (0–10), `shake`, `rf` (reduced flashing), `tc` (toggle charge) and `as` (assist: 0 off, 1 half damage, 2 invincible). They're saved in `voltline-opts`. Code that flashes, shakes or spawns particles should check `OPT.rf` and `OPT.shake`. Anything that records a result should skip it when `OPT.as` is on.
+`OPT` (`world.js`) holds the player settings: `mv` and `sv` volumes (0–10), `shake`, `rf` (reduced flashing), `tc` (toggle charge), `as` (assist: 0 off, 1 half damage, 2 invincible), `spd` (game speed: 0 = 100%, 1 = 75%, 2 = 50%; the frame loop stretches the step interval), `af` (auto-fire), `hs` (hold to swim), `hc` (high contrast) and `big` (large text). `assistOn()` is true when assist or a slower speed is on; anything that records results checks it. They're saved in `voltline-opts`. Code that flashes, shakes or spawns particles should check `OPT.rf` and `OPT.shake`. New drawing code should pass its colour through `hc(colour, role)` (`render.js`), where the role is one of `terrain`, `hazard`, `enemy`, `eshot`, `hero`, `hero2`, `shot`, `health`, `energy`, `interact` or `surf`, so it follows the high-contrast palette `HCP`. `text()` takes an optional max width, so long labels shrink instead of overflowing. Anything that records a result should skip it when `OPT.as` is on.
 
 ## Playtest log
 
 `logEv(o)` in `records.js` appends events to `save.log` (capped at 400): `death` (column, cause `pit`, `spikes` or `hit`, and the boss if in a fight), `clear` (time, reboots) and `boss` (fight length in frames). It skips custom levels and route checks. `playtestReport()` turns the log into the text summary behind the **Copy playtest report** button.
+
+## Input bindings
+
+`input.js` keeps `DEF_BIND` (action → keys) and `DEF_PAD` (action → gamepad button indexes), loads overrides from `voltline-keys`, and builds `KM` (key → action) from them. Keys are compared after `normKey()` (single characters are lower-cased). While `capture` is set, the next key press or gamepad button press goes to `bindKey()` or `bindPad()` instead of the game. Esc and Enter are always mapped to back and start if nothing else claims them. Gamepad directions (D-pad buttons 12–15 and the left stick) are fixed.
 
 ## Saving
 

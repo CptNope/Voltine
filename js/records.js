@@ -26,7 +26,7 @@ if(!Array.isArray(save.splits))save.splits=[];if(!Array.isArray(save.splitsH))sa
 let TOASTS=[],runSplits=[],bossHurt=false,recPage=0;
 
 function ach(id){
-  if(silent)return;if(!save.ach)save.ach={};const a=ACH.find(x=>x[0]===id);if(!a||save.ach[id])return;if(a[3]&&OPT.as)return;
+  if(silent)return;if(!save.ach)save.ach={};const a=ACH.find(x=>x[0]===id);if(!a||save.ach[id])return;if(a[3]&&assistOn())return;
   save.ach[id]=1;persist();TOASTS.push({s:a[1],t:200});snd(880,.12,'triangle',1320,.05);setTimeout(()=>snd(1320,.2,'triangle',1760,.05),120);
 }
 function stat(k,n=1){if(silent)return;if(!save.stats)save.stats={};save.stats[k]=(save.stats[k]||0)+n;if(k==='kills'&&save.stats.kills>=100)ach('kills')}
@@ -38,17 +38,17 @@ function split(i){
   if(ST.custom||ST.rush)return;runSplits[i]=clock;const b=splitBest()[i];
   if(b)POP.push({x:P.x+6,y:P.y-10,s:fmtS(clock-b),c:clock<=b?MINT:CORAL,l:110});
 }
-function saveSplits(){if(ST.custom||ST.rush||OPT.as)return;const k=hard?'splitsH':'splits';if(!Array.isArray(save[k]))save[k]=[];save[k][S]=runSplits.slice()}
+function saveSplits(){if(ST.custom||ST.rush||assistOn())return;const k=hard?'splitsH':'splits';if(!Array.isArray(save[k]))save[k]=[];save[k][S]=runSplits.slice()}
 
 /* ---------- playtest log: stays on this device; the report is text the player chooses to share ---------- */
 let bossT0=0;
 function logEv(o){
   if(silent||!ST||ST.custom)return;if(!Array.isArray(save.log))save.log=[];
-  save.log.push(Object.assign({s:ST.key,h:hard?1:0,a:OPT.as?1:0,when:Date.now()},o));if(save.log.length>400)save.log.splice(0,save.log.length-400);persist();
+  save.log.push(Object.assign({s:ST.key,h:hard?1:0,a:assistOn()?1:0,when:Date.now()},o));if(save.log.length>400)save.log.splice(0,save.log.length-400);persist();
 }
 function playtestReport(){
   const L=Array.isArray(save.log)?save.log:[],keys=['prism','foundry','sky','tide','core','rush'],nm={prism:'Prism Grid',foundry:'Coil Foundry',sky:'Sky Relay',tide:'Tide Vault',core:'Null Core',rush:'Boss Rush'};
-  const out=['Voltline playtest report · version '+VERSION+' · '+new Date().toISOString().slice(0,10),'Events logged: '+L.length+(OPT.as?' · assist is on now':'')+(hard?' · Hard is selected now':''),''];
+  const out=['Voltline playtest report · version '+VERSION+' · '+new Date().toISOString().slice(0,10),'Events logged: '+L.length+(assistOn()?' · assist or slow mode is on now':'')+(hard?' · Hard is selected now':''),''];
   for(const k of keys){const ev=L.filter(e=>e.s===k);if(!ev.length)continue;
     const d=ev.filter(e=>e.e==='death'),c=ev.filter(e=>e.e==='clear'),b=ev.filter(e=>e.e==='boss');
     out.push(nm[k]+': '+c.length+' clear'+(c.length===1?'':'s')+(c.length?' (fastest '+fmt(Math.min(...c.map(e=>e.t)))+')':'')+', '+d.length+' death'+(d.length===1?'':'s'));
@@ -97,14 +97,14 @@ function drawRecords(){
     const got=ACH_IDS.filter(id=>save.ach&&save.ach[id]).length;text(got+' of '+ACH.length+' unlocked',VW-16,30,9,GOLD,'right',0);
     ACH.forEach((a,i)=>{const col=i<8?0:1,row=i%8,x=20+col*226,y=66+row*22,on=!!(save.ach&&save.ach[a[0]]);
       ctx.strokeStyle=on?GOLD:'rgba(255,255,255,.2)';ctx.lineWidth=1;ctx.strokeRect(x+.5,y-8.5,9,9);if(on){ctx.fillStyle=GOLD;ctx.fillRect(x+2,y-7,6,6)}
-      text(a[1]+(a[3]?' *':''),x+16,y,10,on?GOLD:CRM,'left',on?4:0);text(a[2],x+16,y+10,8,'rgba(243,233,255,.55)','left',0)});
+      text(a[1]+(a[3]?' *':''),x+16,y,10,on?GOLD:CRM,'left',on?4:0,205);text(a[2],x+16,y+(OPT.big?11:10),8,'rgba(243,233,255,.55)','left',0,205)});
     text('* needs assist off',20,252,8,'rgba(243,233,255,.5)','left',0);
   }else{
     const rows=[...CARD.map(i=>[STAGES[i].name,i]),['Boss Rush',-1]];
-    text('Sector',24,70,9,'rgba(243,233,255,.6)','left',0);text('Best',230,70,9,'rgba(243,233,255,.6)','right',0);text('Best on Hard',330,70,9,'rgba(243,233,255,.6)','right',0);text('Splits (Normal)',350,70,9,'rgba(243,233,255,.6)','left',0);
+    text('Sector',24,70,9,'rgba(243,233,255,.6)','left',0);text('Best',230,70,9,'rgba(243,233,255,.6)','right',0);text('Best on Hard',330,70,9,'rgba(243,233,255,.6)','right',0);text('Splits ('+(hard?'Hard':'Normal')+')',350,70,9,'rgba(243,233,255,.6)','left',0);
     rows.forEach(([n,i],r)=>{const y=90+r*20,b=i<0?save.rush[0]:save.best[i],h=i<0?save.rush[1]:save.bestH[i];
       text(n,24,y,10,CRM,'left',0);text(b?fmt(b):'—',230,y,10,b?MINT:'rgba(243,233,255,.35)','right',0);text(h?fmt(h):'—',330,y,10,h?CORAL:'rgba(243,233,255,.35)','right',0);
-      const sp=i<0?null:(save.splits||[])[i];text(sp&&sp.length?sp.map(f=>fmt(f)).join(' '):'—',350,y,8,'rgba(243,233,255,.6)','left',0)});
+      const sp=i<0?null:((hard?save.splitsH:save.splits)||[])[i];text(sp&&sp.length?sp.map(f=>fmt(f)).join(' '):'—',350,y,8,'rgba(243,233,255,.6)','left',0)});
     const st=save.stats||{};text('Enemies defeated '+(st.kills||0)+'   ·   Pickups '+(st.pickups||0)+'   ·   Reboots '+(st.reboots||0),VW/2,230,9,CRM,'center',0);
   }
   text('← → switch page · Esc back',VW/2,264,8,'rgba(243,233,255,.5)','center',0);

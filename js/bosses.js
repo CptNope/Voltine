@@ -111,8 +111,8 @@ function updUndertow(b){
 }
 function winStage(){
   if(ST.custom){ach('maker');lastWin={custom:1};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
-  if(ST.rush){ach('rush');if(hard)ach('rush_hard');const i=hard?1:0,pb=!OPT.as&&(!save.rush[i]||clock<save.rush[i]);if(pb)save.rush[i]=clock;persist();lastWin={rush:1,pb};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
-  logEv({e:'clear',t:clock,d:deaths});split(ST.cps.length);const first=!save.cleared[S];save.cleared[S]=1;const bt=hard?save.bestH:save.best;if(!OPT.as&&(!bt[S]||clock<bt[S])){bt[S]=clock;saveSplits()}persist();
+  if(ST.rush){ach('rush');if(hard)ach('rush_hard');const i=hard?1:0,pb=!assistOn()&&(!save.rush[i]||clock<save.rush[i]);if(pb)save.rush[i]=clock;persist();lastWin={rush:1,pb};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
+  logEv({e:'clear',t:clock,d:deaths});split(ST.cps.length);const first=!save.cleared[S];save.cleared[S]=1;const bt=hard?save.bestH:save.best;if(!assistOn()&&(!bt[S]||clock<bt[S])){bt[S]=clock;saveSplits()}persist();
   ach('first_clear');if(deaths===0)ach('no_reboot');if(save.cleared[0]&&save.cleared[1]&&save.cleared[2]&&save.cleared[5])ach('all_wardens');
   if([1,2,3,4].every(unlocked))ach('all_weapons');if(S===3){ach('core');if(hard)ach('hard_core')}if(S===0&&clock<150*60)ach('speed');
   lastWin={first,w:WFROM.indexOf(S),all:coreOpen(),fin:!!ST.final};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(659,.2,'square',0,.05),180);setTimeout(()=>snd(784,.4,'square',0,.05),360);

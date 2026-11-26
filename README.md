@@ -76,6 +76,8 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 | Start / pause | Enter or P | Start | START |
 | Back / pause | Esc or Backspace | — | — |
 | Settings | O | — | Settings button under the game |
+
+These are the defaults. Every key and button can be changed in **Settings → Controls**.
 | Music on/off | M | Select | button under the game |
 | Sound on/off | N | — | button under the game |
 
@@ -123,18 +125,46 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 
 ## Settings and accessibility
 
-Open **Settings** with **O**, from the pause menu, or with the button under the game. Changes save straight away.
+Open **Settings** with **O**, from the pause menu, or with the button under the game. Changes save straight away. The list scrolls.
 
 | Setting | Options | What it does |
 |---|---|---|
 | Music volume | 0–10 | soundtrack level (M still mutes) |
 | Sound volume | 0–10 | effects level (N still mutes) |
 | Screen shake | On / Off | turns every camera shake off |
-| Flashing and particles | Full / Reduced | no white hit flashes or blinking, steady warning lines, one third of the particles. The hero turns see-through instead of blinking while invulnerable. |
-| Charge shot | Hold / Tap to toggle | Tap to toggle: one tap fires and starts charging, the next tap releases the charged shot. No holding needed. |
-| Assist | Off / Half damage / Invincible | Half damage halves every hit. Invincible ignores hits. With either, spikes knock you back instead of killing you. Pits still reset you to the checkpoint. **Best times aren't recorded while assist is on.** |
+| Flashing and particles | Full / Reduced | no white hit flashes, blinking or hit-stop; steady warning lines; one third of the particles. The hero turns see-through instead of blinking while invulnerable. |
+| High contrast | On / Off | black background, white terrain, and one colour per role: hero blue, enemies and bosses orange, enemy shots yellow with a black outline, spikes filled red-orange, your shots white. Checked against protanopia, deuteranopia and tritanopia simulations. |
+| Text size | Normal / Large | raises every small label to at least 10 px (about 1.2×), and long labels shrink to fit their space |
+| Charge shot | Hold / Tap to toggle | Tap to toggle: one tap fires and starts charging, the next tap releases the charged shot |
+| Auto-fire | On / Off | holding fire keeps shooting (not for the Gust Ring, which toggles) |
+| Hold jump to swim | On / Off | holding jump keeps swimming strokes coming |
+| Assist | Off / Half damage / Invincible | Half damage halves every hit. Invincible ignores hits. With either, spikes knock you back instead of killing you; pits still reset you. |
+| Game speed | 100% / 75% / 50% | slows gameplay (menus and music stay at normal speed) |
+| Controls | — | rebind every keyboard key and gamepad button (below) |
+
+**Assist or a slower game speed** keeps every stage playable but doesn't record best times, splits or the skill achievements, so the Records stay comparable.
+
+**Controls:** in Settings → Controls, pick an action, choose the keyboard or gamepad column with ← →, press Enter, then press the new key or button. If it was already in use, it moves to the new action and the screen says which action lost it. Esc cancels, and **Reset to defaults** restores everything. Esc and Enter always work in menus, even after remapping, so you can't lock yourself out. Directions on a gamepad always use the D-pad and the left stick.
 
 Each stage opens with a short card showing its name and a hint about its main hazard.
+
+### Accessibility statement
+
+Voltline aims to be playable by as many people as possible. Every option is in the table above. What it supports today:
+
+- **Input:** keyboard, gamepad and touch; full remapping of keys and buttons; tap-to-toggle charge; auto-fire; hold-to-swim. A one-handed layout can be built from those.
+- **Vision:** a high-contrast mode tested with colour-blindness simulations; shape differences between hazards, enemies and shots, so colour isn't the only cue; a large-text option.
+- **Motion and flashing:** screen shake off; reduced flashing, particles and hit-stop.
+- **Difficulty and timing:** Normal and Hard; assist with half damage or invincibility; game speed at 75% or 50%.
+- **Hearing:** every attack has a visual tell (glowing barrels, shaking crushers, dashed lightning warnings), so sound is never required.
+
+**Known gaps:**
+- Text larger than about 1.2× isn't available yet.
+- Screen readers can't follow gameplay. The page around the game is labelled, but the game itself is a canvas.
+- Menus need a keyboard, a gamepad or the touch pad. The editor can also be used with a mouse.
+- None of this has been tested with disabled players yet.
+
+Please report problems the way [CONTRIBUTING.md](CONTRIBUTING.md#reporting-balance-problems) describes; accessibility reports are top priority.
 
 ## Level editor
 

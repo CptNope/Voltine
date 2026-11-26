@@ -2,7 +2,19 @@
 
 Versions are informal milestones. Newest first.
 
-## 0.14 — Feel (in progress)
+## 0.15 — Access for everyone
+
+- **Remappable controls:** Settings → Controls lists every action with its keyboard and gamepad bindings. Rebinding moves a key away from any action that had it and warns if that action is left without one. Includes Reset to defaults; Esc and Enter always work in menus. Saved in `voltline-keys`.
+- **High contrast:** black background, white terrain, and fixed role colours (hero blue, enemies orange, enemy shots yellow with an outline, filled red-orange spikes, white player shots). Tuned using protanopia, deuteranopia and tritanopia simulations of real screenshots: the first draft's pink enemies matched the hero under red-green deficiency and were changed.
+- **Large text:** every small label goes up to at least 10 px, and long labels shrink to fit their cards and rows.
+- **Game speed:** 75% or 50%. It counts as assist, so no best times, splits or skill achievements are recorded.
+- **Auto-fire** and **hold jump to swim**.
+- Settings is now a scrolling list of 13 items, and its overlays are darker so the screen behind doesn't compete.
+- The Records Times page shows splits for the selected difficulty.
+- Accessibility statement in the README.
+- Smoke tests: 81 checks.
+
+## 0.14 — Feel (playtest round still to come)
 
 - **Repo renamed** to `CptNope/Voltline`. The game is now at https://cptnope.github.io/Voltline/. Saves carry over because they're stored per site, not per path.
 - **Coyote time:** you can still jump for 6 frames after running off a ledge.

@@ -2,9 +2,41 @@
 // Classic script (no modules) so the game also runs from file://. Load order is set in index.html.
 /* ---------- input ---------- */
 const K={},prev={};
-const KM={ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right',ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',z:'jump',Z:'jump',k:'jump',K:'jump',' ':'jump',x:'fire',X:'fire',j:'fire',J:'fire',Enter:'start',p:'start',P:'start',Escape:'back',Backspace:'back',q:'prev',Q:'prev',e:'next',E:'next',c:'next',C:'next',m:'music',M:'music',n:'sfx',N:'sfx',o:'opts',O:'opts',r:'route',R:'route'};
-addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='TEXTAREA'||tg==='INPUT')return;const k=KM[e.key];if(k&&!(tg==='BUTTON'&&(e.key===' '||e.key==='Enter'))){K[k]=true;e.preventDefault();audio()}});
-addEventListener('keyup',e=>{const k=KM[e.key];if(k)K[k]=false});
+// ---- bindings: defaults, saved overrides, and the key -> action map built from them
+const DEF_BIND={left:['ArrowLeft','a'],right:['ArrowRight','d'],up:['ArrowUp','w'],down:['ArrowDown','s'],jump:['z','k',' '],fire:['x','j'],prev:['q'],next:['e','c'],start:['Enter','p'],back:['Escape','Backspace'],opts:['o'],music:['m'],sfx:['n'],route:['r']};
+const DEF_PAD={jump:[0],fire:[1,2],prev:[4],next:[3,5],start:[9],music:[8]};
+const BIND_ACTS=[['left','Move left'],['right','Move right'],['up','Up / climb'],['down','Down / slide'],['jump','Jump / swim'],['fire','Fire'],['prev','Previous weapon'],['next','Next weapon'],['start','Start / pause'],['back','Back'],['opts','Settings'],['music','Music on/off'],['sfx','Sound on/off'],['route','Check route (editor)']];
+let BIND={},PADB={},KM={},capture=null,bindMsg=null;
+const normKey=k=>typeof k==='string'&&k.length===1?k.toLowerCase():k;
+function rebuildKM(){KM={};for(const a in BIND)for(const k of BIND[a])KM[normKey(k)]=a;if(!KM.Escape)KM.Escape='back';if(!KM.Enter)KM.Enter='start'} // Esc and Enter always work in menus
+function loadBinds(){
+  BIND=JSON.parse(JSON.stringify(DEF_BIND));PADB=JSON.parse(JSON.stringify(DEF_PAD));
+  try{const o=JSON.parse(localStorage.getItem('voltline-keys')||'null');
+    if(o&&o.k)for(const a in DEF_BIND)if(Array.isArray(o.k[a]))BIND[a]=o.k[a].filter(x=>typeof x==='string'&&x.length>0&&x.length<20).slice(0,3);
+    if(o&&o.p)for(const a in DEF_PAD)if(Array.isArray(o.p[a]))PADB[a]=o.p[a].filter(n=>Number.isInteger(n)&&n>=0&&n<20).slice(0,3)}catch(e){}
+  rebuildKM();
+}
+function saveBinds(){try{localStorage.setItem('voltline-keys',JSON.stringify({k:BIND,p:PADB}))}catch(e){}rebuildKM()}
+const actName=a=>(BIND_ACTS.find(x=>x[0]===a)||[a,a])[1];
+function bindKey(act,key){
+  const k=normKey(key);let stolen=null;
+  for(const a in BIND)if(a!==act&&BIND[a].map(normKey).includes(k)){BIND[a]=BIND[a].filter(x=>normKey(x)!==k);stolen=a}
+  BIND[act]=[k];saveBinds();for(const a in K)K[a]=false;
+  bindMsg={t:200,bad:!!(stolen&&!BIND[stolen].length),s:stolen?(BIND[stolen].length?keyName(k)+' moved from '+actName(stolen):actName(stolen)+' has no key now. Give it one.'):actName(act)+' set to '+keyName(k)};
+}
+function bindPad(act,btn){
+  let stolen=null;for(const a in PADB)if(a!==act&&PADB[a].includes(btn)){PADB[a]=PADB[a].filter(x=>x!==btn);stolen=a}
+  PADB[act]=[btn];saveBinds();
+  bindMsg={t:200,bad:!!(stolen&&!PADB[stolen].length),s:stolen?(PADB[stolen].length?padName(btn)+' moved from '+actName(stolen):actName(stolen)+' has no button now. Give it one.'):actName(act)+' set to '+padName(btn)};
+}
+function resetBinds(){BIND=JSON.parse(JSON.stringify(DEF_BIND));PADB=JSON.parse(JSON.stringify(DEF_PAD));saveBinds();bindMsg={t:150,s:'Controls reset to defaults'}}
+function keyName(k){return {' ':'Space',ArrowLeft:'←',ArrowRight:'→',ArrowUp:'↑',ArrowDown:'↓',Escape:'Esc',Enter:'Enter',Backspace:'Backspace',Shift:'Shift',Control:'Ctrl',Alt:'Alt',Tab:'Tab'}[k]||(typeof k==='string'&&k.length===1?k.toUpperCase():String(k))}
+function padName(i){return ['A','B','X','Y','LB','RB','LT','RT','Select','Start','L-stick','R-stick'][i]||('Button '+i)}
+loadBinds();
+addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='TEXTAREA'||tg==='INPUT')return;
+  if(capture){e.preventDefault();if(e.key==='Escape'){capture=null;return}if(capture.kind==='key'&&!e.repeat){bindKey(capture.act,e.key);capture=null}return}
+  const k=KM[normKey(e.key)];if(k&&!(tg==='BUTTON'&&(e.key===' '||e.key==='Enter'))){K[k]=true;e.preventDefault();audio()}});
+addEventListener('keyup',e=>{const k=KM[normKey(e.key)];if(k)K[k]=false});
 addEventListener('blur',()=>{for(const k in K)K[k]=false});
 const pr=k=>K[k]&&!prev[k];
 if(matchMedia('(pointer:coarse)').matches||'ontouchstart' in window)document.body.classList.add('touch');

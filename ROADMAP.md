@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.14 (in progress).** Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.15.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -99,14 +99,16 @@ Every feature should support at least one of these pillars and break none of the
 
 | Item | Size | Done when |
 |---|---|---|
-| **Remappable keys** and gamepad buttons in Settings | M | Every action can be rebound, conflicts are flagged, and bindings save |
-| **High-contrast palette:** terrain, hazards, enemies and shots in maximum-separation colours | M | Checked with a colour-blindness simulator for deuteranopia, protanopia and tritanopia |
-| **Shapes, not just colours:** each weapon and hazard is distinguishable by shape | S | Screenshot review in grayscale |
-| **UI scale:** larger HUD and menu text | S | 125% and 150% options; nothing clips at 360 px wide |
-| **Slow mode:** game speed at 75% or 50% (counts as assist) | S | Physics stay deterministic; no best times recorded |
-| **One-handed preset:** auto-fire and hold-to-swim options | S | Every stage can be cleared with a single-hand layout |
-| **Hard-mode splits** on the Records screen | S | Times page shows Normal and Hard splits |
-| **Accessibility statement** in the README | S | Lists every option and any known gaps |
+| ✅ **Remappable keys** and gamepad buttons in Settings | M | Every action can be rebound, conflicts are flagged, and bindings save |
+| ✅ **High-contrast palette:** terrain, hazards, enemies and shots in maximum-separation colours | M | Checked with a colour-blindness simulator for deuteranopia, protanopia and tritanopia |
+| ✅ **Shapes, not just colours:** each weapon and hazard is distinguishable by shape | S | Screenshot review in grayscale |
+| ✅ **Large text:** larger HUD and menu text | S | Shipped as one Large step (about 1.2×, minimum 10 px), with long labels shrinking to fit. A 150% step needs a menu re-layout and is listed under Next. |
+| ✅ **Slow mode:** game speed at 75% or 50% (counts as assist) | S | Physics stay deterministic; no best times recorded |
+| ✅ **One-handed options:** auto-fire and hold-to-swim (verifying a full single-hand clear waits for a playtester) | S | Every stage can be cleared with a single-hand layout |
+| ✅ **Hard-mode splits** on the Records screen | S | Times page shows Normal and Hard splits |
+| ✅ **Accessibility statement** in the README | S | Lists every option and any known gaps |
+
+**Follow-ups from 0.15:** a 150% text size with re-laid-out menus; a playtest with at least one player who uses remapping or high contrast.
 
 ### 0.16 · Community levels
 
@@ -235,7 +237,6 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 |---|---|---|
 | Not play-tested by people | high | 0.14 |
 | A custom level whose checkpoint is over a pit makes you die on every respawn | low | 0.16 |
-| Splits on Hard are recorded but not shown on the Records screen | low | 0.15 |
 | Font falls back to monospace until Google Fonts loads | low | 0.19, if the font gets bundled |
 | `sw.js` `VERSION` has to be bumped by hand | low | Engineering track |
 | Maskable icon art comes close to the safe-zone edge | cosmetic | 0.19 |
@@ -244,6 +245,8 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.15 | Remappable keys and buttons, high-contrast palette (colour-blind simulated), large text, game speed, auto-fire, hold to swim, Hard splits, accessibility statement |
+| 0.14 | Repo renamed to Voltline; coyote time, jump buffering, hit-stop, camera easing, playtest log and kit |
 | 0.13 | Achievements, checkpoint splits, Records screen, lifetime stats, progress codes; MIT license |
 | 0.12 | Tide Vault sector with swimming, Undertow boss, Tide Lance, jellyfish, four-link weakness cycle |
 | 0.11 | Shield walker, spark hopper and gull enemies; in-editor route check |

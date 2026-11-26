@@ -34,11 +34,12 @@ function updParts(){for(const q of PT){q.x+=q.vx;q.y+=q.vy;if(!q.orb&&!q.wind)q.
 
 /* ---------- main step ---------- */
 const PAUSE_ITEMS=['resume','weapon','restart','settings','quit'];
-const OPT_ITEMS=[{k:'mv',n:'Music volume'},{k:'sv',n:'Sound volume'},{k:'shake',n:'Screen shake'},{k:'rf',n:'Flashing and particles'},{k:'tc',n:'Charge shot'},{k:'as',n:'Assist'},{k:'back',n:'Back'}];
+const OPT_ITEMS=[{k:'mv',n:'Music volume'},{k:'sv',n:'Sound volume'},{k:'shake',n:'Screen shake'},{k:'rf',n:'Flashing and particles'},{k:'hc',n:'High contrast'},{k:'big',n:'Text size'},{k:'tc',n:'Charge shot'},{k:'af',n:'Auto-fire'},{k:'hs',n:'Hold jump to swim'},{k:'as',n:'Assist'},{k:'spd',n:'Game speed'},{k:'keys',n:'Controls'},{k:'back',n:'Back'}];
+let kr=0,kc=0; // controls screen: row and column (0 keyboard, 1 gamepad)
 let pm=0,om=0,optsFrom='title',introT=0;
 function openOpts(from){optsFrom=from;om=0;state='opts'}
-function optChange(k,d){if(k==='mv'||k==='sv')OPT[k]=Math.max(0,Math.min(10,OPT[k]+d));else if(k==='as')OPT.as=(OPT.as+d+3)%3;else OPT[k]=OPT[k]?0:1;saveOpts()}
-function optLabel(k){const v=OPT[k];return k==='mv'||k==='sv'?'■'.repeat(v)+'□'.repeat(10-v):k==='shake'?(v?'On':'Off'):k==='rf'?(v?'Reduced':'Full'):k==='tc'?(v?'Tap to toggle':'Hold'):k==='as'?['Off','Half damage','Invincible'][v]:''}
+function optChange(k,d){if(k==='mv'||k==='sv')OPT[k]=Math.max(0,Math.min(10,OPT[k]+d));else if(k==='as'||k==='spd')OPT[k]=(OPT[k]+d+3)%3;else OPT[k]=OPT[k]?0:1;saveOpts()}
+function optLabel(k){const v=OPT[k];return k==='mv'||k==='sv'?'■'.repeat(v)+'□'.repeat(10-v):k==='shake'?(v?'On':'Off'):k==='rf'?(v?'Reduced':'Full'):k==='tc'?(v?'Tap to toggle':'Hold'):k==='as'?['Off','Half damage','Invincible'][v]:k==='spd'?['100%','75%','50%'][v]:k==='af'||k==='hs'||k==='hc'?(v?'On':'Off'):k==='big'?(v?'Large':'Normal'):k==='keys'?'Change ›':''}
 let hitStop=0,camLook=0; // hit-stop freezes gameplay for a few frames on boss hits; camLook eases the camera's lead
 function startStage(i){S=i;rushIdx=0;rushWait=0;runSplits=[];resetRun(true);state='play';introT=200;snd(440,.1,'square',880,.04)}
 function step(){
@@ -65,7 +66,17 @@ function step(){
   else if(state==='opts'){const n=OPT_ITEMS.length,k=OPT_ITEMS[om].k;
     if(pr('down')){om=(om+1)%n;snd(600,.04,'square',0,.03)}if(pr('up')){om=(om+n-1)%n;snd(600,.04,'square',0,.03)}
     if(pr('back')||pr('opts')||(k==='back'&&(pr('jump')||pr('start'))))state=optsFrom;
+    else if(k==='keys'){if(pr('right')||pr('jump')||pr('start')){state='keys';kr=0;kc=0;bindMsg=null}}
     else{const d=pr('right')||pr('jump')||pr('start')?1:pr('left')?-1:0;if(d&&k!=='back'){optChange(k,d);snd(700,.05,'square',0,.04)}}}
+  else if(state==='keys'){const n=BIND_ACTS.length+2;
+    if(bindMsg&&bindMsg.t>0)bindMsg.t--;
+    if(!capture){
+      if(pr('down')){kr=(kr+1)%n;snd(600,.04,'square',0,.03)}if(pr('up')){kr=(kr+n-1)%n;snd(600,.04,'square',0,.03)}
+      if(pr('left')||pr('right')){kc=1-kc;snd(600,.04,'square',0,.03)}
+      if(pr('back'))state='opts';
+      else if(pr('start')||pr('jump')){
+        if(kr===n-1)state='opts';else if(kr===n-2){resetBinds();snd(500,.1,'square',0,.04)}
+        else{const act=BIND_ACTS[kr][0];if(kc===1&&!(act in DEF_PAD))bindMsg={t:150,s:actName(act)+' uses the D-pad or stick on a gamepad'};else{capture={kind:kc?'pad':'key',act};snd(800,.05,'square',0,.04)}}}}}
   else if(state==='play'){
     if(ST.custom&&(pr('start')||pr('back'))){enterEditor()}else if(pr('start')||pr('back')){state='pause';pm=0}else if(pr('opts')){openOpts('pause')}else{
       if(hitStop>0)hitStop--;else{
@@ -92,7 +103,7 @@ function step(){
   if(state==='play'||state==='dead'||state==='pause'){camLook+=(P.face*36-camLook)*.05;const t=arena?ARENA*TS:Math.max(0,Math.min(W*TS-VW,P.x+P.w/2-VW/2+camLook));camX+=(t-camX)*(arena?.08:.14)}
   if(introT>0&&state==='play')introT--;if(!OPT.shake)shake=0;
   updParts();if(shake>0)shake*=.85;if(shake<.3)shake=0;
-  if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||state==='records'||(state==='opts'&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===RUSH.length-1?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:ST.key):null);
+  if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||state==='records'||((state==='opts'||state==='keys')&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===RUSH.length-1?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:ST.key):null);
   const ev=state==='edit';if(edp.hidden===ev)edp.hidden=!ev;
   Object.assign(prev,K);
 }

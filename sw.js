@@ -1,5 +1,5 @@
 // Voltline offline cache. Bump VERSION whenever index.html changes.
-const VERSION = 'voltline-v13';
+const VERSION = 'voltline-v14';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png',
   ...['core', 'world', 'input', 'audio', 'entities', 'bosses', 'step', 'render', 'editor', 'route', 'records', 'main'].map(n => `./js/${n}.js`)];
 

@@ -55,6 +55,7 @@ function updPlayer(){
   if(p.inv>0)p.inv--;if(p.shootT>0)p.shootT--;
   if(pr('next'))swap(1);if(pr('prev'))swap(-1);
   if(pr('fire')&&!(OPT.tc&&p.wpn===0&&p.charge>=55))fire();
+  else if(OPT.af&&K.fire&&p.wpn!==3&&tick%10===0)fire(); // auto-fire while held (not for the Gust Ring, which toggles)
   if(p.wpn===0){const hold=OPT.tc?p.charging:K.fire;if(OPT.tc&&pr('fire')){if(p.charge>=55){p.charging=false}else p.charging=true}if(hold){p.charge++;if(p.charge===55)snd(520,.12,'triangle',1040,.05)}else{if(p.charge>=55){PB.push({k:'B',w:0,x:p.face>0?p.x+p.w+2:p.x-2,y:p.y+(p.slide?5:9),vx:p.face*5.5,vy:0,r:7,dmg:3,pierce:1});p.shootT=14;snd(180,.3,'sawtooth',700,.06)}p.charge=0}}
   if(p.hurt>0){p.hurt--;p.vx=-p.face*.9;p.vy=Math.min(p.vy+G,6);phys(p);envCheck();return}
   if(p.climb){
@@ -78,7 +79,8 @@ function updPlayer(){
     // jump buffering: a press up to 6 frames before landing still jumps; coyote time: up to 6 frames after walking off a ledge
     const jp=pr('jump');if(jp&&!wt)p.buf=6;else if(p.buf>0)p.buf--;
     const coyote=!p.onG&&!wt&&p.coy<6&&!p.jumped&&p.vy>=0;
-    if((jp&&(p.onG||wt||coyote))||(!jp&&p.buf>0&&p.onG&&!wt)){p.buf=0;
+    const swimHold=OPT.hs&&wt&&K.jump&&tick%14===0; // hold-to-swim: keep strokes coming while jump is held
+    if(((jp||swimHold)&&(p.onG||wt||coyote))||(!jp&&p.buf>0&&p.onG&&!wt)){p.buf=0;
       if(D&&p.onG&&!wt){p.slide=26;p.h=12;p.y+=10;snd(150,.12,'triangle',90,.04)}
       else if(wt){const surf=!wet(cx,Math.floor((p.y-3)/TS));p.vy=surf?-5:-3.2;p.mv=null;snd(surf?330:220,.1,'triangle',surf?660:330,.025);if(OPT.rf<1)PT.push({x:p.x+6,y:p.y,vx:0,vy:-.7,l:30,c:'rgba(180,240,255,.7)',wind:1})}
       else{p.vy=-5.2;p.mv=null;p.jumped=true;snd(330,.12,'square',660,.03)}}
