@@ -1,7 +1,7 @@
 // Voltline offline cache. Bump VERSION whenever index.html changes.
-const VERSION = 'voltline-v19';
+const VERSION = 'voltline-v20';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './levels.json',
-  ...['core', 'world', 'input', 'audio', 'entities', 'bosses', 'midbosses', 'step', 'render', 'editor', 'sectors', 'route', 'records', 'replay', 'gallery', 'main'].map(n => `./js/${n}.js`)];
+  ...['core', 'world', 'input', 'audio', 'entities', 'bosses', 'midbosses', 'step', 'render', 'editor', 'sectors', 'rooms', 'route', 'records', 'replay', 'gallery', 'main'].map(n => `./js/${n}.js`)];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

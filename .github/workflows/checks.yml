@@ -18,3 +18,5 @@ jobs:
         run: node tools/ghost.js
       - name: Gallery levels
         run: node tools/check-gallery.js
+      - name: Challenge rooms
+        run: node tools/check-rooms.js

@@ -26,11 +26,16 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 8 | `render.js` | every `draw*` function, `draw()`, `frame()` | nothing |
 | 9 | `editor.js` | `ED`, `TOOLS`, `CUSTOM` stage (index 6), editor input, level codes | loads the saved editor level, pushes `CUSTOM` onto `STAGES` |
 | 9b | `sectors.js` | Orbit Deck and Phase Lab stage data (indexes 7 and 8) | pushes both onto `STAGES` |
+| 9c | `rooms.js` | `ROOMS` (20 challenge rooms), the shared `ROOM` stage slot (index 9), `loadRoom`, `roomClear`, medals, the daily run, the Challenges screen | pushes `ROOM` onto `STAGES` |
 | 10 | `route.js` | `routeStart`, `routeSlice`, `routeMsg`: the editor's route checker | nothing |
 | 11 | `records.js` | `ACH`, `ach()`, `stat()`, `split()`, the Records screen, toasts, `exportProgress` / `importProgress` | fills in missing save fields, wires the progress-code buttons |
 | 11b | `replay.js` | `GHOSTS`, ghost recording and playback (`ghostStart`, `ghostTick`, `ghostSave`, `drawGhost`), `ghostEncode` / `ghostDecode`, Practice mode (`startPractice`, the Practice page) | loads `voltline-ghosts` |
 | 12 | `gallery.js` | `GAL`, `loadGallery()`, the Gallery screen | nothing (it fetches `levels.json` when the screen opens) |
 | 13 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
+
+**Challenge rooms:** every room shares one stage slot, `ROOM`, which `loadRoom(r)` fills in from a `ROOMS` entry (`t` theme stage, `W` width, `b` builder, `s` spawns, `mv` movers, `cr` crushers, `wind`, `m` medal times in frames). Rooms have no boss: `step()` calls `roomClear()` when the player passes column `W-4`, and the arena check is skipped while `ST.room` is set. Room results go in `save.rooms` (best frames by room id) and never touch `cleared` or `best`. Medal times are written by `node tools/check-rooms.js --write`: gold is the route checker's time plus 5%, rounded up to half a second; silver is gold × 1.35 and bronze gold × 1.8. CI runs `check-rooms.js` without `--write`, which fails if a room loses its route or its gold time drops below the route time. After editing a room, run it with `--write`. The route checker runs without enemies, so gold can be tighter in rooms with enemies.
+
+**Daily run:** `dailyRooms(date)` hashes the local date and picks three different rooms. `DAILY` holds the list, the index, the running total and the seed; `roomClear()` adds the room's clock to the total and loads the next room. Only the day's best total is kept (`save.daily`).
 
 **Seeded randomness:** anything that changes how a run plays (boss attack choices, enemy timers, warning positions, drops) uses `rnd()` from `core.js`, a mulberry32 generator seeded by `startStage(i, seed)`. Without a seed, a random one is picked and kept in `runSeed`. Particles, screen dressing and sound keep using `Math.random()`, so cosmetic settings such as reduced flashing can't change a run. New gameplay code must use `rnd()`. The smoke suite checks that the same seed and inputs replay a boss fight exactly.
 

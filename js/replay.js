@@ -12,8 +12,8 @@ const g64=n=>G64[n&63],gi=c=>G64.indexOf(c);
 let GHOSTS={};try{const g=JSON.parse(localStorage.getItem('voltline-ghosts')||'{}');if(g&&typeof g==='object')GHOSTS=g}catch(e){}
 const saveGhosts=()=>{try{localStorage.setItem('voltline-ghosts',JSON.stringify(GHOSTS))}catch(e){}};
 let GREC=null,GPLAY=null,GTIME=0; // PRAC (the practice run, or null) is declared in entities.js
-const ghostKey=(s=S,h=hard)=>s+(h?'h':'n');
-const canRecord=()=>!ST.custom&&!ST.rush&&!PRAC;
+const ghostKey=(s=S,h=hard)=>(ST.room?roomId:s)+(h?'h':'n');
+const canRecord=()=>!ST.custom&&!ST.rush&&!PRAC&&!DAILY;
 const pose=p=>(p.face>0?1:0)|(p.climb?2:0)|(p.slide?4:0)|(p.onG?8:0)|(Math.abs(p.vx)>.2?16:0)|(p.wt?32:0);
 function ghostEncode(s){
   let o='',px=0,py=0;

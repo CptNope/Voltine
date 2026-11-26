@@ -23,6 +23,7 @@ const TEAL='#4fd1c5';
 const WFROM=[-1,0,1,2,5,7,8],CARD=[0,1,2,5,7,8,3];
 // select-screen slots: cards are 0..CARD.length-1, the four bars below them use these ids
 const B_RUSH=10,B_EDIT=11,B_REC=12,B_GAL=13,BAR=[B_RUSH,B_GAL,B_EDIT,B_REC];
+const CH_SLOT=CARD.length; // the Challenges card fills the last grid slot
 const cardRect=c=>{const row=c<4?0:1,col=c<4?c:c-4;return {x:20+col*110,y:44+row*82,w:104,h:78}};
 const STAGES=[
 {name:'Prism Grid',boss:'PRISM WARDEN',kind:'warden',W:194,cps:[2,76,152],

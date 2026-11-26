@@ -257,12 +257,14 @@ function drawSelect(){
   dim(.45);text('SELECT A SECTOR',VW/2,30,18,CRM,'center',6);if(hard)text('HARD',VW-20,30,10,CORAL,'right',6);
   CARD.forEach((i,c)=>{const {x,y,w,h}=cardRect(c),on=c===sel,st=STAGES[i],th=st.th,lock=i===3&&!coreOpen();
     ctx.fillStyle='rgba(14,6,30,.88)';ctx.fillRect(x,y,w,h);glow(on?(lock?'#6b5a8e':th.edge):'rgba(183,163,214,.35)',on&&!lock?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(x+.5,y+.5,w-1,h-1);ctx.shadowBlur=0;
-    if(lock){text('?',x+w/2,y+42,28,'#6b5a8e','center',0);text('Beat all six wardens',x+w/2,y+66,8,'rgba(243,233,255,.6)','center',0,w-8);return}
+    if(lock){text('?',x+w/2,y+42,28,'#6b5a8e','center',0);text('Wardens '+WARDENS.filter(i=>save.cleared[i]).length+' / 6',x+w/2,y+66,8,'rgba(243,233,255,.6)','center',0,w-8);return}
     ctx.save();ctx.beginPath();ctx.rect(x+2,y+2,w-4,46);ctx.clip();portrait(i,x+w/2,y+27,.62);ctx.restore();
     text(st.name,x+w/2,y+60,9,on?th.edge:CRM,'center',on?6:0,w-8);text(st.boss,x+w/2,y+72,7,'rgba(243,233,255,.7)','center',0,w-8);
     if(save.cleared[i]){const bt=(hard?save.bestH:save.best)[i];text(bt?fmt(bt):'✓',x+w-5,y+11,7,GOLD,'right',4)}});
-  {const r=cardRect(CARD.length),n=[0,1,2,5,7,8].filter(i=>save.cleared[i]).length;ctx.strokeStyle='rgba(183,163,214,.25)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.strokeRect(r.x+.5,r.y+.5,r.w-1,r.h-1);ctx.setLineDash([]);
-   text('WARDENS',r.x+r.w/2,r.y+22,8,'rgba(243,233,255,.6)','center',0);text(n+' / 6',r.x+r.w/2,r.y+46,18,n===6?MINT:CRM,'center',n===6?8:0);text(n===6?'Null Core open':'beat all six',r.x+r.w/2,r.y+64,7,'rgba(243,233,255,.6)','center',0,r.w-8)}
+  {const r=cardRect(CH_SLOT),on=sel===CH_SLOT,g=ROOMS.filter(q=>medalFor(q,roomBest(q.id))===3).length,m=ROOMS.filter(q=>medalFor(q,roomBest(q.id))>0).length;
+   ctx.fillStyle='rgba(14,6,30,.88)';ctx.fillRect(r.x,r.y,r.w,r.h);glow(on?GOLD:'rgba(183,163,214,.35)',on?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(r.x+.5,r.y+.5,r.w-1,r.h-1);ctx.shadowBlur=0;
+   for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(r.x+r.w/2+(k-1)*16,r.y+24,6,0,6.283);ctx.fillStyle=MEDC[3-k];ctx.globalAlpha=on?1:.75;ctx.fill();ctx.globalAlpha=1}
+   text('Challenges',r.x+r.w/2,r.y+52,9,on?GOLD:CRM,'center',on?6:0,r.w-8);text(m?g+' gold · '+m+' / 20':'20 rooms · daily run',r.x+r.w/2,r.y+66,7,'rgba(243,233,255,.7)','center',0,r.w-8)}
   const bar3=(k,x,label,col,lock)=>{const on=sel===k;ctx.fillStyle='rgba(14,6,30,.85)';ctx.fillRect(x,208,106,22);glow(on?(lock?'#6b5a8e':col):'rgba(183,163,214,.35)',on&&!lock?12:0);ctx.lineWidth=on?2:1;ctx.strokeRect(x+.5,208.5,105,21);ctx.shadowBlur=0;text(label,x+53,223,9,lock?'#6b5a8e':on?col:CRM,'center',on&&!lock?6:0,98)};
   {const rb=save.rush[hard?1:0],lock=!save.cleared[3];bar3(B_RUSH,20,lock?'RUSH · locked':'BOSS RUSH'+(rb?' '+fmt(rb):''),PINK,lock)}
   bar3(B_GAL,131,'GALLERY',SKY,false);
@@ -289,7 +291,7 @@ function drawEdit(){
   text('col '+edc.x,VW-24,VH-22,9,'rgba(243,233,255,.6)','right',0);
   if(routeMsg&&routeMsg.t>0){const c=routeMsg.ok?MINT:CORAL;ctx.fillStyle='rgba(8,3,20,.85)';ctx.fillRect(VW/2-170,30,340,20);ctx.strokeStyle=c;ctx.strokeRect(VW/2-169.5,30.5,339,19);text(routeMsg.s,VW/2,44,10,c,'center',4)}
 }
-const INTRO={prism:'Hold jump to go higher. Down + jump slides under low gaps.',foundry:'Belts push you. Crushers shake before they drop.',sky:'Ride the platforms. Gusts push you back, so wait them out.',core:'Everything you have learned, all at once.',tide:'Tap jump to swim up. Break the surface to leap out.',orbit:'Inside the faint fields you float: jumps go higher and much further.',phase:'Pink and blue blocks take turns being solid. They flash before they switch.',rush:'Four bosses, one clock. A refill comes between fights.'};
+const INTRO={prism:'Hold jump to go higher. Down + jump slides under low gaps.',foundry:'Belts push you. Crushers shake before they drop.',sky:'Ride the platforms. Gusts push you back, so wait them out.',core:'Everything you have learned, all at once.',tide:'Tap jump to swim up. Break the surface to leap out.',orbit:'Inside the faint fields you float: jumps go higher and much further.',phase:'Pink and blue blocks take turns being solid. They flash before they switch.',rush:'Seven bosses, one clock. A refill comes between fights.'};
 function drawOpts(){dim(.93);text('SETTINGS',VW/2,40,20,MINT,'center',8);
   const n=OPT_ITEMS.length,vis=9,off=Math.max(0,Math.min(n-vis,om-4));
   if(off>0)text('▲',VW/2,56,9,'rgba(243,233,255,.5)','center',0);if(off+vis<n)text('▼',VW/2,248,9,'rgba(243,233,255,.5)','center',0);
@@ -318,6 +320,7 @@ function drawMain(){
     text('furthest column '+Math.floor(RT.best/TS)+' of '+(RT.goal/TS-3)+'  ·  search step '+RT.it,VW/2,150,10,CRM,'center',0);
     text('Enemies are ignored. Esc cancels.',VW/2,170,9,'rgba(243,233,255,.6)','center',0);return}
   if(state==='records'){drawRecords();return}
+  if(state==='rooms'){drawRooms();return}
   if(state==='gallery'){drawGallery();return}
   if(state==='edit'){drawEdit();return}
   const view=(state==='opts'||state==='keys')&&optsFrom!=='pause'?optsFrom:state;
@@ -327,12 +330,12 @@ function drawMain(){
     else drawSelect();if(state==='opts')drawOpts();else if(state==='keys')drawKeys();return}
   drawBG(ST.th);
   ctx.save();const sx=shake?(Math.random()-.5)*shake:0,sy=shake?(Math.random()-.5)*shake:0;ctx.translate(-Math.round(camX)+sx,sy);
-  drawTiles();drawEnemies();drawMid();drawGhost();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
+  drawTiles();drawRoomGoal();drawEnemies();drawMid();drawGhost();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
   text('CORE',8,15,9,CRM,'left',0);bar(36,8,P.hp,28,MINT);
   if(P.wpn){text(WPN[P.wpn].s,8,27,9,WPN[P.wpn].c,'left',0);bar(36,20,EN[P.wpn],28,WPN[P.wpn].c)}
   drawMidHUD();
   if(B&&B.st!=='drop'){text(BN[B.kind],VW-8,28,9,CRM,'right',0,150);bar(VW-8,8,Math.min(B.shown,B.hp),28,B.hp<=14?CORAL:PINK,true)}
-  text(fmt(clock)+(hard?'  HARD':''),VW/2,15,9,hard?CORAL:'rgba(243,233,255,.7)','center',0);
+  text((DAILY?'DAILY '+(DAILY.i+1)+'/3  '+fmtR(DAILY.total+clock):ST.room?fmtR(clock):fmt(clock))+(hard?'  HARD':''),VW/2,15,9,hard?CORAL:'rgba(243,233,255,.7)','center',0);
   if(ST.wind&&gust&&!arena)text('GUST',VW/2,28,9,SKY,'center',4);
   if(B&&B.st==='intro')text(BN[B.kind],VW/2,110,22,ST.th.edge);
   if(ST.rush)text('RUSH '+(rushIdx+1)+'/'+RUSH.length,VW/2,28,9,PINK,'center',4);
@@ -344,10 +347,15 @@ function drawMain(){
     text('↑ ↓ choose · Enter select · Q/E weapon · O settings · Esc resume',VW/2,252,9,'rgba(243,233,255,.6)','center',0)}
   else if(state==='opts')drawOpts();else if(state==='keys')drawKeys();
   else if(state==='play'&&introT>0&&!B){const al=Math.max(0,Math.min(1,introT/40,(200-introT)/20));ctx.globalAlpha=al;ctx.fillStyle='rgba(8,3,20,.8)';ctx.fillRect(VW/2-170,44,340,52);ctx.strokeStyle=ST.th.edge;ctx.lineWidth=1;ctx.strokeRect(VW/2-169.5,44.5,339,51);
-    text((ST.custom?(ED.n||(sharedMode?'Shared level':'Your level')):ST.name).toUpperCase(),VW/2,66,16,ST.th.edge,'center',8,320);text(ST.custom?(ED.a?'by '+ED.a:'')+(isVerified()?(ED.a?'  ·  ':'')+'route verified':''):(INTRO[ST.key]||''),VW/2,84,9,CRM,'center',0,320);ctx.globalAlpha=1}
+    text((ST.custom?(ED.n||(sharedMode?'Shared level':'Your level')):ST.name).toUpperCase(),VW/2,66,16,ST.th.edge,'center',8,320);text(ST.room?(()=>{const r=roomOf(roomId);return 'Gold '+fmtR(r.m[0])+'  ·  Silver '+fmtR(r.m[1])+'  ·  Bronze '+fmtR(r.m[2])})():ST.custom?(ED.a?'by '+ED.a:'')+(isVerified()?(ED.a?'  ·  ':'')+'route verified':''):(INTRO[ST.key]||''),VW/2,84,9,CRM,'center',0,320);ctx.globalAlpha=1}
   else if(state==='dead'&&deadT>40){text('SIGNAL LOST',VW/2,130,20,CORAL);text('rebooting at checkpoint',VW/2,150,10,CRM,'center',0)}
   else if(state==='got'&&lastWin.custom){dim(Math.min(.8,gotT/50));text('LEVEL CLEAR',VW/2,100,28,GOLD,'center',12);if(ED.n)text(ED.n,VW/2,120,11,CRM,'center',0,400);text('Time '+fmt(clock)+'  ·  Reboots '+deaths,VW/2,130,12,CRM,'center',0);
     if(gotT>60&&tick%60<40)text(lastWin.shared?(sharedMode==='gallery'?'Press Enter to return to the gallery':'Press Enter to continue'):'Press Enter to return to the editor',VW/2,200,12,GOLD)}
+  else if(state==='got'&&lastWin.room){const r=roomOf(roomId);dim(Math.min(.8,gotT/50));text('ROOM CLEAR',VW/2,84,24,GOLD,'center',10);text(fmtR(clock),VW/2,120,30,lastWin.med?MEDC[lastWin.med]:MINT,'center',10);
+    text(lastWin.med?MEDAL[lastWin.med]+(lastWin.up?' · new medal':''):'No medal yet: bronze is '+fmtR(r.m[2]),VW/2,146,12,lastWin.med?MEDC[lastWin.med]:CRM,'center',lastWin.med?6:0);
+    text(lastWin.pb?'New best':'Best '+fmtR(roomBest(r.id)),VW/2,166,10,CRM,'center',0);if(gotT>60&&tick%60<40)text('Press Enter for the room list',VW/2,210,12,GOLD)}
+  else if(state==='got'&&lastWin.daily){dim(Math.min(.8,gotT/50));text('DAILY RUN COMPLETE',VW/2,90,22,MINT,'center',10);text(fmtR(lastWin.total),VW/2,128,30,GOLD,'center',10);
+    text((lastWin.pb?'New best for today':'Today\'s best '+fmtR(save.daily.t))+'  ·  '+DAILY.d,VW/2,152,10,CRM,'center',0);if(gotT>60&&tick%60<40)text('Press Enter for the room list',VW/2,210,12,GOLD)}
   else if(state==='got'&&lastWin.prac){dim(Math.min(.8,gotT/50));text('PRACTICE CLEAR',VW/2,100,24,GOLD,'center',10);text('Time '+fmt(clock)+'  ·  nothing recorded',VW/2,130,11,CRM,'center',0);
     if(gotT>60&&tick%60<40)text('Press Enter to return to Practice',VW/2,200,12,GOLD)}
   else if(state==='got'&&lastWin.rush){dim(Math.min(.8,gotT/50));

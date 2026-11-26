@@ -388,5 +388,30 @@ for (const s of [0, 1, 2, 5, 7, 8]) { // 0.17.1 mid-bosses: lock, beat, walls ba
   G.set('state', 'records'); G.set('recPage', 1); tap(G, 'right'); check('Practice is the third Records page', G.get('recPage') === 2);
 }
 
+{ // 0.18 part 2: challenge rooms and the daily run
+  const G = load({ seed: 70 }); const sv = G.get('save'); sv.cleared = Array(9).fill(0); sv.ach = {};
+  const ROOMS = G.get('ROOMS');
+  check('there are twenty challenge rooms with ordered medal times', ROOMS.length === 20 && ROOMS.every(r => r.m[0] > 0 && r.m[0] < r.m[1] && r.m[1] < r.m[2]));
+  G.set('state', 'select'); G.set('sel', 3); tap(G, 'down'); check('the Challenges card sits at the end of the second row', G.get('sel') === G.get('CH_SLOT'));
+  tap(G, 'start'); check('the Challenges card opens the room list', G.get('state') === 'rooms');
+  G.set('rsel', 3); tap(G, 'start'); check('rooms stay locked until their sector is cleared', G.get('state') === 'rooms');
+  G.set('rsel', 0); tap(G, 'start'); check('Prism Grid rooms are open from the start', G.get('state') === 'play' && G.get('ST').room === true);
+  const r = ROOMS[0]; let P = G.get('P'); P.x = (G.get('W') - 6) * 16; G.set('clock', r.m[0] - 30); G.step(40, { right: 1 });
+  check('reaching the exit clears the room with a gold medal', G.get('state') === 'got' && G.get('lastWin').med === 3 && sv.rooms.r01 > 0 && sv.ach.gold === 1);
+  check('a room clear saves a ghost for that room', !!G.get('GHOSTS').r01n);
+  G.step(70, {}); tap(G, 'start'); check('Enter returns to the room list', G.get('state') === 'rooms');
+  check('medals come from the best time', G.call('medalFor', r, r.m[0]) === 3 && G.call('medalFor', r, r.m[1]) === 2 && G.call('medalFor', r, r.m[2]) === 1 && G.call('medalFor', r, r.m[2] + 1) === 0);
+  check('room clears never touch sector best times or clears', sv.best.every(v => !v) && sv.cleared.every(v => !v));
+  const a = G.call('dailyRooms', '2026-11-25'), b = G.call('dailyRooms', '2026-11-25'), c = G.call('dailyRooms', '2026-11-26');
+  check('the daily run picks the same three different rooms for a date', a.join() === b.join() && new Set(a).size === 3 && a.join() !== c.join());
+  G.call('startDaily'); const D = G.get('DAILY'); let ok = true;
+  for (let i = 0; i < 3; i++) { if (G.get('roomId') !== D.list[i]) ok = false; const Q = G.get('P'); Q.x = (G.get('W') - 6) * 16; G.step(30, { right: 1 }); }
+  check('the daily run chains its three rooms on one clock', ok && G.get('state') === 'got' && G.get('lastWin').daily === 1 && sv.daily && sv.daily.t === G.get('lastWin').total);
+  G.call('startStage', 0); check('starting a sector ends any daily run', G.get('DAILY') === null);
+  G.call('startRoom', ROOMS[1]); G.set('state', 'pause'); G.set('pm', G.get('PAUSE_ITEMS').indexOf('quit')); tap(G, 'start'); check('quitting a room returns to the room list', G.get('state') === 'rooms');
+  const code = G.call('exportProgress'); const back = G.call('importProgress', code); check('progress codes keep room times and the daily best', back && back.rooms.r01 === sv.rooms.r01 && back.daily.t === sv.daily.t);
+  G.set('state', 'rooms'); let drew = true; try { G.draw(); G.set('state', 'select'); G.draw(); } catch (e) { drew = false; } check('the room list and select card draw without errors', drew);
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

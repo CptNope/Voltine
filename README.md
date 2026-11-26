@@ -146,6 +146,10 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 
 **Boss Rush.** Unlocks after the Null Core. Fight all seven bosses (Prism Warden → Coil Hound → Gale Kite → Undertow → Orbiter → Mirror → Null Engine) in a row on one clock, with a health and energy refill between fights. If you die, you restart at the current boss and the clock keeps running.
 
+**Challenge rooms.** The Challenges card on stage select opens 20 short rooms, three for each sector plus two for the Null Core. Each one is a sprint to an exit gate with gold, silver and bronze times. A room opens once you've cleared its sector (Prism Grid's rooms are open from the start). Your best time and medal are saved for each room, and each room keeps its own ghost.
+
+**Daily run.** At the top of the room list. Three rooms picked from the date, the same for everyone that day, played back to back on one clock. It works offline because the choice comes from the date alone. Your best total is kept for the day.
+
 **Ghost replays.** When you set a new best time in a sector, that run is saved as a ghost. Next time, a see-through copy of your best run plays alongside you. Normal and Hard keep separate ghosts. Turn it off with Settings → Ghost replay.
 
 **Practice.** Records → Practice (the third page) starts any sector you've cleared from its second or third checkpoint, its mid-boss, or its boss. Dying puts you back at the point you picked. Practice runs record nothing: no best times, splits, ghosts, achievements or clears.
@@ -266,6 +270,7 @@ Progress lives in your browser's `localStorage` on this device:
 |---|---|
 | `voltline-v2` | cleared sectors, best times and splits (Normal and Hard), Boss Rush bests, achievements, lifetime stats |
 | `voltline-opts` | music and sound toggles, difficulty, and every setting above |
+| `voltline-v2` → `rooms`, `daily` | best time per challenge room, and the day's best daily total |
 | `voltline-ghosts` | one ghost per sector and difficulty: the best time and the encoded run (about 8 KB for a three-minute run) |
 | `voltline-edit` | your current editor level |
 

@@ -43,14 +43,14 @@ function openOpts(from){optsFrom=from;om=0;state='opts'}
 function optChange(k,d){if(k==='mv'||k==='sv')OPT[k]=Math.max(0,Math.min(10,OPT[k]+d));else if(k==='as'||k==='spd')OPT[k]=(OPT[k]+d+3)%3;else OPT[k]=OPT[k]?0:1;saveOpts()}
 function optLabel(k){const v=OPT[k];return k==='mv'||k==='sv'?'■'.repeat(v)+'□'.repeat(10-v):k==='shake'?(v?'On':'Off'):k==='rf'?(v?'Reduced':'Full'):k==='tc'?(v?'Tap to toggle':'Hold'):k==='as'?['Off','Half damage','Invincible'][v]:k==='spd'?['100%','75%','50%'][v]:k==='af'||k==='hs'||k==='hc'||k==='gh'?(v?'On':'Off'):k==='big'?(v?'Large':'Normal'):k==='keys'?'Change ›':''}
 let hitStop=0,camLook=0; // hit-stop freezes gameplay for a few frames on boss hits; camLook eases the camera's lead
-function startStage(i,seed){S=i;PRAC=null;seedRun(seed!==undefined?seed:Math.floor(Math.random()*4294967296));rushIdx=0;rushWait=0;runSplits=[];resetRun(true);ghostStart();state='play';introT=200;snd(440,.1,'square',880,.04)}
+function startStage(i,seed){S=i;PRAC=null;if(i!==ROOM_I)DAILY=null;seedRun(seed!==undefined?seed:Math.floor(Math.random()*4294967296));rushIdx=0;rushWait=0;runSplits=[];resetRun(true);ghostStart();state='play';introT=200;snd(440,.1,'square',880,.04)}
 function step(){
   if(state==='route'){routeSlice();return}
   tick++;pollPad();if(pr('music'))togM();if(pr('sfx'))togS();
   if(state==='title'&&pendingShared&&(pr('start')||pr('jump'))){const L=pendingShared;pendingShared=null;playShared(L,'title');snd(440,.1,'square',880,.04)}
   else if(state==='title'){if(pr('opts'))openOpts('title');if(pr('left')||pr('right')){hard=!hard;saveOpts();snd(600,.05,'square',0,.03)}if(pr('start')||pr('jump')){state='select';snd(440,.1,'square',880,.04)}camX=(tick*.4)%2000}
   else if(state==='select'){camX=(tick*.4)%2000;
-    const NC=CARD.length,bi=BAR.indexOf(sel),go=pr('start')||pr('jump'),beep=()=>snd(600,.05,'square',0,.03);
+    const NC=CARD.length+1,bi=BAR.indexOf(sel),go=pr('start')||pr('jump'),beep=()=>snd(600,.05,'square',0,.03);
     if(pr('left')){sel=sel<NC?(sel+NC-1)%NC:BAR[(bi+3)%4];beep()}if(pr('right')){sel=sel<NC?(sel+1)%NC:BAR[(bi+1)%4];beep()}
     if(pr('down')){if(sel<4){sel=Math.min(sel+4,NC-1);beep()}else if(sel<NC){lastSel=sel;sel=B_RUSH;beep()}}
     if(pr('up')){if(sel>=B_RUSH){sel=lastSel;beep()}else if(sel>=4&&sel<NC){sel-=4;beep()}}
@@ -58,6 +58,7 @@ function step(){
     else if(go&&sel===B_EDIT)enterEditor();
     else if(go&&sel===B_REC){state='records';recPage=0}
     else if(go&&sel===B_GAL){state='gallery';gsel=0;loadGallery()}
+    else if(go&&sel===CH_SLOT){state='rooms';rOff=0}
     else if(go){const si=sel<NC?CARD[sel]:4;if((si===3&&!coreOpen())||(si===4&&!save.cleared[3])){snd(110,.15,'square',90,.04);const r=sel<NC?cardRect(sel):{x:20,y:200,w:106};POP.push({x:r.x+r.w/2,y:r.y+(sel<NC?40:14),s:'LOCKED',c:CORAL,l:40})}else startStage(si)}}
   else if(state==='pause'){const n=PAUSE_ITEMS.length;
     if(pr('down')){pm=(pm+1)%n;snd(600,.04,'square',0,.03)}if(pr('up')){pm=(pm+n-1)%n;snd(600,.04,'square',0,.03)}
@@ -66,9 +67,9 @@ function step(){
     else if(pr('back'))state='play';
     else if(pr('start')||pr('jump')){const it=PAUSE_ITEMS[pm];
       if(it==='resume'||it==='weapon')state='play';
-      else if(it==='restart'){resetRun(false);state='play'}
+      else if(it==='restart'){if(ST.room&&!DAILY)startRoom(roomOf(roomId));else{resetRun(false);state='play'}}
       else if(it==='settings')openOpts('pause');
-      else if(it==='quit'){if(ST.custom)enterEditor();else{state='select';sel=S===4?B_RUSH:Math.max(0,CARD.indexOf(S))}}}}
+      else if(it==='quit'){if(ST.room){state='rooms';DAILY=null}else if(ST.custom)enterEditor();else{state='select';sel=S===4?B_RUSH:Math.max(0,CARD.indexOf(S))}}}}
   else if(state==='opts'){const n=OPT_ITEMS.length,k=OPT_ITEMS[om].k;
     if(pr('down')){om=(om+1)%n;snd(600,.04,'square',0,.03)}if(pr('up')){om=(om+n-1)%n;snd(600,.04,'square',0,.03)}
     if(pr('back')||pr('opts')||(k==='back'&&(pr('jump')||pr('start'))))state=optsFrom;
@@ -87,7 +88,8 @@ function step(){
     if(ST.custom&&(pr('start')||pr('back'))){if(sharedMode){const b=endShared();state=b==='gallery'?'gallery':'title'}else enterEditor()}else if(pr('start')||pr('back')){state='pause';pm=0}else if(pr('opts')){openOpts('pause')}else{
       if(hitStop>0)hitStop--;else{
       clock++;ghostTick();updWorld();updPlayer();if(state==='play'){updEnemies();
-      if(!arena&&P.x>(ARENA+3)*TS){arena=true;split(ST.cps.length-1);for(let y=0;y<15;y++)map[y][ARENA]='#';spawnBoss();snd(110,.5,'sawtooth',220,.06)}
+      if(ST.room){if(roomExit())roomClear()}
+      else if(!arena&&P.x>(ARENA+3)*TS){arena=true;split(ST.cps.length-1);for(let y=0;y<15;y++)map[y][ARENA]='#';spawnBoss();snd(110,.5,'sawtooth',220,.06)}
       midCheck();if(MB)updMid();
       if(B)updBoss();else if(rushWait>0&&--rushWait===0){spawnBoss();snd(110,.5,'sawtooth',220,.06)}}if(state==='play'||state==='dead')updShots();}
     }
@@ -107,12 +109,13 @@ function step(){
     if(edc.dirty&&tick%60===0){edc.dirty=0;saveED()}
     const t=Math.max(0,Math.min(W*TS-VW,edc.x*TS+8-VW/2));camX+=(t-camX)*.25}
   else if(state==='records')recordsStep();
+  else if(state==='rooms')roomsStep();
   else if(state==='gallery')galleryStep();
-  else if(state==='got'){gotT++;if(gotT>60&&(pr('start')||pr('jump'))&&lastWin.prac){PRAC=null;state='records';recPage=2;return}if(gotT>60&&(pr('start')||pr('jump'))){if(ST.custom){if(sharedMode){const b=endShared();state=b==='gallery'?'gallery':'title';return}enterEditor();return}state='select';if(ST.rush)sel=B_RUSH;else{sel=CARD.findIndex(i=>!save.cleared[i]&&(i!==3||coreOpen()));if(sel<0)sel=0}}}
+  else if(state==='got'){gotT++;if(gotT>60&&(pr('start')||pr('jump'))&&(lastWin.room||lastWin.daily)){DAILY=null;state='rooms';return}if(gotT>60&&(pr('start')||pr('jump'))&&lastWin.prac){PRAC=null;state='records';recPage=2;return}if(gotT>60&&(pr('start')||pr('jump'))){if(ST.custom){if(sharedMode){const b=endShared();state=b==='gallery'?'gallery':'title';return}enterEditor();return}state='select';if(ST.rush)sel=B_RUSH;else{sel=CARD.findIndex(i=>!save.cleared[i]&&(i!==3||coreOpen()));if(sel<0)sel=0}}}
   if(state==='play'||state==='dead'||state==='pause'){camLook+=(P.face*36-camLook)*.05;const t=arena?ARENA*TS:MBlock?midCam(midOf()):Math.max(0,Math.min(W*TS-VW,P.x+P.w/2-VW/2+camLook));camX+=(t-camX)*(arena||MBlock?.08:.14)}
   if(introT>0&&state==='play')introT--;if(!OPT.shake)shake=0;
   updParts();if(shake>0)shake*=.85;if(shake<.3)shake=0;
-  if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||state==='records'||state==='gallery'||((state==='opts'||state==='keys')&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===RUSH.length-1?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:MB&&MB.st!=='boom'?'boss':ST.key):null);
+  if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||state==='records'||state==='rooms'||state==='gallery'||((state==='opts'||state==='keys')&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===RUSH.length-1?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:MB&&MB.st!=='boom'?'boss':ST.key):null);
   const ev=state==='edit';if(edp.hidden===ev)edp.hidden=!ev;
   Object.assign(prev,K);
 }

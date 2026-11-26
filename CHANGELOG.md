@@ -2,6 +2,17 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.18 — Challenge rooms and the Daily run
+
+- **Challenge rooms:** 20 short rooms (three per sector, two for the Null Core), each a sprint to an exit gate with gold, silver and bronze times. They open as you clear their sectors. Best times and medals are saved per room, and each room keeps its own ghost.
+- **Medal times come from the route checker:** `tools/check-rooms.js --write` times a route through every room and sets gold to that time plus 5%, rounded up to half a second. CI now has a fourth check that fails if a room loses its route or its gold time becomes impossible.
+- **Daily run:** three rooms picked from the date, the same for everyone that day and worked out offline, played on one clock. Your best total is kept for the day.
+- The **Challenges card** replaces the wardens counter on stage select. The locked Null Core card now shows the wardens count.
+- Two achievements: **Gold Standard** (a gold medal) and **All That Glitters** (gold in all twenty rooms). Progress codes carry room times and the daily best.
+- Fixed: the Boss Rush intro still said four bosses.
+- Smoke tests: 156 checks.
+- Endless climb moves to 0.19.
+
 ## 0.18 — Modes and replays, part 1
 
 - **Seeded runs:** everything that changes how a run plays (boss attack choices, enemy timers, lightning positions, drops) now comes from one seeded generator. The same seed and inputs replay a run exactly. Particles and sound stay random, so cosmetic settings can't change a run. This is the base for the Daily run and Challenge rooms.

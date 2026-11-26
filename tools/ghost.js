@@ -16,18 +16,20 @@ const MACROS = [
   { jr: 24, a: 90, n: 100 }, { jr: 24, a: 120, n: 130 }, { jr: 24, a: 70, n: 120 }, // long floaty jumps in low-gravity fields
 ];
 
-function runStage(si, { beam = 60, iters = 260 } = {}) {
+function runStage(si, { beam = 60, iters = 260, room = null } = {}) {
   const G = load({ seed: 7 });
   G.set('save', { cleared: [1, 1, 1, 1, 0, 1, 0, 1, 1], best: Array(9).fill(0), bestH: Array(9).fill(0), rush: [0, 0] });
-  G.call('startStage', si);
+  if (room) { G.call('loadRoom', G.get('ROOMS').find(q => q.id === room)); si = G.get('ROOM_I'); }
+  G.call('startStage', si, 1);
   G.set('E', []);
   const ST = G.get('ST'), ARENA = G.get('ARENA'), TS = 16, goal = (ARENA + 3) * TS;
   const MV = () => G.get('MV');
   const timed = MV().length > 0 || G.get('CR').length > 0 || G.get('HASPHASE'); // platforms, crushers and phase blocks make timing matter
 
-  const snap = () => { const P = G.get('P'); return { P: { ...P, mv: P.mv ? MV().indexOf(P.mv) : -1 }, tick: G.get('tick'), cp: G.get('cp') }; };
+  const snap = (f = 0) => { const P = G.get('P'); return { P: { ...P, mv: P.mv ? MV().indexOf(P.mv) : -1 }, tick: G.get('tick'), cp: G.get('cp'), clock: G.get('clock'), f }; };
+  const done = () => G.get('arena') || G.get('state') === 'got'; // a boss arena, or a challenge room's exit
   const restore = s => {
-    G.set('tick', s.tick); G.set('cp', s.cp); G.set('state', 'play'); G.set('MBdone', true); // mid-bosses are fights, not terrain; the route check skips them like other enemies if (G.get('HASPHASE')) G.set('PHASE', Math.floor(s.tick / 90) % 2); G.set('E', []); G.set('EB', []); G.set('PB', []);
+    G.set('tick', s.tick); G.set('cp', s.cp); G.set('clock', s.clock); G.set('state', 'play'); G.set('MBdone', true); // mid-bosses are fights, not terrain; the route check skips them like other enemies if (G.get('HASPHASE')) G.set('PHASE', Math.floor(s.tick / 90) % 2); G.set('E', []); G.set('EB', []); G.set('PB', []);
     for (const m of MV()) { const a = s.tick / m.per * 6.283 + m.ph; m.x = m.bx + Math.sin(a) * m.ax; m.y = m.by + Math.sin(a) * m.ay; m.dx = m.dy = 0; }
     const P = { ...s.P }; P.mv = P.mv >= 0 ? MV()[P.mv] : null; G.set('P', P);
   };
@@ -48,9 +50,9 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
     frames.push({});
     for (const f of frames) {
       G.step(1, f);
+      if (done()) return true;
       if (G.get('state') !== 'play') return false;
       if (G.get('P').hp < hp0) return false;
-      if (G.get('arena')) return true;
     }
     const P = G.get('P');
     return P.onG || P.climb || P.wt ? true : false; // keep states that end standing, climbing or swimming
@@ -64,7 +66,7 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
       restore(s);
       if (!play(mac)) continue;
       const n = snap();
-      if (G.get('arena')) return { ok: true, stage: ST.name, iters: it, x: n.P.x / TS };
+      if (done()) return { ok: true, stage: G.get('ST').name, iters: it, x: n.P.x / TS, frames: G.get('clock') };
       const key = `${Math.round(n.P.x / 8)},${Math.round(n.P.y / 8)},${n.P.climb ? 1 : 0},${n.P.mv}` + (timed ? `,${Math.floor(n.tick / 15) % 16}` : '');
       if (seen.has(key)) continue;
       seen.add(key); next.push(n);
@@ -77,7 +79,7 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
     frontier = [...new Set([...byX, ...byHeight])];
     best = Math.max(best, next[0].P.x);
   }
-  return { ok: false, stage: ST.name, bestTile: Math.floor(best / TS), goalTile: ARENA + 3 };
+  return { ok: false, stage: G.get('ST').name, bestTile: Math.floor(best / TS), goalTile: room ? G.get('W') - 4 : ARENA + 3 };
 }
 
 if (require.main === module) {

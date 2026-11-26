@@ -20,7 +20,9 @@ const ACH=[
  ['kills','Centurion','Defeat 100 enemies',0],
  ['maker','Architect','Beat a level you built in the editor',0],
  ['mid','Gatecrasher','Beat a mid-boss',0],
- ['mid_clean','Clean Break','Beat a mid-boss without taking a hit',1]];
+ ['mid_clean','Clean Break','Beat a mid-boss without taking a hit',1],
+ ['gold','Gold Standard','Earn a gold medal in a challenge room',1],
+ ['gold_all','All That Glitters','Earn gold in all twenty challenge rooms',1]];
 const ACH_IDS=ACH.map(a=>a[0]);
 if(!save.ach||typeof save.ach!=='object')save.ach={};
 if(!save.stats||typeof save.stats!=='object')save.stats={kills:0,pickups:0,reboots:0};
@@ -72,6 +74,8 @@ function importProgress(code){
     const out={cleared:nums(o.cleared,9).map(v=>v?1:0),best:nums(o.best,9),bestH:nums(o.bestH,9),rush:nums(o.rush,2),ach:{},stats:{},splits:spl(o.splits),splitsH:spl(o.splitsH)};
     for(const id of ACH_IDS)if(o.ach&&o.ach[id])out.ach[id]=1;
     for(const k of['kills','pickups','reboots'])out.stats[k]=nums([o.stats&&o.stats[k]],1)[0];
+    out.rooms={};if(o.rooms&&typeof o.rooms==='object')for(const [k,v] of Object.entries(o.rooms).slice(0,100))if(/^r\d\d$/.test(k)&&Number.isFinite(v)&&v>0)out.rooms[k]=Math.floor(v);
+    if(o.daily&&typeof o.daily.d==='string'&&/^\d{4}-\d\d-\d\d$/.test(o.daily.d)&&Number.isFinite(o.daily.t)&&o.daily.t>0)out.daily={d:o.daily.d,t:Math.floor(o.daily.t)};
     out.gal={};if(o.gal&&typeof o.gal==='object')for(const [k,v] of Object.entries(o.gal).slice(0,200))if(/^[a-z0-9]{1,12}$/.test(k)&&Number.isFinite(v)&&v>0)out.gal[k]=Math.floor(v);
     return out}catch(e){return null}
 }
