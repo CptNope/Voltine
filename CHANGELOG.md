@@ -2,6 +2,15 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.19 — Presentation, part 2
+
+- **Bundled font:** Chakra Petch now ships in `fonts/` under the SIL Open Font License, replacing Google Fonts. The game makes no third-party requests at all, and a fresh offline install looks exactly the same.
+- **Music variations:** every second pass through a track adds a harmony a fourth below the lead, a soft arpeggio and off-beat hats. Below half health, every boss fight adds a pulsing low bass and a high arpeggio. Both come in on the beat with no gap.
+- **Background variety:** a second, nearer parallax layer in every sector (crystal shards, foundry trusses, sunken arches, relay masts, a station frame, wireframe cubes, hanging cables), kept dim so the terrain stays the brightest layer.
+- **Icon redraw:** the hero's helmet and a volt line, all inside the maskable safe zone, so Android launchers don't crop it. `tools/build-icons.js` redraws it.
+- The app description no longer says "three sectors".
+- Smoke tests: 177 checks.
+
 ## 0.19 — Presentation, part 1
 
 - **Story:** four short cards before your first stage select and three after the Null Core, each typing itself out. About 25 seconds in total. Jump moves on and Enter skips.

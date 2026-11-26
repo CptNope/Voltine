@@ -148,6 +148,8 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 
 **Story.** Four short cards the first time you start, and three after the Null Core, each typing itself out. Jump moves on and Enter skips the rest. Each warden's first appearance in a run opens a card with its portrait and one line about it. The fight and the clock wait until the card closes (jump skips it).
 
+**Music.** Every track plays a second pass with a harmony line, an arpeggio and extra hi-hats, and every boss fight adds a driving layer once the boss is below half health.
+
 **Attract mode.** Leave the title screen alone for 20 seconds and the game plays the start of Prism Grid by itself. Any key, click or tap ends it.
 
 **Challenge rooms.** The Challenges card on stage select opens 20 short rooms, three for each sector plus two for the Null Core. Each one is a sprint to an exit gate with gold, silver and bronze times. A room opens once you've cleared its sector (Prism Grid's rooms are open from the start). Your best time and medal are saved for each room, and each room keeps its own ghost.

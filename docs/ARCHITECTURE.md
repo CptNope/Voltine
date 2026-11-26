@@ -35,6 +35,12 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 12c | `demo.js` | attract mode: `DEMO_INPUT` (written by `tools/build-demo.js`), `demoTick`, `demoInput` | nothing |
 | 13 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
 
+**Music:** `musicStep(track, step, layer)` (`audio.js`) returns every note one step plays, and `musicTick` schedules them. Every second pass through a track's lead adds a harmony, an arpeggio and off-beat hats. `mus.layer` (set each frame in `step()` while a boss is below half health) adds a low pulse and a high arpeggio. Both depend only on the step count, so they come in on the beat.
+
+**Backgrounds:** `drawBG` draws each sector's far scenery, then `drawNear(th)` adds a nearer layer at about half the scroll speed, at 20% opacity with no glow, so the terrain stays the brightest layer. High contrast skips both.
+
+**Fonts and icons:** Chakra Petch is bundled in `fonts/` (500 and 700, Latin subset, from the `@fontsource/chakra-petch` npm package, under the OFL) and declared with `@font-face` in `index.html`. `main.js` asks `document.fonts` to load both, because canvas text alone doesn't trigger a download. `tools/build-icons.js` redraws both icon sizes with headless Chrome, keeping everything inside the maskable safe zone.
+
 **Story and boss cards:** `startStory(lines, then)` switches to the `story` state and calls `then` when the cards finish or are skipped. The intro plays once (`save.story`) and the ending plays after every Null Core clear. `spawnBoss` calls `bossCardOpen(kind)`, which opens a card the first time that boss appears in a run (`cardSeen` resets in `startStage`). While `bossCard` is above 0, the play step does nothing else, so the fight and the clock wait.
 
 **Attract mode:** `demoTick()` runs at the top of `step()`. After `DEMO_IDLE` frames on the title it starts Prism Grid with seed `DEMO_SEED`, sets `silent` (no sound, records, achievements or ghosts) and `MBdone`, and writes one frame of `DEMO_INPUT` into `K` per step, with regular shots and invulnerability. Any key or pointer press goes to `demoInput()` first, which ends the demo. The inputs are a route from the route checker, so run `node tools/build-demo.js` after changing the first 60 columns of Prism Grid. The smoke suite fails if the demo dies or stops being repeatable.

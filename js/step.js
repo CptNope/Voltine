@@ -116,6 +116,7 @@ function step(){
   if(state==='play'||state==='dead'||state==='pause'){camLook+=(P.face*36-camLook)*.05;const t=arena?ARENA*TS:MBlock?midCam(midOf()):Math.max(0,Math.min(W*TS-VW,P.x+P.w/2-VW/2+camLook));camX+=(t-camX)*(arena||MBlock?.08:.14)}
   if(introT>0&&state==='play')introT--;if(!OPT.shake)shake=0;
   updParts();if(shake>0)shake*=.85;if(shake<.3)shake=0;
+  mus.layer=state==='play'&&!!B&&B.st!=='boom'&&B.hp<=14; // the boss phase-2 music layer
   if(!silent)setTrack(state==='title'||state==='select'||state==='edit'||state==='records'||state==='rooms'||state==='story'||state==='gallery'||((state==='opts'||state==='keys')&&optsFrom!=='pause')?'menu':state==='play'||state==='dead'?(ST.rush?(rushIdx===RUSH.length-1?'final':'boss'):B&&B.st!=='boom'?(ST.final?'final':'boss'):arena?null:MB&&MB.st!=='boom'?'boss':ST.key):null);
   const ev=state==='edit';if(edp.hidden===ev)edp.hidden=!ev;
   Object.assign(prev,K);

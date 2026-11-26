@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.19 (part 1 of 2).** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.19.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -64,15 +64,15 @@ Every feature should support at least one of these pillars and break none of the
 | New stages | Added to the end of `STAGES`, so older saves keep their indexes. The select-screen order lives in `CARD`. | 0.12 |
 | Weakness design | One closed cycle through the wardens. The final boss takes +1 from every boss weapon. | 0.12 |
 | Level design guard | Every built-in stage must pass `tools/ghost.js` before merging. | 0.9 |
+| Fonts | **Bundled** Chakra Petch (OFL, `fonts/OFL.txt`). The game makes no third-party requests. | 0.19 |
+| Story framing | **Light:** intro and ending cards plus a card per warden, under 30 s and skippable. | 0.19 |
 
 ### Open
 
 | Decision | Options | Recommendation | Blocks |
 |---|---|---|---|
-| **Fonts offline** | keep Google Fonts, or bundle Chakra Petch (it's under the OFL) | **Bundle it.** It removes the only third-party request and makes a fresh offline install pixel-exact. | 0.19 |
 | **Where to release** | GitHub Pages only, itch.io too, or a desktop build (Steam) | **itch.io at 1.0.** It costs nothing and accepts browser games. Decide on desktop after seeing how people respond. | 1.0 and Beyond |
 | **Privacy stance** | no data collected ever, or opt-in anonymous stats | **No data collected.** It fits pillar 3. Playtest feedback comes from people, not telemetry. | Engineering track |
-| **Story framing** | none, light (intro and ending cards), or full cutscenes | **Light.** A few vector title cards that frame the wardens without slowing the game down. | 0.19 |
 
 ---
 
@@ -176,12 +176,12 @@ Every feature should support at least one of these pillars and break none of the
 |---|---|---|
 | ✅ **Light story framing:** intro, warden title cards, ending | M | Under 30 s in total and skippable |
 | ✅ **Boss intro cards:** name, vector portrait, one line of flavour | S | Shown once per fight; skippable |
-| **Music variations:** a second loop for each stage and a phase-2 layer for each boss | M | Switches without a gap |
+| ✅ **Music variations:** a second loop for each stage and a phase-2 layer for each boss | M | Switches without a gap |
 | ✅ **Death and respawn feedback:** a clearer reboot animation and a checkpoint flash | S | Respects reduced flashing |
-| **Bundled font**, if that decision goes that way | S | No third-party requests at all |
-| **Background variety:** a second parallax layer per sector | M | Terrain is still the brightest layer in screenshots |
+| ✅ **Bundled font**, if that decision goes that way | S | No third-party requests at all |
+| ✅ **Background variety:** a second parallax layer per sector | M | Terrain is still the brightest layer in screenshots |
 | ✅ **Title screen attract mode:** a looping gameplay demo | S | Starts after 20 s without input |
-| **Icon redraw** inside the maskable safe zone | S | No cropping on Android launchers |
+| ✅ **Icon redraw** inside the maskable safe zone | S | No cropping on Android launchers |
 
 ### 1.0 · Release
 
@@ -251,6 +251,7 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.19 | Bundled font (no third-party requests), music second passes and boss phase-2 layer, a near background layer per sector, maskable-safe icon |
 | 0.19 (part 1) | Story intro and ending, boss intro cards, reboot screen, respawn beam, checkpoint ring, attract-mode demo; route checker fix |
 | 0.18 | Challenge rooms (20, with medals, checked in CI), Daily run, Challenges card on stage select |
 | 0.18 (part 1) | Seeded runs, ghost replays, Practice mode, no respawning on top of enemies |

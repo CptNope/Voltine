@@ -25,7 +25,29 @@ const TR={
  boss:{bpm:152,root:55,L:'0 3 7 3 0 3 7 10 . 8 7 . 5 . 3 . 0 3 7 3 0 3 7 12 . 10 8 . 7 . 5 . 12 . 10 . 8 . 7 . 8 . 7 . 5 . 3 . 5 . 3 . 2 . 3 . 5 . 7 . . . . . . .',B:'0 0 12 0 0 12 0 12 -4 -4 8 -4 -2 -2 10 -2',D:'k h s h k h s h k h s h k k s s'},
  final:{bpm:158,root:50,L:'0 . 12 . 11 . 7 . 8 . 7 . 3 . 1 . 0 . 12 . 13 . 15 . 13 . 12 . 8 . 7 . 15 . 13 . 12 . 13 . 12 . 8 . 7 . 8 . 7 . 3 . 1 . 0 . 1 . 3 . 7 .',B:'0 0 0 0 1 1 1 1 -2 -2 -2 -2 -4 -4 -5 -5',D:'k h s h k k s h k h s h k s s s'}};
 for(const k in TR){const t=TR[k];t.L=pat(t.L,32);t.B=pat(t.B,16);t.D=t.D.trim().split(/\s+/)}
-const mus={id:null,step:0,next:0};
+const mus={id:null,step:0,next:0,layer:false};
+// Everything one step of a track plays, as a list (pure, so the smoke tests can check it without audio).
+// Every second pass through the lead adds a harmony a fourth below, a soft arpeggio over the bass and
+// off-beat hats. With `layer` on (a boss below half health) a pulsing low bass and a high arpeggio join in.
+// Both depend only on the step count, so they switch on the beat with no gap.
+function musicStep(tr,i,layer){
+  const out=[],L=tr.L[i%tr.L.length],D=tr.D[i%tr.D.length],second=Math.floor(i/tr.L.length)%2===1;
+  let lb=0;for(let k=i;k>i-tr.B.length;k--){const b=tr.B[((k%tr.B.length)+tr.B.length)%tr.B.length];if(b!==null){lb=b;break}} // the bass note in force
+  const Bn=tr.B[i%tr.B.length];
+  if(L!==null)out.push({f:NOTE(tr.root+12+L),d:1.5,beat:1,w:tr.lt||'square',v:tr.lt?.05:.022,part:'lead'});
+  if(Bn!==null)out.push({f:NOTE(tr.root-12+Bn),d:1.7,beat:1,w:'triangle',v:.07,part:'bass'});
+  if(D==='k')out.push({f:150,d:.11,w:'sine',v:.16,f2:45,part:'drum'});else if(D==='s')out.push({noise:1,d:.09,v:.06,hp:1400,part:'drum'});else if(D==='h')out.push({noise:1,d:.03,v:.025,hp:7000,part:'drum'});
+  if(second){
+    if(L!==null)out.push({f:NOTE(tr.root+7+L),d:1.2,beat:1,w:'triangle',v:.028,part:'harmony'});
+    if(i%2===0)out.push({f:NOTE(tr.root+12+lb+[0,7,12,7][(i/2)%4]),d:.9,beat:1,w:'sine',v:.022,part:'arp'});
+    if(D==null&&i%2===1)out.push({noise:1,d:.02,v:.012,hp:8000,part:'drum2'});
+  }
+  if(layer){
+    if(i%2===0)out.push({f:NOTE(tr.root-24+lb),d:.9,beat:1,w:'sawtooth',v:.026,part:'pulse'});
+    out.push({f:NOTE(tr.root+24+lb+[0,3,7,12][i%4]),d:.5,beat:1,w:'square',v:.008,part:'high'});
+  }
+  return out;
+}
 function setTrack(id){if(mus.id===id)return;mus.id=id;mus.step=0;mus.next=ac?ac.currentTime+.08:0}
 function tone(f,t,d,type,vol,f2){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(mg);o.start(t);o.stop(t+d+.02)}
 function noise(t,d,vol,hp){if(!nbuf){nbuf=ac.createBuffer(1,Math.floor(ac.sampleRate*.3),ac.sampleRate);const a=nbuf.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}
@@ -34,10 +56,7 @@ function musicTick(){
   if(mg)mg.gain.value=OPT.mv/10;
   if(!ac||!mg||!mus.id||ac.state!=='running')return;const tr=TR[mus.id],sp=60/tr.bpm/4;if(mus.next<ac.currentTime)mus.next=ac.currentTime+.03;
   try{while(mus.next<ac.currentTime+.12){const t=mus.next,i=mus.step;
-    if(musicOn){const L=tr.L[i%tr.L.length],Bn=tr.B[i%tr.B.length],D=tr.D[i%tr.D.length];
-      if(L!==null)tone(NOTE(tr.root+12+L),t,sp*1.5,tr.lt||'square',tr.lt?.05:.022);
-      if(Bn!==null)tone(NOTE(tr.root-12+Bn),t,sp*1.7,'triangle',.07);
-      if(D==='k')tone(150,t,.11,'sine',.16,45);else if(D==='s')noise(t,.09,.06,1400);else if(D==='h')noise(t,.03,.025,7000)}
+    if(musicOn)for(const n of musicStep(tr,i,mus.layer)){if(n.noise)noise(t,n.d,n.v,n.hp);else tone(n.f,t,n.d*(n.beat?sp:1),n.w,n.v,n.f2)}
     mus.next+=sp;mus.step++}}catch(e){}
 }
 

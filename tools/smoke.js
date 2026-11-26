@@ -444,5 +444,23 @@ for (const s of [0, 1, 2, 5, 7, 8]) { // 0.17.1 mid-bosses: lock, beat, walls ba
   check('a key press ends the demo', !G.get('demoOn') && G.get('state') === 'title' && G.get('hard') === false && G.get('silent') === false);
 }
 
+{ // 0.19 part 2: music variations, boss layer, bundled font, near background layer
+  const G = load({ seed: 95 }); const TR = G.get('TR'); let firstSame = true, secondAdds = true, layerAdds = true;
+  for (const id in TR) { const tr = TR[id], n = tr.L.length;
+    for (let i = 0; i < n; i++) { const a = G.call('musicStep', tr, i, false), b = G.call('musicStep', tr, i + n, false), c = G.call('musicStep', tr, i, true);
+      if (a.some(e => ['harmony', 'arp', 'drum2'].includes(e.part))) firstSame = false;
+      if (b.length < a.length) secondAdds = false;
+      if (!c.some(e => e.part === 'high')) layerAdds = false; }
+    if (!Array.from({ length: n }, (_, i) => G.call('musicStep', tr, i + n, false)).some(s => s.some(e => e.part === 'harmony'))) secondAdds = false; }
+  check('the first pass of every track is unchanged', firstSame);
+  check('every second pass adds a harmony and arpeggio', secondAdds);
+  check('the boss layer adds parts on every step', layerAdds);
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; toArena(G, 0); G.step(10, { fire: 1 }); const B = G.get('B');
+  check('the boss layer is off above half health', G.get('mus').layer === false);
+  B.hp = 12; G.step(2, {}); check('the boss layer turns on below half health', G.get('mus').layer === true);
+  const fs = require('fs'), html = fs.readFileSync(__dirname + '/../index.html', 'utf8'), sw = fs.readFileSync(__dirname + '/../sw.js', 'utf8');
+  check('the page makes no third-party requests', !/https?:\/\/(?!github\.com|cptnope)/.test(html.replace(/<a [^>]*>/g, '')) && fs.existsSync(__dirname + '/../fonts/chakra-petch-latin-700-normal.woff2') && /fonts\/chakra-petch-latin-700/.test(sw));
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

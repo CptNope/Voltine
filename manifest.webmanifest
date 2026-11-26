@@ -1,7 +1,7 @@
 {
   "name": "Voltline",
   "short_name": "Voltline",
-  "description": "A vector-graphics action platformer: three sectors, three wardens, one fortress.",
+  "description": "A vector-graphics action platformer: six sectors, six wardens, one fortress.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

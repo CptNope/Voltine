@@ -13,6 +13,21 @@ function ridge(par,step,amp,base,col,fill,blocky){
 // roles chosen after simulating protanopia, deuteranopia and tritanopia: hero blue vs enemy orange stays apart in all three
 const HCP={terrain:'#ffffff',hazard:'#ff4f00',enemy:'#ffab00',eshot:'#fff04a',hero:'#56b4e9',hero2:'#ffffff',shot:'#ffffff',health:'#00e08a',energy:'#fff04a',interact:'#fff04a',surf:'#2f8fd8'};
 const hc=(c,r)=>OPT.hc?HCP[r]:c;
+// a second, nearer parallax layer per sector (0.19): dim outlines between the far scenery and the terrain,
+// kept at low alpha with no glow so the terrain stays the brightest thing on screen
+function drawNear(th){
+  const P=.55,wrap=(x,w)=>((x%w)+w)%w,col=th.r2?th.r2[0]:'#b7a3d6';ctx.save();ctx.globalAlpha=.2;ctx.lineWidth=1;ctx.strokeStyle=col;ctx.shadowBlur=0;
+  const d=th.deco;
+  if(d==='planet'){for(let i=0;i<6;i++){const x=wrap(i*113-camX*P,720)-60,y=70+hash(i+11)*90+Math.sin(tick*.015+i)*5,r=8+hash(i+5)*10;poly([x,y-r*1.6,x+r,y,x,y+r*1.6,x-r,y]);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-r*1.6);ctx.lineTo(x,y+r*1.6);ctx.stroke()}}
+  else if(d==='stacks'){for(let i=0;i<3;i++){const x=wrap(i*260-camX*P,780)-150;ctx.strokeRect(x,96,220,10);for(let k=0;k<=220;k+=22){ctx.beginPath();ctx.moveTo(x+k,96);ctx.lineTo(x+k+11,106);ctx.lineTo(x+k+22,96);ctx.stroke()}ctx.beginPath();ctx.moveTo(x+40,106);ctx.lineTo(x+40,186);ctx.moveTo(x+180,106);ctx.lineTo(x+180,170);ctx.stroke();ctx.strokeRect(x+170,170,20,12)}}
+  else if(d==='tide'){for(let i=0;i<4;i++){const x=wrap(i*190-camX*P,760)-120;ctx.beginPath();ctx.moveTo(x,VH);ctx.lineTo(x,150);ctx.arc(x+40,150,40,Math.PI,0);ctx.lineTo(x+80,VH);ctx.stroke();ctx.strokeRect(x-6,140,12,8);ctx.strokeRect(x+74,140,12,8)}}
+  else if(d==='orbit'){for(let i=0;i<2;i++){const x=wrap(i*380-camX*P,760)-200,y=70+i*36;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+300,y);ctx.stroke();for(let k=0;k<300;k+=20){ctx.beginPath();ctx.moveTo(x+k,y);ctx.lineTo(x+k+10,y-6);ctx.lineTo(x+k+20,y);ctx.stroke()}ctx.strokeRect(x+120,y-12,40,24);ctx.strokeRect(x+40,y+6,20,40);ctx.strokeRect(x+230,y+6,20,40)}}
+  else if(d==='phase'){for(let i=0;i<5;i++){const x=wrap(i*150-camX*P,750)-80,y=60+hash(i+2)*80,a=tick*.01+i,s=12+hash(i)*8,c=Math.cos(a)*s,q=Math.sin(a)*s*.5;
+    ctx.strokeRect(x-s,y-s,s*2,s*2);ctx.strokeRect(x-s+c*.5,y-s-q,s*2,s*2);ctx.beginPath();for(const [u,v] of[[-s,-s],[s,-s],[-s,s],[s,s]]){ctx.moveTo(x+u,y+v);ctx.lineTo(x+u+c*.5,y+v-q)}ctx.stroke()}}
+  else if(d==='core'){for(let i=0;i<7;i++){const x=wrap(i*97-camX*P,680)-60;ctx.beginPath();ctx.moveTo(x,0);ctx.quadraticCurveTo(x+30,110,x+60,0);ctx.stroke();const k=((tick*.008+i*.37)%1),px=x+60*k,py=2*(1-k)*k*110;ctx.fillStyle=col;ctx.fillRect(px-1.5,py-1.5,3,3)}}
+  else{for(let i=0;i<3;i++){const x=wrap(i*240-camX*P,720)-120;ctx.beginPath();ctx.moveTo(x,VH);ctx.lineTo(x+10,140);ctx.lineTo(x+20,VH);ctx.moveTo(x+10,140);ctx.lineTo(x+10,126);ctx.stroke();ctx.beginPath();ctx.ellipse(x+10,122,14,6,-.4,0,Math.PI);ctx.stroke()}}
+  ctx.restore();
+}
 function drawBG(th){
   if(OPT.hc){ctx.fillStyle='#000';ctx.fillRect(0,0,VW,VH);return}
   const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,th.sky[0]);g.addColorStop(.7,th.sky[1]);g.addColorStop(1,th.sky[2]);
@@ -43,6 +58,7 @@ function drawBG(th){
   else{ctx.lineWidth=1.2;for(let L=0;L<3;L++){const par=.1+L*.18,yb=60+L*55;ctx.globalAlpha=.35+L*.12;glow(L===2?'#e6efff':th.r1[0],0);
       for(let i=-1;i<6;i++){const x=((i*130+L*50-camX*par)%(650)+650)%650-100;ctx.beginPath();ctx.ellipse(x,yb+hash(i+L*7)*20,40+hash(i+3)*30,8+L*2,0,0,6.283);ctx.fillStyle=th.r1[1];ctx.fill();ctx.stroke()}}ctx.globalAlpha=1;
     ctx.shadowBlur=0;for(let i=0;i<4;i++){const x=((i*170-camX*.25)%680+680)%680-60;ctx.strokeStyle='rgba(207,224,255,.4)';ctx.beginPath();ctx.moveTo(x,272);ctx.lineTo(x,150);ctx.moveTo(x-8,170);ctx.lineTo(x+8,170);ctx.stroke();if(tick%60<30){ctx.fillStyle=CORAL;ctx.fillRect(x-1,148,2,2)}}}
+  drawNear(th);
 }
 function drawTiles(){
   const th=ST.th,a=Math.floor(camX/TS),b=Math.min(W-1,a+VW/TS+1);ctx.fillStyle=OPT.hc?'#0a0a0a':th.fill;
