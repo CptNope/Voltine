@@ -14,7 +14,7 @@ function loadGallery(){
 }
 function galleryStep(){
   const n=GAL.list.length;
-  if(pr('back')){state='select';sel=8;return}
+  if(pr('back')){state='select';sel=B_GAL;return}
   if(GAL.status!=='ok'){if(GAL.status==='err'&&(pr('start')||pr('jump'))){GAL.status='idle';loadGallery()}return}
   if(pr('down')){gsel=(gsel+1)%n;snd(600,.04,'square',0,.03)}if(pr('up')){gsel=(gsel+n-1)%n;snd(600,.04,'square',0,.03)}
   if(pr('start')||pr('jump')){playShared(GAL.list[gsel],'gallery');snd(440,.1,'square',880,.04)}

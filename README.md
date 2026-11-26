@@ -32,13 +32,13 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 
 ## Features
 
-- **Five stages** with their own hazards and enemies: spike pits, ladders, slide tunnels, conveyor belts, ceiling crushers, lava, moving platforms, lifts, headwind gusts and underwater sections you swim through.
-- **Five bosses**, each with its own attack patterns and a harder second stage once it drops below half health. The final boss has two distinct phases.
+- **Seven stages** with their own hazards and enemies: spike pits, ladders, slide tunnels, conveyor belts, ceiling crushers, lava, moving platforms, lifts, headwind gusts, underwater sections you swim through, low-gravity fields and blocks that switch on and off with the beat.
+- **Seven bosses**, each with its own attack patterns and a harder second stage once it drops below half health. The final boss has two distinct phases.
 - **Weapon system:** a chargeable blaster plus three weapons earned from bosses, each with its own energy bar.
 - **A weakness cycle:** each warden takes extra damage from another warden's weapon.
 - **Stage select** with saved progress and best times.
 - **Normal and Hard** difficulty, with best times kept for each.
-- **Boss Rush:** all five bosses back to back on one clock.
+- **Boss Rush:** all seven bosses back to back on one clock.
 - **Level editor:** paint your own stage (up to 200 columns), undo and redo, playtest it instantly, and share it as a short code or a play link once the route check has verified it.
 - **Level gallery:** ten hand-built levels, each route-checked on every push, with your best time on each.
 - **Records:** 16 achievements, checkpoint splits against your best run, lifetime stats, and a progress code to move your save between devices.
@@ -93,6 +93,8 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 | **Coil Foundry** | conveyor belts, ceiling crushers, lava, a high route over a lava floor | **Coil Hound** | pounces, sends sparks along the floor, charges back and forth off the walls, calls down lightning with warning lines |
 | **Sky Relay** | moving platforms, lifts, regular headwind gusts | **Gale Kite** | flies in loops dropping darts, dives at you, blows wind to push you around |
 | **Tide Vault** | flooded pools to swim through, low gaps to swim under, urchin beds on the pool floors | **Undertow** | a sea serpent that hunts you underwater, leaps across the arena in long arcs, surfaces to spit drifting bubbles, and stirs a whirlpool that drags you toward it |
+| **Orbit Deck** | low-gravity fields for long floaty jumps, a spike corridor crossed on floating platforms, asteroids and UFOs | **Orbiter** | a satellite that circles the arena, telegraphs laser beams then sweeps them, and launches orbiting mines at you |
+| **Phase Lab** | pink and blue blocks that swap between solid and empty every 1.5 seconds, blink drones, phase mines | **Mirror** | mirrors your position across the arena, copies your current weapon, and raises a shield that only its weakness gets through |
 | **Null Core** (final) | all of the above, combined | **Null Engine** | Phase 1: a tethered core behind four shield orbs that block shots, with aimed fire, lightning and flying minions. Phase 2: the shields break, the core floats free and borrows every other boss's attacks. |
 
 ## Enemies
@@ -106,6 +108,10 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 | **Spark hopper** | Coil Foundry, Null Core | waits, then bounds at you in big arcs | shoot it mid-air or step under the jump |
 | **Gull** | Sky Relay, Tide Vault, Null Core | hovers high and swoops down at you in a curve, then climbs back | wait for the swoop and shoot as it comes down |
 | **Jellyfish** | Tide Vault | bobs up and down in the water and drifts toward you | stings on touch; time your swim between its bobs |
+| **Asteroid** | Orbit Deck | drifts back and forth, bobbing | tough; clear it before a long jump |
+| **UFO** | Orbit Deck | shadows you from above and drops a bolt when it's overhead | keep moving, shoot it as it lines up |
+| **Blink drone** | Phase Lab | teleports next to you, then fires a cross of shots | step off the cross lines, then shoot |
+| **Phase mine** | Phase Lab | harmless on one beat, live on the other (it glows when live) | walk through it on the safe beat |
 
 ## Weapons and weaknesses
 
@@ -114,8 +120,10 @@ The **pause menu** has Resume, Weapon (◀ ▶ to switch), Restart from checkpoi
 | **Volt Buster** | start | free | Up to three quick shots on screen. Hold to charge a big piercing shot (3 damage). | — |
 | **Prism Spread** | Prism Warden | 2 | three-way fan of shots | **Coil Hound** |
 | **Arc Bolt** | Coil Hound | 3 | heavy lob (3 damage) that bounces twice along the floor | **Undertow** |
-| **Gust Ring** | Gale Kite | 4 | four orbs circle you and destroy enemy bullets. Fire again to throw them. | **Prism Warden** |
+| **Gust Ring** | Gale Kite | 4 | four orbs circle you and destroy enemy bullets. Fire again to throw them. | **Orbiter** |
 | **Tide Lance** | Undertow | 3 | fast lance (2 damage) that pierces everything in a line | **Gale Kite** |
+| **Orbit Disc** | Orbiter | 2 | a disc that flies out and comes back, cutting through everything | **Mirror** |
+| **Echo Shot** | Mirror | 2 | a shot that fires again from the same spot a moment later | **Prism Warden** |
 
 A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null Engine has no single weakness but takes +1 damage from every boss weapon. Each weapon has 28 energy.
 
@@ -270,7 +278,8 @@ js/world.js             saved progress, options, map building, collision physics
 js/input.js             keyboard, touch pad and pointer input
 js/audio.js             sound effects, soundtrack engine and tracks, gamepad polling
 js/entities.js          run state, player, platforms, crushers, wind, regular enemies
-js/bosses.js            the five bosses and stage-clear handling
+js/bosses.js            the seven bosses and stage-clear handling
+js/sectors.js           Orbit Deck and Phase Lab stage data
 js/step.js              projectiles, pickups, particles and the per-frame step
 js/render.js            all drawing: backgrounds, tiles, sprites, HUD, menus
 js/editor.js            level editor and level codes

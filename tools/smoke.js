@@ -27,19 +27,19 @@ function toArena(G, s) {
 { // menus and locks
   const G = load({ seed: 1 });
   tap(G, 'start'); check('title opens stage select', G.get('state') === 'select');
-  tap(G, 'down'); tap(G, 'start'); check('Boss Rush is locked on a fresh save', G.get('state') === 'select');
-  tap(G, 'up'); for (let i = 0; i < 4; i++) tap(G, 'right'); tap(G, 'start');
+  G.set('sel', G.get('B_RUSH')); tap(G, 'start'); check('Boss Rush is locked on a fresh save', G.get('state') === 'select');
+  G.set('sel', G.get('CARD').indexOf(3)); tap(G, 'start');
   check('Null Core is locked on a fresh save', G.get('state') === 'select');
-  G.get('save').cleared = [1, 1, 1, 0, 0, 0]; tap(G, 'start');
-  check('Null Core stays locked until Tide Vault is cleared', G.get('state') === 'select');
-  G.get('save').cleared = [1, 1, 1, 0, 0, 1]; tap(G, 'start');
-  check('Null Core opens after all four wardens', G.get('state') === 'play' && G.get('ST').final === true);
+  G.get('save').cleared = [1, 1, 1, 0, 0, 1, 0, 1, 0]; tap(G, 'start');
+  check('Null Core stays locked until all six wardens are down', G.get('state') === 'select');
+  G.get('save').cleared = [1, 1, 1, 0, 0, 1, 0, 1, 1]; tap(G, 'start');
+  check('Null Core opens after all six wardens', G.get('state') === 'play' && G.get('ST').final === true);
   tap(G, 'start'); check('Enter pauses', G.get('state') === 'pause'); tap(G, 'back'); check('Esc resumes', G.get('state') === 'play');
 }
 
-for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow'], [3, 'null']]) { // every boss can be beaten
+for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow'], [7, 'orbiter'], [8, 'mirror'], [3, 'null']]) { // every boss can be beaten
   const G = load({ seed: 2 + s });
-  G.get('save').cleared = [1, 1, 1, 1, 0, 1];
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1];
   toArena(G, s);
   const B = G.get('B');
   const r = fightBoss(G, { weapon: s === 3 || s === 5 ? 2 : 0 });
@@ -48,7 +48,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
 
 { // weaknesses deal extra damage
   const G = load({ seed: 9 });
-  G.get('save').cleared = [1, 1, 1, 1];
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1];
   toArena(G, 1); G.step(120, {});
   const B = G.get('B'); B.st = 'idle'; B.inv = 0; const hp = B.hp;
   G.call('hitBoss', { w: 1, dmg: 1, x: B.x, y: B.y });
@@ -57,16 +57,16 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
 
 { // boss rush
   const G = load({ seed: 11 });
-  G.get('save').cleared = [1, 1, 1, 1, 0, 1];
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1];
   G.call('startStage', 4); G.step(5, {});
   const seen = new Set();
   for (let f = 0; f < 60 * 900 && G.get('state') === 'play'; f++) {
     const P = G.get('P'), B = G.get('B'), EN = G.get('EN'); if (B) seen.add(B.kind);
-    P.inv = 5; P.hp = 28; EN.fill(28); P.wpn = B && B.kind === 'kite' ? 4 : B && B.kind === 'hound' ? 1 : B && B.kind === 'undertow' ? 2 : 0;
+    P.inv = 5; P.hp = 28; EN.fill(28); P.wpn = B ? ({ warden: 6, hound: 1, kite: 4, undertow: 2, orbiter: 3, mirror: 5 }[B.kind] || 2) : 0;
     const tgt = B ? B.x + B.w / 2 : P.x;
     G.step(1, { fire: f % 8 < 4, left: P.x > tgt + 20, right: P.x < tgt - 70, jump: f % 26 < 14 });
   }
-  check('Boss Rush runs all five bosses and finishes', seen.size === 5 && G.get('state') === 'got', [...seen].join(' > '));
+  check('Boss Rush runs all seven bosses and finishes', seen.size === 7 && G.get('state') === 'got', [...seen].join(' > '));
   check('Boss Rush best time saved', G.get('save').rush[0] > 0);
 }
 
@@ -111,7 +111,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   G.set('om', G.get('OPT_ITEMS').findIndex(o => o.k === 'as')); tap(G, 'right'); check('assist cycles', OPT.as === 1);
   tap(G, 'back'); check('Esc returns to the pause menu', G.get('state') === 'pause');
   tap(G, 'down'); tap(G, 'start'); check('Quit returns to stage select', G.get('state') === 'select');
-  G.get('save').cleared = [1, 1, 1, 1]; G.get('save').best = [0, 0, 0, 0];
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; G.get('save').best = Array(9).fill(0);
   toArena(G, 0); fightBoss(G); check('assist runs do not record a best time', G.get('save').best[0] === 0);
   OPT.as = 0; OPT.tc = 1; G.call('startStage', 0); G.step(80, {});
   tap(G, 'fire'); G.step(60, {}); const n0 = G.get('PB').length; tap(G, 'fire'); G.step(2, {});
@@ -178,7 +178,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   check('bad progress codes are rejected', G.call('importProgress', 'nope') === null);
   const evil = G.call('importProgress', 'VS1.' + btoa(JSON.stringify({ cleared: [1, 'x', -5], best: ['<b>', 3.7], ach: { fake: 1, weak: 1 }, stats: { kills: -9 } })));
   check('progress codes are sanitised', evil && evil.cleared[1] === 0 && evil.best[0] === 0 && evil.best[1] === 3 && !evil.ach.fake && evil.ach.weak === 1 && evil.stats.kills === 0);
-  G.set('state', 'select'); G.set('sel', 7); tap(G, 'start'); check('Records screen opens from select', G.get('state') === 'records');
+  G.set('state', 'select'); G.set('sel', G.get('B_REC')); tap(G, 'start'); check('Records screen opens from select', G.get('state') === 'records');
   tap(G, 'right'); check('Records has a Times page', G.get('recPage') === 1); tap(G, 'back'); check('Esc leaves Records', G.get('state') === 'select');
   G.call('enterEditor'); G.call('routeStart'); for (let i = 0; i < 5 && G.get('state') === 'route'; i++) G.step(1);
   check('route checks do not touch stats', (save.stats.reboots || 0) === 0, 'reboots ' + (save.stats.reboots || 0));
@@ -210,7 +210,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   G.step(1, { jump: 1 }); let jumped = false, landed = G.get('P').onG;
   for (let i = 0; i < 12; i++) { G.step(1, { jump: 1 }); if (G.get('P').onG) landed = true; if (landed && G.get('P').vy < -3) jumped = true; }
   check('jump buffering: a press just before landing still jumps', jumped);
-  G.get('save').cleared = [1, 1, 1, 1, 0, 1]; toArena(G, 0); G.step(140, {});
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; toArena(G, 0); G.step(140, {});
   const B = G.get('B'); B.inv = 0; B.st = 'idle'; G.call('hitBoss', { w: 3, dmg: 1, x: B.x, y: B.y });
   const x0 = G.get('P').x; G.step(2, { right: 1 });
   check('hit-stop freezes play briefly on a boss hit', G.get('P').x === x0 && G.get('hitStop') >= 0);
@@ -219,7 +219,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
 
 { // playtest log and report
   const G = load({ seed: 22 });
-  G.get('save').cleared = [1, 1, 1, 1, 0, 1];
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1];
   G.call('startStage', 0); G.step(5, {}); const P = G.get('P'); P.x = 36 * 16; P.y = 260; G.step(120, {});
   const log = G.get('save').log || [];
   check('deaths are logged with place and cause', log.some(e => e.e === 'death' && e.c === 'pit' && e.s === 'prism'));
@@ -290,8 +290,38 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   G.call('playShared', L, 'gallery'); toArena(G, 6); fightBoss(G);
   check('clearing a gallery level records a gallery best, not Architect', Object.keys(G.get('save').gal || {}).length === 1 && !G.get('save').ach.maker);
   G.step(70, {}); tap(G, 'start'); check('after a gallery clear Enter returns to the gallery', G.get('state') === 'gallery' && G.call('encodeLevel') === mine);
-  G.set('state', 'select'); G.set('sel', 5); tap(G, 'right'); check('the Gallery bar sits next to Boss Rush', G.get('sel') === 8);
+  G.set('state', 'select'); G.set('sel', G.get('B_RUSH')); tap(G, 'right'); check('the Gallery bar sits next to Boss Rush', G.get('sel') === G.get('B_GAL'));
   check('play links point at the Pages site', /^https:\/\/cptnope\.github\.io\/Voltline\/\?level=VL1\./.test(G.call('playLink', mine)));
+}
+
+{ // 0.17 sectors: low gravity, phase blocks, new enemies, new weapons, select grid
+  const G = load({ seed: 25 });
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1];
+  const jumpHeight = (stage, x) => { G.call('startStage', stage); G.step(5, {}); G.set('E', []); G.set('introT', 0); const P = G.get('P'); P.x = x * 16; P.y = 15 * 16 - 22; P.inv = 9999; G.step(5, {});
+    const y0 = G.get('P').y; let top = y0; G.step(1, { jump: 1 }); for (let i = 0; i < 90; i++) { G.step(1, { jump: 1 }); top = Math.min(top, G.get('P').y); } return y0 - top; };
+  const normal = jumpHeight(7, 90), floaty = jumpHeight(7, 12);
+  check('low-gravity fields make jumps higher', floaty > normal + 15, `${normal.toFixed(0)} px vs ${floaty.toFixed(0)} px`);
+  G.call('startStage', 8); G.step(2, {});
+  const A = () => G.call('solid', 18, 13), Bk = () => G.call('solid', 22, 12);
+  G.set('tick', 89); G.step(1, {}); const a1 = A(), b1 = Bk(); G.set('tick', 179); G.step(1, {}); const a2 = A(), b2 = Bk();
+  check('phase blocks take turns being solid', a1 !== a2 && b1 !== b2 && a1 !== b1);
+  G.set('E', []); const P = G.get('P'); P.inv = 0; P.hp = 28;
+  G.set('tick', 89); G.step(1, {}); const ph = G.get('PHASE'); const tx = ph === 0 ? 22 : 18, ty = ph === 0 ? 12 : 13; P.x = tx * 16 + 2; P.y = ty * 16 - 4; P.vy = 0;
+  G.set('tick', 179); G.step(1, {}); check('a block switching on inside you pushes you out', G.call('rectFree', P.x, P.y, P.w, P.h));
+  const mine = { type: 'q', x: P.x, y: P.y + 8, w: 14, h: 14, vx: 0, vy: 0, dir: -1, t: 0, hp: 2, flash: 0, onG: false, cd: 0, y0: P.y + 8 };
+  G.set('E', [mine]); G.set('PHASE', 0); G.set('tick', 10); P.inv = 0; const hp0 = P.hp; G.get('E')[0].x = P.x; G.step(1, {});
+  check('phase mines are harmless on their off beat', G.get('P').hp === hp0 || G.get('PHASE') === 1);
+  G.call('startStage', 7); G.step(5, {}); G.set('E', []); const Q = G.get('P'); Q.x = 90 * 16; Q.y = 15 * 16 - 22; Q.wpn = 5; G.step(2, {}); G.step(1, { fire: 1 });
+  let maxd = 0, back = false; for (let i = 0; i < 120; i++) { G.step(1, {}); const d = G.get('PB').find(b => b.k === 'd'); if (d) maxd = Math.max(maxd, Math.abs(d.x - Q.x)); else { back = maxd > 40; break; } }
+  check('the Orbit Disc flies out and comes back', back, `${maxd.toFixed(0)} px out`);
+  Q.wpn = 6; G.step(2, {}); G.step(1, { fire: 1 }); let made = 0; for (let i = 0; i < 25; i++) { G.step(1, {}); made = Math.max(made, G.get('PB').filter(b => b.k === 'c').length); }
+  check('the Echo Shot fires a second time', made >= 2);
+  check('the weakness loop covers six wardens', JSON.stringify(G.get('WEAK')) === JSON.stringify({ warden: 6, hound: 1, kite: 4, undertow: 2, orbiter: 3, mirror: 5 }));
+  toArena(G, 8); G.step(140, {}); const M = G.get('B'); M.shield = 60; M.inv = 0; const h0 = M.hp;
+  G.call('hitBoss', { w: 0, dmg: 1, x: M.x, y: M.y }); const blocked = M.hp === h0; G.call('hitBoss', { w: 5, dmg: 2, x: M.x, y: M.y });
+  check('Mirror\'s copied shield blocks everything but its weakness', blocked && M.hp === h0 - 4);
+  G.set('state', 'select'); G.set('sel', 1); tap(G, 'down'); check('down moves from the first row of cards to the second', G.get('sel') === 5);
+  tap(G, 'down'); check('down from the second row reaches the bars', G.get('sel') === G.get('B_RUSH'));
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');

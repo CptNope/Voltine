@@ -10,8 +10,8 @@ const ACH=[
  ['jelly','Sting Operation','Defeat a jellyfish',0],
  ['flawless','Untouched','Beat a boss without taking a hit',1],
  ['no_reboot','Clean Run','Clear a sector without a reboot',1],
- ['all_weapons','Full Arsenal','Own all four boss weapons',0],
- ['all_wardens','Wardens Down','Beat all four wardens',0],
+ ['all_weapons','Full Arsenal','Own all six boss weapons',0],
+ ['all_wardens','Wardens Down','Beat all six wardens',0],
  ['core','The Grid Is Free','Clear the Null Core',0],
  ['hard_core','Hard Light','Clear the Null Core on Hard',1],
  ['rush','Gauntlet','Finish Boss Rush',0],
@@ -47,7 +47,7 @@ function logEv(o){
   save.log.push(Object.assign({s:ST.key,h:hard?1:0,a:assistOn()?1:0,when:Date.now()},o));if(save.log.length>400)save.log.splice(0,save.log.length-400);persist();
 }
 function playtestReport(){
-  const L=Array.isArray(save.log)?save.log:[],keys=['prism','foundry','sky','tide','core','rush'],nm={prism:'Prism Grid',foundry:'Coil Foundry',sky:'Sky Relay',tide:'Tide Vault',core:'Null Core',rush:'Boss Rush'};
+  const L=Array.isArray(save.log)?save.log:[],keys=['prism','foundry','sky','tide','orbit','phase','core','rush'],nm={prism:'Prism Grid',foundry:'Coil Foundry',sky:'Sky Relay',tide:'Tide Vault',orbit:'Orbit Deck',phase:'Phase Lab',core:'Null Core',rush:'Boss Rush'};
   const out=['Voltline playtest report · version '+VERSION+' · '+new Date().toISOString().slice(0,10),'Events logged: '+L.length+(assistOn()?' · assist or slow mode is on now':'')+(hard?' · Hard is selected now':''),''];
   for(const k of keys){const ev=L.filter(e=>e.s===k);if(!ev.length)continue;
     const d=ev.filter(e=>e.e==='death'),c=ev.filter(e=>e.e==='clear'),b=ev.filter(e=>e.e==='boss');
@@ -67,7 +67,7 @@ function importProgress(code){
   try{const o=JSON.parse(atob(String(code).trim().replace(/^VS1\./,'')));if(!o||!Array.isArray(o.cleared))return null;
     const nums=(a,n)=>Array.from({length:n},(_,i)=>{const v=Array.isArray(a)?a[i]:0;return Number.isFinite(v)&&v>=0?Math.floor(v):0});
     const spl=a=>Array.isArray(a)?a.slice(0,8).map(r=>Array.isArray(r)?nums(r,Math.min(r.length,6)):[]):[];
-    const out={cleared:nums(o.cleared,6).map(v=>v?1:0),best:nums(o.best,6),bestH:nums(o.bestH,6),rush:nums(o.rush,2),ach:{},stats:{},splits:spl(o.splits),splitsH:spl(o.splitsH)};
+    const out={cleared:nums(o.cleared,9).map(v=>v?1:0),best:nums(o.best,9),bestH:nums(o.bestH,9),rush:nums(o.rush,2),ach:{},stats:{},splits:spl(o.splits),splitsH:spl(o.splitsH)};
     for(const id of ACH_IDS)if(o.ach&&o.ach[id])out.ach[id]=1;
     for(const k of['kills','pickups','reboots'])out.stats[k]=nums([o.stats&&o.stats[k]],1)[0];
     out.gal={};if(o.gal&&typeof o.gal==='object')for(const [k,v] of Object.entries(o.gal).slice(0,200))if(/^[a-z0-9]{1,12}$/.test(k)&&Number.isFinite(v)&&v>0)out.gal[k]=Math.floor(v);
@@ -88,7 +88,7 @@ function importProgress(code){
 /* ---------- Records screen ---------- */
 function recordsStep(){
   if(pr('left')||pr('right')){recPage=1-recPage;snd(600,.05,'square',0,.03)}
-  if(pr('back')||pr('start')||pr('jump')){state='select';sel=7}
+  if(pr('back')||pr('start')||pr('jump')){state='select';sel=B_REC}
 }
 function drawRecords(){
   drawBG(STAGES[0].th);dim(.78);
@@ -103,7 +103,7 @@ function drawRecords(){
   }else{
     const rows=[...CARD.map(i=>[STAGES[i].name,i]),['Boss Rush',-1]];
     text('Sector',24,70,9,'rgba(243,233,255,.6)','left',0);text('Best',230,70,9,'rgba(243,233,255,.6)','right',0);text('Best on Hard',330,70,9,'rgba(243,233,255,.6)','right',0);text('Splits ('+(hard?'Hard':'Normal')+')',350,70,9,'rgba(243,233,255,.6)','left',0);
-    rows.forEach(([n,i],r)=>{const y=90+r*20,b=i<0?save.rush[0]:save.best[i],h=i<0?save.rush[1]:save.bestH[i];
+    rows.forEach(([n,i],r)=>{const y=86+r*17,b=i<0?save.rush[0]:save.best[i],h=i<0?save.rush[1]:save.bestH[i];
       text(n,24,y,10,CRM,'left',0);text(b?fmt(b):'—',230,y,10,b?MINT:'rgba(243,233,255,.35)','right',0);text(h?fmt(h):'—',330,y,10,h?CORAL:'rgba(243,233,255,.35)','right',0);
       const sp=i<0?null:((hard?save.splitsH:save.splits)||[])[i];text(sp&&sp.length?sp.map(f=>fmt(f)).join(' '):'—',350,y,8,'rgba(243,233,255,.6)','left',0)});
     const st=save.stats||{};text('Enemies defeated '+(st.kills||0)+'   ·   Pickups '+(st.pickups||0)+'   ·   Reboots '+(st.reboots||0),VW/2,230,9,CRM,'center',0);

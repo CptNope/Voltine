@@ -12,10 +12,10 @@ The `VL1.` prefix is the format version. The decoder also accepts the bare base6
 
 | Key | Type | Meaning |
 |---|---|---|
-| `b` | string | boss: `warden`, `hound`, `kite`, `undertow` or `null` |
-| `t` | integer 0–4 | theme: 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay (adds wind), 3 Null Core, 4 Tide Vault. This sets colours and music. |
+| `b` | string | boss: `warden`, `hound`, `kite`, `undertow`, `orbiter`, `mirror` or `null` |
+| `t` | integer 0–6 | theme: 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay (adds wind), 3 Null Core, 4 Tide Vault, 5 Orbit Deck, 6 Phase Lab. This sets colours and music. |
 | `r` | array of 17 strings | the tile rows, top to bottom, run-length encoded (below) |
-| `s` | array of `[type, x, y]` | entities. `type` is `w` walker, `s` shield walker, `h` spark hopper, `f` flyer, `g` gull, `j` jellyfish, `t` turret, `p` health, `e` energy |
+| `s` | array of `[type, x, y]` | entities. `type` is `w` walker, `s` shield walker, `h` spark hopper, `f` flyer, `g` gull, `j` jellyfish, `a` asteroid, `u` UFO, `b` blink drone, `q` phase mine, `t` turret, `p` health, `e` energy |
 | `v` | array of `[x, y, vertical]` | moving platforms. `vertical` 0 moves sideways (±40 px over 180 frames), 1 moves up and down (±28 px over 150 frames) |
 | `c` | array of `x` | crusher columns |
 | `k` | array of `x` | checkpoint columns (up to 3; the start is always column 2) |
@@ -39,6 +39,9 @@ Each row is `w` tiles (100 unless `w` says otherwise), written as `<count><char>
 | `>` | belt pushing right |
 | `<` | belt pushing left |
 | `~` | water (swimmable) |
+| `o` | low-gravity field (0.17) |
+| `A` | phase block, solid on the first beat (0.17) |
+| `B` | phase block, solid on the second beat (0.17) |
 
 Example: a row with 30 empty tiles, 5 blocks and 65 empty tiles is `30 5#65 `. Tile characters are never digits, so the pairs can be read without separators.
 

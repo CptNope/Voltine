@@ -4,7 +4,8 @@
 function updShots(){
   for(const s of PB){
     if(s.k==='o'&&s.mode==='orbit'){s.ang+=.16;s.x=P.x+P.w/2+Math.cos(s.ang)*20;s.y=P.y+P.h/2+Math.sin(s.ang)*20;if(--s.life<=0){s.dead=1;continue}}
-    else{if(s.k==='a')s.vy=Math.min(s.vy+.2,5);s.x+=s.vx;s.y+=s.vy;
+    else if(s.k==='d'){s.t++;if(s.t<24)s.vx*=.97;else{const dx=P.x+P.w/2-s.x,dy=P.y+P.h/2-s.y,d=Math.hypot(dx,dy)||1;s.vx=dx/d*5.5;s.vy=dy/d*5.5;if(d<10||s.t>240){s.dead=1;continue}}s.x+=s.vx;s.y+=s.vy}
+    else{if(s.k==='a')s.vy=Math.min(s.vy+.2,5);if(s.k==='c'&&s.echo>0&&--s.echo===0)PB.push({k:'c',w:6,x:s.ox,y:s.oy,vx:s.vx,vy:0,r:3,dmg:1});s.x+=s.vx;s.y+=s.vy;
       if(s.k==='a'&&s.vy>0&&solid(Math.floor(s.x/TS),Math.floor((s.y+s.r)/TS))&&!solid(Math.floor(s.x/TS),Math.floor((s.y-s.r)/TS))){if(s.bounce-->0){s.y=Math.floor((s.y+s.r)/TS)*TS-s.r;s.vy=-3.2;burst(s.x,s.y+s.r,GOLD,4,1)}else s.dead=1}
       if(s.x<camX-20||s.x>camX+VW+20||s.y>VH+20||s.y<-40||solid(Math.floor(s.x/TS),Math.floor(s.y/TS))){s.dead=1;continue}}
     if(s.k==='o')for(const e of EB)if(Math.hypot(e.x-s.x,e.y-s.y)<s.r+e.r+1){e.dead=1;burst(e.x,e.y,SKY,3,1)}
@@ -19,7 +20,7 @@ function updShots(){
     if(s.k==='B'&&tick%2===0)PT.push({x:s.x,y:s.y,vx:-s.vx*.1,vy:0,l:10,c:MINT});
   }
   PB=PB.filter(s=>!s.dead);
-  for(const s of EB){if(s.dead)continue;if(s.bub)s.vy+=.025;s.x+=s.vx;s.y+=s.vy;
+  for(const s of EB){if(s.dead)continue;if(s.bub)s.vy+=.025;if(s.grav)s.vy+=.2;s.x+=s.vx;s.y+=s.vy;
     if(s.x<camX-30||s.x>camX+VW+30||s.y<-30||s.y>VH+20||solid(Math.floor(s.x/TS),Math.floor(s.y/TS))){s.dead=1;if(s.vy>3)burst(s.x,s.y,GOLD,5,1.5)}
     else if(hit({x:s.x-s.r,y:s.y-s.r,w:s.r*2,h:s.r*2},P)){s.dead=1;hurt(s.sp?3:2)}}
   EB=EB.filter(s=>!s.dead);
@@ -48,14 +49,15 @@ function step(){
   if(state==='title'&&pendingShared&&(pr('start')||pr('jump'))){const L=pendingShared;pendingShared=null;playShared(L,'title');snd(440,.1,'square',880,.04)}
   else if(state==='title'){if(pr('opts'))openOpts('title');if(pr('left')||pr('right')){hard=!hard;saveOpts();snd(600,.05,'square',0,.03)}if(pr('start')||pr('jump')){state='select';snd(440,.1,'square',880,.04)}camX=(tick*.4)%2000}
   else if(state==='select'){camX=(tick*.4)%2000;
-    const BAR=[5,8,6,7],bi=BAR.indexOf(sel);
-    if(pr('left')){sel=sel<5?(sel+4)%5:BAR[(bi+3)%4];snd(600,.05,'square',0,.03)}if(pr('right')){sel=sel<5?(sel+1)%5:BAR[(bi+1)%4];snd(600,.05,'square',0,.03)}
-    if(pr('down')&&sel<5){lastSel=sel;sel=5;snd(600,.05,'square',0,.03)}if(pr('up')&&sel>=5){sel=lastSel;snd(600,.05,'square',0,.03)}
+    const NC=CARD.length,bi=BAR.indexOf(sel),go=pr('start')||pr('jump'),beep=()=>snd(600,.05,'square',0,.03);
+    if(pr('left')){sel=sel<NC?(sel+NC-1)%NC:BAR[(bi+3)%4];beep()}if(pr('right')){sel=sel<NC?(sel+1)%NC:BAR[(bi+1)%4];beep()}
+    if(pr('down')){if(sel<4){sel=Math.min(sel+4,NC-1);beep()}else if(sel<NC){lastSel=sel;sel=B_RUSH;beep()}}
+    if(pr('up')){if(sel>=B_RUSH){sel=lastSel;beep()}else if(sel>=4&&sel<NC){sel-=4;beep()}}
     if(pr('opts'))openOpts('select');else if(pr('back')){state='title'}
-    else if((pr('start')||pr('jump'))&&sel===6)enterEditor();
-    else if((pr('start')||pr('jump'))&&sel===7){state='records';recPage=0}
-    else if((pr('start')||pr('jump'))&&sel===8){state='gallery';gsel=0;loadGallery()}else
-    if(pr('start')||pr('jump')){const si=sel<5?CARD[sel]:4;if((si===3&&!coreOpen())||(si===4&&!save.cleared[3])){snd(110,.15,'square',90,.04);POP.push({x:sel===5?128:20+sel*90+42,y:sel===5?214:200,s:'LOCKED',c:CORAL,l:40})}else startStage(si)}}
+    else if(go&&sel===B_EDIT)enterEditor();
+    else if(go&&sel===B_REC){state='records';recPage=0}
+    else if(go&&sel===B_GAL){state='gallery';gsel=0;loadGallery()}
+    else if(go){const si=sel<NC?CARD[sel]:4;if((si===3&&!coreOpen())||(si===4&&!save.cleared[3])){snd(110,.15,'square',90,.04);const r=sel<NC?cardRect(sel):{x:20,y:200,w:106};POP.push({x:r.x+r.w/2,y:r.y+(sel<NC?40:14),s:'LOCKED',c:CORAL,l:40})}else startStage(si)}}
   else if(state==='pause'){const n=PAUSE_ITEMS.length;
     if(pr('down')){pm=(pm+1)%n;snd(600,.04,'square',0,.03)}if(pr('up')){pm=(pm+n-1)%n;snd(600,.04,'square',0,.03)}
     if(pr('next')||(pm===1&&pr('right')))swap(1);if(pr('prev')||(pm===1&&pr('left')))swap(-1);
@@ -65,7 +67,7 @@ function step(){
       if(it==='resume'||it==='weapon')state='play';
       else if(it==='restart'){resetRun(false);state='play'}
       else if(it==='settings')openOpts('pause');
-      else if(it==='quit'){if(ST.custom)enterEditor();else{state='select';sel=S===4?5:Math.max(0,CARD.indexOf(S))}}}}
+      else if(it==='quit'){if(ST.custom)enterEditor();else{state='select';sel=S===4?B_RUSH:Math.max(0,CARD.indexOf(S))}}}}
   else if(state==='opts'){const n=OPT_ITEMS.length,k=OPT_ITEMS[om].k;
     if(pr('down')){om=(om+1)%n;snd(600,.04,'square',0,.03)}if(pr('up')){om=(om+n-1)%n;snd(600,.04,'square',0,.03)}
     if(pr('back')||pr('opts')||(k==='back'&&(pr('jump')||pr('start'))))state=optsFrom;
@@ -99,12 +101,12 @@ function step(){
     if(tileT?K.jump:pr('jump')){edCell(edc.x,edc.y,edc.tool);edRefresh()}
     if(K.fire){edCell(edc.x,edc.y,TOOLS.length-1);edRefresh()}
     if(routeMsg&&routeMsg.t>0)routeMsg.t--;
-    if(pr('route'))routeStart();else if(pr('start'))edTest();else if(pr('back')){saveED();state='select';sel=6}
+    if(pr('route'))routeStart();else if(pr('start'))edTest();else if(pr('back')){saveED();state='select';sel=B_EDIT}
     if(edc.dirty&&tick%60===0){edc.dirty=0;saveED()}
     const t=Math.max(0,Math.min(W*TS-VW,edc.x*TS+8-VW/2));camX+=(t-camX)*.25}
   else if(state==='records')recordsStep();
   else if(state==='gallery')galleryStep();
-  else if(state==='got'){gotT++;if(gotT>60&&(pr('start')||pr('jump'))){if(ST.custom){if(sharedMode){const b=endShared();state=b==='gallery'?'gallery':'title';return}enterEditor();return}state='select';if(ST.rush)sel=5;else{sel=CARD.findIndex(i=>!save.cleared[i]&&(i!==3||coreOpen()));if(sel<0)sel=0}}}
+  else if(state==='got'){gotT++;if(gotT>60&&(pr('start')||pr('jump'))){if(ST.custom){if(sharedMode){const b=endShared();state=b==='gallery'?'gallery':'title';return}enterEditor();return}state='select';if(ST.rush)sel=B_RUSH;else{sel=CARD.findIndex(i=>!save.cleared[i]&&(i!==3||coreOpen()));if(sel<0)sel=0}}}
   if(state==='play'||state==='dead'||state==='pause'){camLook+=(P.face*36-camLook)*.05;const t=arena?ARENA*TS:Math.max(0,Math.min(W*TS-VW,P.x+P.w/2-VW/2+camLook));camX+=(t-camX)*(arena?.08:.14)}
   if(introT>0&&state==='play')introT--;if(!OPT.shake)shake=0;
   updParts();if(shake>0)shake*=.85;if(shake<.3)shake=0;

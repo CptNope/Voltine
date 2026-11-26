@@ -2,6 +2,18 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.17 — New sectors
+
+- **Orbit Deck:** low-gravity fields (`o` tiles) that turn jumps into long floaty arcs, a spike corridor crossed on floating platforms, asteroids and UFOs. Boss: **Orbiter**, a satellite that circles the arena, sweeps telegraphed laser beams and launches orbiting mines. Weapon: **Orbit Disc**, a piercing boomerang.
+- **Phase Lab:** pink and blue phase blocks (`A`/`B`) that swap between solid and empty every 1.5 seconds; a block that turns solid around you pushes you out. Blink drones teleport beside you and fire a cross; phase mines are only live on one beat. Boss: **Mirror**, which mirrors your position, copies your current weapon and shields itself against everything but its weakness. Weapon: **Echo Shot**, which fires a second time a moment later.
+- **Six-warden weakness loop:** Prism > Hound, Arc > Undertow, Lance > Kite, Ring > Orbiter, Disc > Mirror, Echo > Warden. Null Core now opens after all six wardens.
+- **Stage select** is a two-row grid of seven sector cards with a wardens counter, and up/down moves between rows and the bars.
+- Boss Rush runs all seven bosses. Both new sectors have their own music, backgrounds and intro cards, and are available as editor themes 5 and 6 with their tiles and enemies.
+- Level codes accept the new tiles (`o`, `A`, `B`), enemies (`a`, `u`, `b`, `q`), bosses and themes. Older codes still load.
+- The route checkers search phase timing and long low-gravity jumps; both new stages pass.
+- Smoke tests: 110 checks, including low-gravity jump height, phase-block switching and push-out, the disc returning, the echo firing twice, Mirror's shield and the select grid.
+- Mid-bosses moved to the next round.
+
 ## 0.16 — Community levels
 
 - **Level gallery:** a new Gallery bar on stage select lists ten hand-built levels from `levels.json` (100 to 200 columns, every boss and theme), each with your best time. Playing one never touches your own editor level.

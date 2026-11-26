@@ -46,7 +46,9 @@ for(const b of document.querySelectorAll('.pad button')){
 }
 scr.addEventListener('pointerdown',e=>{scr.focus();audio();
   if(state==='edit'){edPointer(e,true);return}
-  if(state==='select'){const r=scr.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*VW;const y=(e.clientY-r.top)/r.height*VH;if(y>=208&&y<=230){const t=[5,8,6,7][Math.max(0,Math.min(3,Math.floor((x-20)/111)))];if(sel!==t){sel=t;return}}else{const i=Math.floor((x-20)/90);if(i>=0&&i<5&&y<208&&(x-20)%90<84){if(i!==sel){sel=i;return}}else if(y<208)return}}
+  if(state==='select'){const r=scr.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*VW,y=(e.clientY-r.top)/r.height*VH;
+    if(y>=208&&y<=230){const t=BAR[Math.max(0,Math.min(3,Math.floor((x-20)/111)))];if(sel!==t){sel=t;return}}
+    else{const c=CARD.findIndex((_,i)=>{const q=cardRect(i);return x>=q.x&&x<q.x+q.w&&y>=q.y&&y<q.y+q.h});if(c<0&&y<208)return;if(c>=0&&c!==sel){sel=c;return}}}
   if(state==='gallery'){const r=scr.getBoundingClientRect(),y=(e.clientY-r.top)/r.height*VH,i=Math.floor((y-62)/17)+gOff;if(y>=50&&y<230&&i>=0&&i<GAL.list.length){if(i!==gsel){gsel=i;return}}}
   if(state==='title'||state==='select'||state==='got'||state==='gallery'){K.start=true;setTimeout(()=>K.start=false,90)}});
 

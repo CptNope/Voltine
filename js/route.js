@@ -6,14 +6,14 @@
 
 const RMAC=[{r:8},{r:20},{l:8},{w:12},{w:30},
   ...[4,10,16,24].flatMap(h=>[12,20,28,40,60].map(a=>({jr:h,a,n:Math.max(a,50)}))),
-  {jn:22,n:50},{jl:14,n:40},{slide:1},{up:100},{down:40},{sw:40},{sw:80},{su:40}];
+  {jn:22,n:50},{jl:14,n:40},{slide:1},{up:100},{down:40},{sw:40},{sw:80},{su:40},{w:45},{jr:24,a:90,n:100},{jr:24,a:120,n:130},{jr:24,a:70,n:120}];
 let RT=null,routeMsg=null;
 
 function routeStart(opt){
   saveED();silent=true;
   S=ED_I;resetRun(true);E=[];PU=[];P.inv=0;
   for(let i=0;i<5;i++)routeStep({});
-  const goal=(ARENA+3)*TS,timed=MV.length>0||CR.length>0;
+  const goal=(ARENA+3)*TS,timed=MV.length>0||CR.length>0||HASPHASE;
   RT={share:opt&&opt.share||null,frontier:[routeSnap()],seen:new Set(),it:0,best:P.x,bestSnap:null,goal,timed,t0:performance.now(),q:[],qi:0,next:[]};
   routeMsg=null;state='route';
 }
@@ -22,7 +22,7 @@ function routeKeys(k){for(const key of RKEYS)K[key]=!!k[key]}
 function routeStep(k){routeKeys(k);state='play';step()}
 function routeSnap(){return {P:{...P,mv:P.mv?MV.indexOf(P.mv):-1},tick,cp}}
 function routeRestore(s){
-  tick=s.tick;cp=s.cp;state='play';E=[];EB=[];PB=[];PT=[];POP=[];
+  tick=s.tick;cp=s.cp;state='play';if(HASPHASE)PHASE=Math.floor(tick/90)%2;E=[];EB=[];PB=[];PT=[];POP=[];
   for(const m of MV){const a=s.tick/m.per*6.283+m.ph;m.x=m.bx+Math.sin(a)*m.ax;m.y=m.by+Math.sin(a)*m.ay;m.dx=m.dy=0}
   P={...s.P};P.mv=P.mv>=0?MV[P.mv]:null;
 }

@@ -4,7 +4,7 @@
 // arena from the stage start without taking damage.
 //
 // node tools/ghost.js            check all four stages
-// node tools/ghost.js 2          check one stage (0 Prism, 1 Foundry, 2 Sky, 3 Core, 5 Tide)
+// node tools/ghost.js 2          check one stage (0 Prism, 1 Foundry, 2 Sky, 3 Core, 5 Tide, 7 Orbit, 8 Phase)
 const load = require('./harness');
 
 const MACROS = [
@@ -12,21 +12,22 @@ const MACROS = [
   // jump (held h frames) while holding right for a frames, then let go until the frame count n
   ...[4, 10, 16, 24].flatMap(h => [12, 20, 28, 40, 60].map(a => ({ jr: h, a, n: Math.max(a, 50) }))),
   { jn: 22, n: 50 }, { jl: 14, n: 40 },
-  { slide: 1 }, { up: 100 }, { down: 40 }, { sw: 40 }, { sw: 80 }, { su: 40 },
+  { slide: 1 }, { up: 100 }, { down: 40 }, { sw: 40 }, { sw: 80 }, { su: 40 }, { w: 45 },
+  { jr: 24, a: 90, n: 100 }, { jr: 24, a: 120, n: 130 }, { jr: 24, a: 70, n: 120 }, // long floaty jumps in low-gravity fields
 ];
 
 function runStage(si, { beam = 60, iters = 260 } = {}) {
   const G = load({ seed: 7 });
-  G.set('save', { cleared: [1, 1, 1, 1, 0, 1], best: [0, 0, 0, 0, 0, 0], bestH: [0, 0, 0, 0, 0, 0], rush: [0, 0] });
+  G.set('save', { cleared: [1, 1, 1, 1, 0, 1, 0, 1, 1], best: Array(9).fill(0), bestH: Array(9).fill(0), rush: [0, 0] });
   G.call('startStage', si);
   G.set('E', []);
   const ST = G.get('ST'), ARENA = G.get('ARENA'), TS = 16, goal = (ARENA + 3) * TS;
   const MV = () => G.get('MV');
-  const timed = MV().length > 0 || G.get('CR').length > 0; // platforms and crushers make timing matter
+  const timed = MV().length > 0 || G.get('CR').length > 0 || G.get('HASPHASE'); // platforms, crushers and phase blocks make timing matter
 
   const snap = () => { const P = G.get('P'); return { P: { ...P, mv: P.mv ? MV().indexOf(P.mv) : -1 }, tick: G.get('tick'), cp: G.get('cp') }; };
   const restore = s => {
-    G.set('tick', s.tick); G.set('cp', s.cp); G.set('state', 'play'); G.set('E', []); G.set('EB', []); G.set('PB', []);
+    G.set('tick', s.tick); G.set('cp', s.cp); G.set('state', 'play'); if (G.get('HASPHASE')) G.set('PHASE', Math.floor(s.tick / 90) % 2); G.set('E', []); G.set('EB', []); G.set('PB', []);
     for (const m of MV()) { const a = s.tick / m.per * 6.283 + m.ph; m.x = m.bx + Math.sin(a) * m.ax; m.y = m.by + Math.sin(a) * m.ay; m.dx = m.dy = 0; }
     const P = { ...s.P }; P.mv = P.mv >= 0 ? MV()[P.mv] : null; G.set('P', P);
   };
@@ -81,7 +82,7 @@ function runStage(si, { beam = 60, iters = 260 } = {}) {
 
 if (require.main === module) {
   const only = process.argv[2];
-  const stages = only != null ? [+only] : [0, 1, 2, 5, 3];
+  const stages = only != null ? [+only] : [0, 1, 2, 5, 7, 8, 3];
   let fail = 0;
   for (const s of stages) {
     const t = Date.now(), r = runStage(s);

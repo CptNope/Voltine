@@ -15,7 +15,7 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 
 | # | File | Defines | Runs immediately |
 |---|---|---|---|
-| 1 | `core.js` | canvas, `VW` `VH` `TS` `H` `G`, colours, `WPN`, `WEAK`, `STAGES` (0–4), `RUSH`, `BN`, `coreOpen` | sizes the canvas |
+| 1 | `core.js` | canvas, `VW` `VH` `TS` `H` `G`, colours, `WPN`, `WEAK`, `STAGES` (0–5), `WFROM`, `CARD`, `BAR` and the `B_*` bar ids, `cardRect`, `WARDENS`, `RUSH`, `BN`, `coreOpen` | sizes the canvas |
 | 2 | `world.js` | `save` and options, `buildMap`, `tile` / `solid`, `moveX` / `moveY` / `phys`, `hit` | loads `localStorage`, wires the option buttons |
 | 3 | `input.js` | `K` (held keys), `prev`, `pr()` (pressed this frame), key map, touch pad, screen pointer handler | attaches listeners |
 | 4 | `audio.js` | `snd()`, music tracks `TR`, `setTrack`, `musicTick`, `pollPad` | nothing |
@@ -24,10 +24,13 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 7 | `step.js` | `updShots`, `updParts`, `startStage`, `step()` | nothing |
 | 8 | `render.js` | every `draw*` function, `draw()`, `frame()` | nothing |
 | 9 | `editor.js` | `ED`, `TOOLS`, `CUSTOM` stage (index 6), editor input, level codes | loads the saved editor level, pushes `CUSTOM` onto `STAGES` |
+| 9b | `sectors.js` | Orbit Deck and Phase Lab stage data (indexes 7 and 8) | pushes both onto `STAGES` |
 | 10 | `route.js` | `routeStart`, `routeSlice`, `routeMsg`: the editor's route checker | nothing |
 | 11 | `records.js` | `ACH`, `ach()`, `stat()`, `split()`, the Records screen, toasts, `exportProgress` / `importProgress` | fills in missing save fields, wires the progress-code buttons |
 | 12 | `gallery.js` | `GAL`, `loadGallery()`, the Gallery screen | nothing (it fetches `levels.json` when the screen opens) |
 | 13 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
+
+**Phase blocks:** `world.js` keeps `PHASE` (0 or 1, from `floor(tick/90)%2`) and `HASPHASE`; `solid()` treats `A` as solid in phase 0 and `B` in phase 1. When the phase flips, `updWorld` pushes the player out of any block that turned solid around them. The route checkers include the phase in their state so timing is searched.
 
 **Rules that keep this safe:**
 
@@ -92,7 +95,7 @@ frame(now)                                  render.js, driven by requestAnimatio
 
 ## Stage data
 
-**Stage indexes:** 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay, 3 Null Core, 4 Boss Rush, 5 Tide Vault, 6 the editor's custom level (added by `editor.js`). New stages are appended so older saves keep their indexes. `CARD` gives the select-screen order, and `WFROM` maps each weapon to the stage that awards it.
+**Stage indexes:** 0 Prism Grid, 1 Coil Foundry, 2 Sky Relay, 3 Null Core, 4 Boss Rush, 5 Tide Vault, 6 the editor's custom level (added by `editor.js`), 7 Orbit Deck, 8 Phase Lab (added by `sectors.js`). New stages are appended so older saves keep their indexes. `CARD` gives the select-screen order, and `WFROM` maps each weapon to the stage that awards it.
 
 Each entry in `STAGES` (`core.js`):
 
@@ -120,7 +123,7 @@ All entities are plain objects in arrays, updated and drawn every frame:
 |---|---|---|
 | `P` | the player | `entities.js` `updPlayer` |
 | `E` | enemies, by `type`: `w` walker, `s` shield walker (`open` while firing), `h` spark hopper, `f` flyer, `g` gull (`mode` 1 while swooping), `t` turret. Only updated when within about 40 px of the screen. | `entities.js` `updEnemies` |
-| `PB` | player shots. `k` = `b` buster, `B` charged, `p` prism, `a` arc, `o` gust orb. `w` = weapon index for weakness checks | `step.js` `updShots` |
+| `PB` | player shots. `k` = `b` buster, `B` charged, `p` prism, `a` arc, `o` gust orb, `l` lance, `d` orbit disc, `c` echo shot. `w` = weapon index for weakness checks | `step.js` `updShots` |
 | `EB` | enemy and boss bullets (`sp` = ground spark) | `step.js` |
 | `PU` | pickups (`en` = energy) | `step.js` |
 | `MV`, `CR`, `WARN` | moving platforms, crushers, lightning warnings | `entities.js` `updWorld` |
@@ -165,7 +168,7 @@ See the storage table in the README. `save.cleared[WFROM[w]]` unlocks weapon `w`
 ## How to…
 
 ### Add a stage
-1. Add an entry to `STAGES` in `core.js` **before** the Boss Rush entry, then update the hard-coded stage indexes. Currently: select-screen layout (`drawSelect`, the pointer handler in `input.js`), `coreOpen`, the `key` list, and `save.cleared` / `best` / `bestH` lengths in `world.js`.
+1. Add an entry to `STAGES` in `core.js` **before** the Boss Rush entry, then update the hard-coded stage indexes. Currently: `CARD`, `WFROM`, `WARDENS` and `WEAK` in `core.js` (the select grid lays itself out from `CARD` via `cardRect`), `coreOpen`, the `key` list, and `save.cleared` / `best` / `bestH` lengths in `world.js`.
 2. Give it a music track in `TR` (`audio.js`) under its `key`.
 3. Run `node tools/ghost.js <index>` until it passes, then `node tools/smoke.js`.
 

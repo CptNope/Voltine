@@ -8,13 +8,15 @@ function spawnBoss(){
   if(k==='hound'){B.w=34;B.h=22}
   if(k==='kite'){B.w=32;B.h=20;B.y=-30}
   if(ST.rush)for(let y=12;y<=14;y++)for(let x=3;x<=30;x++)map[y][x]=k==='undertow'?'~':' '; // flood the rush arena for Undertow only
+  if(k==='orbiter'){B.w=30;B.h=30;B.x=(AL()+AR())/2-15;B.y=-40;B.st='intro';B.a=0}
+  if(k==='mirror'){B.w=12;B.h=22}
   if(k==='undertow'){B.w=26;B.h=18;B.x=(AL()+AR())/2-13;B.y=250;B.st='intro';B.trail=[]}
   if(k==='null'){B.w=40;B.h=40;B.x=AR()-90;B.y=160;B.st='intro';B.ph=1;B.sh=[0,1,2,3].map(i=>({a:i*Math.PI/2,hp:3,fl:0}))}
 }
 const orbPos=(b,o)=>({x:b.x+20+Math.cos(o.a)*34,y:b.y+20+Math.sin(o.a)*34});
 function aimFire(n,spread,sp,ox,oy,c){const a0=Math.atan2(P.y+11-oy,P.x+6-ox);for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*spread;EB.push({x:ox,y:oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:3.5,c})}snd(240,.15,'sawtooth',120,.05)}
 function hitBoss(s){
-  if(B.inv>0)return;const weak=WEAK[B.kind]===s.w;B.hp-=(weak?4:B.kind==='null'&&s.w>0?s.dmg+1:s.dmg)*(hard?.7:1);B.inv=weak?24:B.kind==='null'?16:10;
+  if(B.inv>0)return;if(B.shield>0&&s.w!==WEAK[B.kind]){burst(s.x,s.y,'#ff9df5',4,1.2);snd(1600,.04,'square',1000,.02);return}const weak=WEAK[B.kind]===s.w;B.hp-=(weak?4:B.kind==='null'&&s.w>0?s.dmg+1:s.dmg)*(hard?.7:1);B.inv=weak?24:B.kind==='null'?16:10;
   if(weak)ach('weak');if(!OPT.rf)hitStop=weak?4:2;snd(weak?300:500,.08,'square',weak?120:250,.05);snd(90,.08,'square',55,.05);burst(s.x,s.y,weak?GOLD:CRM,weak?10:5);if(weak){POP.push({x:B.x+B.w/2,y:B.y-4,s:'WEAK!',c:GOLD,l:40});shake=5}
   if(B.hp<=0){logEv({e:'boss',k:B.kind,d:clock-bossT0});B.hp=0;B.st='boom';B.t=0;if(!OPT.rf)hitStop=10;if(!bossHurt)ach('flawless')}
 }
@@ -24,11 +26,11 @@ function updBoss(){
     if(b.t>110){B=null;EB=[];WARN=[];
       if(ST.rush&&rushIdx<RUSH.length-1){rushIdx++;rushWait=110;const cx=(AL()+AR())/2;PU.push({x:cx-30,y:120,w:10,h:10,v:14,t:0,vy:-1,drop:1},{x:cx+20,y:120,w:10,h:10,v:14,t:0,vy:-1,drop:1,en:1});POP.push({x:cx,y:110,s:'NEXT: '+BN[RUSH[rushIdx]],c:GOLD,l:100})}
       else winStage()}return}
-  if(b.kind==='kite'||b.kind==='null'||b.kind==='undertow'){({kite:updKite,null:updNull,undertow:updUndertow})[b.kind](b);if(B&&hit(b,P))hurt(4);return}
+  if(b.kind==='kite'||b.kind==='null'||b.kind==='undertow'||b.kind==='orbiter'){({kite:updKite,null:updNull,undertow:updUndertow,orbiter:updOrbiter})[b.kind](b);if(B&&hit(b,P))hurt(4);return}
   b.vy=Math.min(b.vy+G,7);
   if(b.st==='drop'){moveY(b,false);if(b.onG){shake=10;snd(80,.3,'sawtooth',40,.08);b.st='intro';b.t=0}return}
   if(b.st==='intro'){if(b.t>60){b.st='idle';b.t=0}return}
-  if(b.kind==='warden')updWarden(b);else updHound(b);
+  if(b.kind==='warden')updWarden(b);else if(b.kind==='mirror')updMirror(b);else updHound(b);
   if(hit(b,P))hurt(4);
 }
 function updWarden(b){
@@ -109,12 +111,46 @@ function updUndertow(b){
   else if(b.st==='whirl'){b.y+=(surf-10-b.y)*.1;if(b.t>20&&b.t<130){push(P,Math.sign(b.x+13-P.x-6)*.7);if(tick%3===0){const a=Math.random()*6.283;PT.push({x:b.x+13+Math.cos(a)*60,y:surf+4+Math.sin(a)*10,vx:-Math.cos(a)*1.5,vy:0,l:30,c:'rgba(127,216,255,.6)',wind:1})}}
     if(b.t>140){b.st='swim';b.t=0}}
 }
+function updOrbiter(b){
+  const enr=b.hp<=14,cx=(AL()+AR())/2-15;
+  if(b.st==='intro'){b.y+=(115-b.y)*.05;if(b.t===1)snd(200,1,'sine',600,.06);if(b.t>70){b.st='drift';b.t=0}return}
+  if(b.st==='drift'){b.a+=.012;b.x+=(cx+Math.cos(b.a)*120-b.x)*.05;b.y+=(120+Math.sin(b.a*2)*18-b.y)*.05; // low enough to hit with a floaty jump from the floor; the perches make it easier
+    if(b.t%(enr?45:70)===30)aimFire(3,.28,2.3,b.x+15,b.y+15,SKY);
+    if(b.t>160){b.st=Math.random()<.55?'laser':'mines';b.t=0;b.beams=null;b.ms=null}}
+  else if(b.st==='laser'){ // telegraph a beam for 45 frames, then sweep it
+    if(b.t===1){const a0=Math.atan2(P.y+11-(b.y+15),P.x+6-(b.x+15));b.dir=Math.random()<.5?1:-1;b.beams=enr?[a0-b.dir*1.1,a0-b.dir*1.1+Math.PI]:[a0-b.dir*1.1];snd(150,.6,'sawtooth',300,.04)}
+    if(b.t>45){for(let k=0;k<b.beams.length;k++)b.beams[k]+=b.dir*.022;if(b.t===46)snd(90,1.2,'sawtooth',60,.06);
+      const ox=b.x+15,oy=b.y+15,px=P.x+6,py=P.y+11;for(const a of b.beams){const dx=Math.cos(a),dy=Math.sin(a),t=(px-ox)*dx+(py-oy)*dy;if(t>0&&t<440&&Math.abs((px-ox)*dy-(py-oy)*dx)<7){hurt(4);break}}}
+    if(b.t>120){b.st='drift';b.t=0;b.beams=null}}
+  else if(b.st==='mines'){ // three mines orbit the core, then launch at you
+    if(b.t===1){b.ms=[0,1,2].map(k=>({a:k*2.094}));snd(400,.3,'triangle',800,.04)}
+    if(b.ms){for(const m of b.ms){m.a+=.08;m.x=b.x+15+Math.cos(m.a)*46;m.y=b.y+15+Math.sin(m.a)*46}
+      if(b.t===60){for(const m of b.ms){const a=Math.atan2(P.y+11-m.y,P.x+6-m.x);EB.push({x:m.x,y:m.y,vx:Math.cos(a)*(enr?3:2.6),vy:Math.sin(a)*(enr?3:2.6),r:4,c:CORAL})}b.ms=null;snd(250,.2,'sawtooth',120,.05)}}
+    if(b.t>90){b.st='drift';b.t=0}}
+  b.x=Math.max(AL(),Math.min(AR()-b.w,b.x));
+}
+function updMirror(b){ // mirrors your position across the arena, jumps when you jump, and copies your weapon
+  const enr=b.hp<=14,tx=AL()+AR()-(P.x+P.w);b.face=P.x<b.x?-1:1;if(b.shield>0)b.shield--;
+  if(b.dash>0){b.dash--;b.vx=b.face*4.5}else b.vx=Math.max(-2.2,Math.min(2.2,(tx-b.x)*.1));
+  if(P.vy<-3.5&&(b.pvy==null||b.pvy>=-3.5)&&b.onG)b.vy=-5.2;b.pvy=P.vy;
+  if(b.echo>0&&--b.echo===0)EB.push({x:b.x+6,y:b.y+9,vx:b.face*3.2,vy:0,r:3,c:'#ff9df5'});
+  if(b.t%(enr?40:60)===20){const w=P.wpn,f=b.face,x=b.x+6+f*8,y=b.y+9,c='#ff9df5';
+    if(w===1)for(const vy of[-1,0,1])EB.push({x,y,vx:f*3,vy,r:3,c});
+    else if(w===2)EB.push({x,y:y-2,vx:f*2.4,vy:-3.4,r:4,c,grav:1});
+    else if(w===3){b.shield=120;burst(b.x+6,b.y+11,c,10,2)}
+    else if(w===4)EB.push({x,y,vx:f*6,vy:0,r:2.5,c});
+    else if(w===6){EB.push({x,y,vx:f*3.2,vy:0,r:3,c});b.echo=15}
+    else EB.push({x,y,vx:f*3.2,vy:0,r:3,c});
+    snd(900,.07,'square',600,.03)}
+  if(enr&&b.t%200===100){b.dash=30;snd(300,.2,'sawtooth',150,.04)}
+  moveX(b);moveY(b,false);
+}
 function winStage(){
   if(ST.custom){if(sharedMode){if(!assistOn()){const h=levelHash(ED);if(!save.gal||typeof save.gal!=='object')save.gal={};if(!save.gal[h]||clock<save.gal[h])save.gal[h]=clock;persist()}}else ach('maker');lastWin={custom:1,shared:!!sharedMode};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
   if(ST.rush){ach('rush');if(hard)ach('rush_hard');const i=hard?1:0,pb=!assistOn()&&(!save.rush[i]||clock<save.rush[i]);if(pb)save.rush[i]=clock;persist();lastWin={rush:1,pb};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
   logEv({e:'clear',t:clock,d:deaths});split(ST.cps.length);const first=!save.cleared[S];save.cleared[S]=1;const bt=hard?save.bestH:save.best;if(!assistOn()&&(!bt[S]||clock<bt[S])){bt[S]=clock;saveSplits()}persist();
-  ach('first_clear');if(deaths===0)ach('no_reboot');if(save.cleared[0]&&save.cleared[1]&&save.cleared[2]&&save.cleared[5])ach('all_wardens');
-  if([1,2,3,4].every(unlocked))ach('all_weapons');if(S===3){ach('core');if(hard)ach('hard_core')}if(S===0&&clock<150*60)ach('speed');
+  ach('first_clear');if(deaths===0)ach('no_reboot');if(WARDENS.every(i=>save.cleared[i]))ach('all_wardens');
+  if([1,2,3,4,5,6].every(unlocked))ach('all_weapons');if(S===3){ach('core');if(hard)ach('hard_core')}if(S===0&&clock<150*60)ach('speed');
   lastWin={first,w:WFROM.indexOf(S),all:coreOpen(),fin:!!ST.final};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(659,.2,'square',0,.05),180);setTimeout(()=>snd(784,.4,'square',0,.05),360);
 }
 

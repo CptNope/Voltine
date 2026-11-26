@@ -1,19 +1,19 @@
 // Voltline · editor.js · Level editor: tools, painting, undo, playtest, shareable level codes and play links.
 // Classic script (no modules) so the game also runs from file://. Load order is set in index.html.
 /* ---------- level editor ---------- */
-const EW=100,EW_MAX=200,EW_STEPS=[100,125,150,175,200],THN=['Prism Grid','Coil Foundry','Sky Relay','Null Core','Tide Vault'],TH_ST=[0,1,2,3,5];
+const EW=100,EW_MAX=200,EW_STEPS=[100,125,150,175,200],THN=['Prism Grid','Coil Foundry','Sky Relay','Null Core','Tide Vault','Orbit Deck','Phase Lab'],TH_ST=[0,1,2,3,5,7,8];
 const PAGES_URL='https://cptnope.github.io/Voltline/';
-const TOOLS=[['#','BL','Block',MINT],['^','SP','Spikes',CORAL],['~','WA','Water',TEAL],['H','LD','Ladder',GOLD],['>','B>','Belt right',GOLD],['<','B<','Belt left',GOLD],
- ['w','WK','Walker',GOLD],['s','SH','Shield walker',SKY],['h','HO','Spark hopper',ORG],['f','FL','Flyer',PINK],['g','GU','Gull','#e6efff'],['j','JE','Jellyfish',PINK],['t','TU','Turret',CORAL],['p','HP','Health',MINT],['e','EN','Energy',GOLD],
+const TOOLS=[['#','BL','Block',MINT],['^','SP','Spikes',CORAL],['~','WA','Water',TEAL],['o','GF','Low-gravity field','#c7d2ff'],['A','PA','Phase block (pink)','#ff9df5'],['B','PB','Phase block (blue)','#7fd8ff'],['H','LD','Ladder',GOLD],['>','B>','Belt right',GOLD],['<','B<','Belt left',GOLD],
+ ['w','WK','Walker',GOLD],['s','SH','Shield walker',SKY],['h','HO','Spark hopper',ORG],['f','FL','Flyer',PINK],['g','GU','Gull','#e6efff'],['j','JE','Jellyfish',PINK],['a','AS','Asteroid','#b9a58c'],['u','UF','UFO',SKY],['b','BD','Blink drone','#ff9df5'],['q','PM','Phase mine',CORAL],['t','TU','Turret',CORAL],['p','HP','Health',MINT],['e','EN','Energy',GOLD],
  ['m','PL','Platform',SKY],['l','LF','Lift',SKY],['c','CR','Crusher',ORG],['k','CP','Checkpoint',GOLD],[' ','ER','Erase','#b7a3d6']];
-const TILE_CH=' #^H><~',ENT_CH='wftpeshgj';
+const TILE_CH=' #^H><~oAB',ENT_CH='wftpeshgjaubq';
 function blankED(){const m=[];for(let y=0;y<H;y++)m.push(new Array(EW).fill(' '));for(let x=0;x<EW;x++){m[15][x]='#';m[16][x]='#'}
   for(const x of[40,41,42]){m[15][x]=' ';m[16][x]=' '}for(let x=20;x<=22;x++){m[13][x]='#';m[14][x]='#'}for(let x=60;x<=61;x++)m[14][x]='^';
   return {b:'warden',th:0,w:EW,n:'',a:'',ok:'',m,sp:[['w',30,14],['t',21,12],['f',50,9],['p',70,14]],mv:[[40,12,0]],cr:[],cps:[55]}}
 // names and authors: plain text only, short, no markup characters
 const cleanText=(s,n)=>String(s||'').replace(/[^A-Za-z0-9 .,'!?&()\-:]/g,'').replace(/\s+/g,' ').trim().slice(0,n);
 function validLevel(o){
-  if(!o||!Array.isArray(o.m)||o.m.length!==H||!RUSH.includes(o.b)||!(o.th>=0&&o.th<=4))return null;
+  if(!o||!Array.isArray(o.m)||o.m.length!==H||!RUSH.includes(o.b)||!(o.th>=0&&o.th<=6))return null;
   const w=Number.isInteger(o.w)?o.w:EW;if(w<EW||w>EW_MAX)return null;
   const m=o.m.map(r=>Array.isArray(r)?r:String(r).split(''));if(m.some(r=>r.length!==w||r.some(c=>!TILE_CH.includes(c))))return null;
   const inX=x=>Number.isInteger(x)&&x>=0&&x<w,inY=y=>Number.isInteger(y)&&y>=0&&y<H;
@@ -52,7 +52,7 @@ function edPushUndo(){UNDO.push(edSnap());if(UNDO.length>50)UNDO.shift();REDO=[]
 function edUndo(){if(!UNDO.length){edSay('Nothing to undo.');return}REDO.push(edSnap());ED=edFrom(UNDO.pop());edc.dirty=1;edUI();edRefresh();edSay('Undone.')}
 function edRedo(){if(!REDO.length){edSay('Nothing to redo.');return}UNDO.push(edSnap());ED=edFrom(REDO.pop());edc.dirty=1;edUI();edRefresh();edSay('Redone.')}
 
-const hasGround=x=>{for(let y=0;y<H;y++){const c=ED.m[y]&&ED.m[y][x];if(c==='#'||c==='>'||c==='<')return true}return false};
+const hasGround=x=>{for(let y=0;y<H;y++){const c=ED.m[y]&&ED.m[y][x];if(c==='#'||c==='>'||c==='<')return true}return false}; // phase blocks don't count: they vanish
 function edCell(x,y,tool){
   if(x<1||x>=ED.w||y<0||y>=H)return;if(x<=4&&y>=15)return;
   const k=TOOLS[tool][0];
@@ -87,7 +87,7 @@ $('edAuthor').addEventListener('input',e=>{ED.a=cleanText(e.target.value,24);edc
 $('edUndo').addEventListener('click',()=>edUndo());$('edRedo').addEventListener('click',()=>edRedo());
 $('edTest').addEventListener('click',()=>{audio();edTest()});
 $('edRoute').addEventListener('click',()=>{if(state==='edit'){routeStart();scr.focus()}});
-$('edExit').addEventListener('click',()=>{saveED();state='select';sel=6;scr.focus()});
+$('edExit').addEventListener('click',()=>{saveED();state='select';sel=B_EDIT;scr.focus()});
 let clrArm=0;$('edClear').addEventListener('click',e=>{const b=e.currentTarget;if(!clrArm){clrArm=1;b.textContent='Click again to clear';setTimeout(()=>{clrArm=0;b.textContent='Clear level'},3000);return}
   clrArm=0;b.textContent='Clear level';edPushUndo();const m=[];for(let y=0;y<H;y++)m.push(new Array(ED.w).fill(' '));for(let x=0;x<ED.w;x++){m[15][x]='#';m[16][x]='#'}ED={b:ED.b,th:ED.th,w:ED.w,n:ED.n,a:ED.a,ok:'',m,sp:[],mv:[],cr:[],cps:[]};edc.dirty=1;edRefresh();edUI();edSay('Level cleared. Undo brings it back.')});
 // sharing: verify the route first; a second press copies anyway
@@ -111,9 +111,9 @@ function playShared(L,from){if(!sharedMode){ED_SAVED=ED;sharedMode=from||'title'
 function endShared(){if(!sharedMode)return;const back=sharedMode;sharedMode=false;ED=ED_SAVED||ED;ED_SAVED=null;return back}
 function edPointer(e,down){
   const r=scr.getBoundingClientRect(),sx=(e.clientX-r.left)/r.width*VW,sy=(e.clientY-r.top)/r.height*VH;
-  if(down&&sy<22){const i=Math.floor((sx-3)/23);if(i>=0&&i<TOOLS.length){edc.tool=i;snd(600,.04,'square',0,.03)}return}
+  if(down&&sy<40){const i=Math.floor(sy/19)*15+Math.floor((sx-3)/31.6);if(sx>=3&&i>=0&&i<TOOLS.length){edc.tool=i;snd(600,.04,'square',0,.03)}return}
   if(down&&sy>110&&sy<170&&(sx<22||sx>VW-22)){edc.x=Math.max(0,Math.min(W-1,edc.x+(sx<22?-12:12)));return}
-  if(sy<22||sy>VH-16)return;
+  if(sy<40||sy>VH-16)return;
   if(down)edPushUndo();
   const tx=Math.floor((sx+camX)/TS),ty=Math.floor(sy/TS);edc.x=Math.max(0,Math.min(W-1,tx));edc.y=Math.max(0,Math.min(H-1,ty));
   const k=TOOLS[edc.tool][0];if(down||TILE_CH.includes(k)){edCell(tx,ty,edc.tool);edRefresh()}

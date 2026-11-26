@@ -7,7 +7,7 @@ function spawnAll(){
   E=[];PU=[];
   for(const [t,x,y] of ST.spawns){
     if(t==='p'||t==='e'){PU.push({x:x*TS+3,y:(y+1)*TS-10,w:10,h:10,v:8,t:0,en:t==='e'});continue}
-    const e={type:t,x:x*TS,y:0,w:t==='t'?16:14,h:14,vx:0,vy:0,dir:-1,t:Math.floor(Math.random()*60),hp:({w:3,f:2,t:4,s:3,h:2,g:2,j:2}[t]||2)+(hard?1:0),flash:0,onG:false,cd:30+Math.floor(Math.random()*40)};
+    const e={type:t,x:x*TS,y:0,w:t==='t'?16:14,h:14,vx:0,vy:0,dir:-1,t:Math.floor(Math.random()*60),hp:({w:3,f:2,t:4,s:3,h:2,g:2,j:2,a:3,u:2,b:2,q:2}[t]||2)+(hard?1:0),flash:0,onG:false,cd:30+Math.floor(Math.random()*40)};
     e.y=(y+1)*TS-e.h;e.y0=e.y;E.push(e);
   }
 }
@@ -41,6 +41,8 @@ function fire(){
     if(EN[w]<WPN[w].cost){snd(120,.08,'square',100,.03);return}
     if(w===1){if(PB.filter(b=>b.k==='p').length>=6)return;for(const vy of[-1.3,0,1.3])PB.push({k:'p',w:1,x:x0,y,vx:P.face*4.6,vy,r:2.5,dmg:1});snd(990,.09,'square',1500,.035)}
     if(w===2){if(PB.filter(b=>b.k==='a').length>=2)return;PB.push({k:'a',w:2,x:x0,y:y-2,vx:P.face*2.8,vy:-3.6,r:4,dmg:3,bounce:2});snd(260,.18,'sawtooth',520,.05)}
+    if(w===5){if(PB.some(b=>b.k==='d'))return;PB.push({k:'d',w:5,x:x0,y,vx:P.face*5.5,vy:0,r:5,dmg:2,pierce:1,t:0});snd(880,.15,'triangle',440,.04)}
+    if(w===6){if(PB.filter(b=>b.k==='c').length>=4)return;PB.push({k:'c',w:6,x:x0,y,vx:P.face*5,vy:0,r:3,dmg:1,echo:18,ox:x0,oy:y});snd(1100,.07,'square',1600,.03)}
     if(w===4){if(PB.filter(b=>b.k==='l').length>=2)return;PB.push({k:'l',w:4,x:x0,y,vx:P.face*7,vy:0,r:3,dmg:2,pierce:1});snd(1300,.12,'sawtooth',500,.035)}
     if(w===3){for(let i=0;i<4;i++)PB.push({k:'o',w:3,mode:'orbit',ang:i*Math.PI/2,x:P.x,y:P.y,vx:0,vy:0,r:4,dmg:1,life:220,pierce:1});snd(400,.25,'triangle',800,.05)}
     EN[w]-=WPN[w].cost;
@@ -51,7 +53,7 @@ function fire(){
 /* ---------- player ---------- */
 function updPlayer(){
   const p=P,L=K.left,R=K.right,U=K.up,D=K.down,cx=Math.floor((p.x+p.w/2)/TS);
-  const wt=wet(cx,Math.floor((p.y+p.h/2)/TS));
+  const wt=wet(cx,Math.floor((p.y+p.h/2)/TS)),fl=!wt&&inField(cx,Math.floor((p.y+p.h/2)/TS));
   if(p.inv>0)p.inv--;if(p.shootT>0)p.shootT--;
   if(pr('next'))swap(1);if(pr('prev'))swap(-1);
   if(pr('fire')&&!(OPT.tc&&p.wpn===0&&p.charge>=55))fire();
@@ -83,10 +85,11 @@ function updPlayer(){
     if(((jp||swimHold)&&(p.onG||wt||coyote))||(!jp&&p.buf>0&&p.onG&&!wt)){p.buf=0;
       if(D&&p.onG&&!wt){p.slide=26;p.h=12;p.y+=10;snd(150,.12,'triangle',90,.04)}
       else if(wt){const surf=!wet(cx,Math.floor((p.y-3)/TS));p.vy=surf?-5:-3.2;p.mv=null;snd(surf?330:220,.1,'triangle',surf?660:330,.025);if(OPT.rf<1)PT.push({x:p.x+6,y:p.y,vx:0,vy:-.7,l:30,c:'rgba(180,240,255,.7)',wind:1})}
-      else{p.vy=-5.2;p.mv=null;p.jumped=true;snd(330,.12,'square',660,.03)}}
+      else{p.vy=fl?-4.1:-5.2;p.mv=null;p.jumped=true;snd(330,.12,'square',660,.03)}}
     if(!K.jump&&p.vy<-2&&!wt)p.vy=-2;
   }
-  p.vy=Math.min(p.vy+(wt?.1:G),wt?1.8:6);
+  p.vy=Math.min(p.vy+(wt||fl?.1:G),wt?1.8:fl?2.6:6);
+  if(fl&&tick%10===0&&!OPT.rf)PT.push({x:p.x+Math.random()*12,y:p.y+p.h,vx:0,vy:-.3,l:30,c:'rgba(199,210,255,.6)',wind:1});
   if(wt!==!!p.wt){p.wt=wt;burst(p.x+6,p.y+(wt?p.h:0),SKY,6,1.5);snd(wt?200:400,.12,'triangle',wt?120:700,.02)}
   if(wt&&tick%24===0)PT.push({x:p.x+6+p.face*4,y:p.y+4,vx:0,vy:-.6,l:40,c:'rgba(180,240,255,.6)',wind:1});
   const was=p.onG;phys(p);
@@ -107,6 +110,10 @@ function envCheck(){
 
 /* ---------- world: movers, crushers, wind ---------- */
 function updWorld(){
+  if(HASPHASE){const np=Math.floor(tick/90)%2;if(np!==PHASE){PHASE=np;snd(PHASE?660:440,.06,'square',0,.02);
+    if(state==='play'&&!rectFree(P.x,P.y,P.w,P.h)){let moved=false;for(let k=1;k<=24&&!moved;k++)if(rectFree(P.x,P.y-k,P.w,P.h)){P.y-=k;moved=true}
+      for(let k=1;k<=16&&!moved;k++){if(rectFree(P.x-k,P.y,P.w,P.h)){P.x-=k;moved=true}else if(rectFree(P.x+k,P.y,P.w,P.h)){P.x+=k;moved=true}}
+      if(!moved)hurt(4)}}}
   for(const m of MV){const a=tick/m.per*6.283+m.ph,nx=m.bx+Math.sin(a)*m.ax,ny=m.by+Math.sin(a)*m.ay;m.dx=nx-m.x;m.dy=ny-m.y;m.x=nx;m.y=ny}
   for(const c of CR){const t=(tick+c.ph)%160,prevB=c.bot;
     c.bot=t<60?40:t<80?40+(t%4<2?2:0):t<90?40+(t-80)*20:t<120?240:240-(t-120)*5;
@@ -143,6 +150,15 @@ function updEnemies(){
       if(e.y>H*TS)e.dead=1;
     }else if(e.type==='j'){ // jellyfish: bobs in the water and drifts toward you
       e.y=e.y0+Math.sin(e.t*.04)*16;if(Math.abs(px-e.x)<130){const nx=e.x+Math.sign(px-e.x-7)*.25;if(wet(Math.floor((nx+7)/TS),Math.floor((e.y+7)/TS)))e.x=nx}
+    }else if(e.type==='a'){ // asteroid: drifts back and forth, bobbing
+      if(e.x0==null)e.x0=e.x;e.x+=e.dir*.4;if(Math.abs(e.x-e.x0)>80)e.dir*=-1;e.y=e.y0+Math.sin(e.t*.03)*10;
+    }else if(e.type==='u'){ // UFO: shadows you from above and drops a bolt when it's overhead
+      if(Math.abs(px-e.x)<150)e.x+=Math.max(-.9,Math.min(.9,(px-e.x-7)*.05));e.y=e.y0+Math.sin(e.t*.05)*3;
+      if(Math.abs(px-e.x-7)<16&&py>e.y&&e.t%70===0){EB.push({x:e.x+7,y:e.y+14,vx:0,vy:3,r:3,c:SKY});snd(700,.06,'square',300,.02)}
+    }else if(e.type==='b'){ // blink drone: teleports next to you, then fires a cross of shots
+      const ph=e.t%130;if(ph===0&&Math.abs(px-e.x)<220){e.x=Math.max(16,px-7+(Math.random()<.5?-1:1)*(60+Math.random()*30));burst(e.x+7,e.y+7,'#ff9df5',6,1.5);snd(1200,.08,'triangle',600,.02)}
+      if(ph===25){for(const [vx,vy] of [[2.2,0],[-2.2,0],[0,2.2],[0,-2.2]])EB.push({x:e.x+7,y:e.y+7,vx,vy,r:3,c:'#ff9df5'});snd(500,.08,'square',250,.025)}
+    }else if(e.type==='q'){ // phase mine: harmless on one beat, live on the other
     }else if(e.type==='g'){ // gull: hovers high, swoops down at you in an arc, climbs back
       if(!e.mode){e.x+=Math.sin(e.t*.03)*.6;e.y=e.y0+Math.sin(e.t*.08)*4;if(--e.cd<=0&&Math.abs(px-e.x-7)<110&&py>e.y+24){e.mode=1;e.vy=Math.max(2,Math.sqrt(.26*Math.max(0,py-e.y-6)));e.vx=Math.max(-3.5,Math.min(3.5,(px-e.x-7)/(e.vy/.13)));snd(900,.15,'sawtooth',400,.02)}}
       else{e.x+=e.vx;e.y+=e.vy;e.vy-=.13;if(e.vy<0&&e.y<=e.y0){e.y=e.y0;e.mode=0;e.cd=90}}
@@ -150,7 +166,7 @@ function updEnemies(){
       e.aim=Math.atan2(py-(e.y+4),px-(e.x+8));
       if(e.t%(hard?80:110)===0&&Math.hypot(px-e.x,py-e.y)<230){EB.push({x:e.x+8+Math.cos(e.aim)*9,y:e.y+4+Math.sin(e.aim)*9,vx:Math.cos(e.aim)*2,vy:Math.sin(e.aim)*2,r:3});snd(300,.08,'square',200,.025)}
     }
-    if(hit(e,P))hurt(3);
+    if(hit(e,P)&&!(e.type==='q'&&PHASE!==1))hurt(3);
   }
 }
 
