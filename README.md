@@ -144,7 +144,11 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 
 **Hard.** Pick it on the title screen. You take 50% more damage, enemies have an extra hit point, turrets fire more often, bosses take 30% less damage per hit, and health pickups heal half as much. Hard best times are saved separately.
 
-**Boss Rush.** Unlocks after the Null Core. Fight Prism Warden → Coil Hound → Gale Kite → Undertow → Null Engine in a row on one clock, with a health and energy refill between fights. If you die, you restart at the current boss and the clock keeps running.
+**Boss Rush.** Unlocks after the Null Core. Fight all seven bosses (Prism Warden → Coil Hound → Gale Kite → Undertow → Orbiter → Mirror → Null Engine) in a row on one clock, with a health and energy refill between fights. If you die, you restart at the current boss and the clock keeps running.
+
+**Ghost replays.** When you set a new best time in a sector, that run is saved as a ghost. Next time, a see-through copy of your best run plays alongside you. Normal and Hard keep separate ghosts. Turn it off with Settings → Ghost replay.
+
+**Practice.** Records → Practice (the third page) starts any sector you've cleared from its second or third checkpoint, its mid-boss, or its boss. Dying puts you back at the point you picked. Practice runs record nothing: no best times, splits, ghosts, achievements or clears.
 
 ## Settings and accessibility
 
@@ -163,6 +167,7 @@ Open **Settings** with **O**, from the pause menu, or with the button under the 
 | Hold jump to swim | On / Off | holding jump keeps swimming strokes coming |
 | Assist | Off / Half damage / Invincible | Half damage halves every hit. Invincible ignores hits. With either, spikes knock you back instead of killing you; pits still reset you. |
 | Game speed | 100% / 75% / 50% | slows gameplay (menus and music stay at normal speed) |
+| Ghost replay | On / Off | shows a see-through copy of your best run in each sector |
 | Controls | — | rebind every keyboard key and gamepad button (below) |
 
 **Assist or a slower game speed** keeps every stage playable but doesn't record best times, splits or the skill achievements, so the Records stay comparable.
@@ -261,6 +266,7 @@ Progress lives in your browser's `localStorage` on this device:
 |---|---|
 | `voltline-v2` | cleared sectors, best times and splits (Normal and Hard), Boss Rush bests, achievements, lifetime stats |
 | `voltline-opts` | music and sound toggles, difficulty, and every setting above |
+| `voltline-ghosts` | one ghost per sector and difficulty: the best time and the encoded run (about 8 KB for a three-minute run) |
 | `voltline-edit` | your current editor level |
 
 **Reset progress** (under the game) clears the first one. It asks you to click twice.

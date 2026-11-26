@@ -79,8 +79,8 @@ function drawTiles(){
   ctx.shadowBlur=0;
 }
 function poly(pts,close=true){ctx.beginPath();ctx.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)ctx.lineTo(pts[i],pts[i+1]);if(close)ctx.closePath()}
-function drawHero(){
-  const p=P;if(state==='dead')return;if(p.inv&&p.hurt===0&&(p.inv>>2)%2){if(!OPT.rf)return;ctx.globalAlpha=.45}
+function drawHero(p=P,ghost=false){
+  if(!ghost&&state==='dead')return;if(p.inv&&p.hurt===0&&(p.inv>>2)%2){if(!OPT.rf)return;ctx.globalAlpha=.45}
   const WC=WPN[p.wpn].c;
   ctx.save();ctx.translate(Math.round(p.x+p.w/2),Math.round(p.y+p.h));ctx.scale(p.face,1);
   ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.fillStyle='#2a1440';
@@ -327,7 +327,7 @@ function drawMain(){
     else drawSelect();if(state==='opts')drawOpts();else if(state==='keys')drawKeys();return}
   drawBG(ST.th);
   ctx.save();const sx=shake?(Math.random()-.5)*shake:0,sy=shake?(Math.random()-.5)*shake:0;ctx.translate(-Math.round(camX)+sx,sy);
-  drawTiles();drawEnemies();drawMid();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
+  drawTiles();drawEnemies();drawMid();drawGhost();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
   text('CORE',8,15,9,CRM,'left',0);bar(36,8,P.hp,28,MINT);
   if(P.wpn){text(WPN[P.wpn].s,8,27,9,WPN[P.wpn].c,'left',0);bar(36,20,EN[P.wpn],28,WPN[P.wpn].c)}
   drawMidHUD();
@@ -348,6 +348,8 @@ function drawMain(){
   else if(state==='dead'&&deadT>40){text('SIGNAL LOST',VW/2,130,20,CORAL);text('rebooting at checkpoint',VW/2,150,10,CRM,'center',0)}
   else if(state==='got'&&lastWin.custom){dim(Math.min(.8,gotT/50));text('LEVEL CLEAR',VW/2,100,28,GOLD,'center',12);if(ED.n)text(ED.n,VW/2,120,11,CRM,'center',0,400);text('Time '+fmt(clock)+'  ·  Reboots '+deaths,VW/2,130,12,CRM,'center',0);
     if(gotT>60&&tick%60<40)text(lastWin.shared?(sharedMode==='gallery'?'Press Enter to return to the gallery':'Press Enter to continue'):'Press Enter to return to the editor',VW/2,200,12,GOLD)}
+  else if(state==='got'&&lastWin.prac){dim(Math.min(.8,gotT/50));text('PRACTICE CLEAR',VW/2,100,24,GOLD,'center',10);text('Time '+fmt(clock)+'  ·  nothing recorded',VW/2,130,11,CRM,'center',0);
+    if(gotT>60&&tick%60<40)text('Press Enter to return to Practice',VW/2,200,12,GOLD)}
   else if(state==='got'&&lastWin.rush){dim(Math.min(.8,gotT/50));
     text('BOSS RUSH COMPLETE',VW/2,90,24,PINK,'center',12);text(fmt(clock),VW/2,136,34,MINT,'center',14);
     text((lastWin.pb?'New best':'Best '+fmt(save.rush[hard?1:0]))+'  ·  Reboots '+deaths+(hard?'  ·  Hard':''),VW/2,164,11,CRM,'center',0);

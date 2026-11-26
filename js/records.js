@@ -28,7 +28,7 @@ if(!Array.isArray(save.splits))save.splits=[];if(!Array.isArray(save.splitsH))sa
 let TOASTS=[],runSplits=[],bossHurt=false,recPage=0;
 
 function ach(id){
-  if(silent)return;if(!save.ach)save.ach={};const a=ACH.find(x=>x[0]===id);if(!a||save.ach[id])return;if(a[3]&&assistOn())return;
+  if(silent||PRAC)return;if(!save.ach)save.ach={};const a=ACH.find(x=>x[0]===id);if(!a||save.ach[id])return;if(a[3]&&assistOn())return;
   save.ach[id]=1;persist();TOASTS.push({s:a[1],t:200});snd(880,.12,'triangle',1320,.05);setTimeout(()=>snd(1320,.2,'triangle',1760,.05),120);
 }
 function stat(k,n=1){if(silent)return;if(!save.stats)save.stats={};save.stats[k]=(save.stats[k]||0)+n;if(k==='kills'&&save.stats.kills>=100)ach('kills')}
@@ -89,13 +89,15 @@ function importProgress(code){
 
 /* ---------- Records screen ---------- */
 function recordsStep(){
-  if(pr('left')||pr('right')){recPage=1-recPage;snd(600,.05,'square',0,.03)}
+  if(recPage===2){practiceStep();return}
+  if(pr('left')&&recPage>0||pr('right')){recPage=pr('right')?recPage+1:recPage-1;snd(600,.05,'square',0,.03);return}
   if(pr('back')||pr('start')||pr('jump')){state='select';sel=B_REC}
 }
 function drawRecords(){
   drawBG(STAGES[0].th);dim(.78);
   text('RECORDS',VW/2,30,20,GOLD,'center',8);
-  text((recPage?'◀ Achievements':'Achievements')+'   ·   '+(recPage?'Times':'Times ▶'),VW/2,46,9,'rgba(243,233,255,.6)','center',0);
+  text(['Achievements','Times','Practice'].map((n,i)=>i===recPage?'['+n+']':n).join('   ·   '),VW/2,46,9,'rgba(243,233,255,.6)','center',0);
+  if(recPage===2){drawPractice();text('↑↓←→ choose · Enter start · ← from the first column for Times · Esc back',VW/2,262,8,'rgba(243,233,255,.5)','center',0,460);return}
   if(recPage===0){
     const got=ACH_IDS.filter(id=>save.ach&&save.ach[id]).length;text(got+' of '+ACH.length+' unlocked',VW-16,30,9,GOLD,'right',0);
     const per=Math.ceil(ACH.length/2),gap=Math.min(22,160/(per-1)); // two columns that grow with the list

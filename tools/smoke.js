@@ -347,5 +347,46 @@ for (const s of [0, 1, 2, 5, 7, 8]) { // 0.17.1 mid-bosses: lock, beat, walls ba
   check('custom levels and Boss Rush have no mid-boss', (G.call('startStage', 6), G.call('midOf') === null) && (G.call('startStage', 4), G.call('midOf') === null));
 }
 
+{ // 0.18 seeded runs: the same seed and inputs replay exactly; a different seed plays differently
+  const run = (seed) => { const G = load({ seed: 99 }); G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1];
+    G.call('startStage', 1, seed); G.set('introT', 0); const W = G.get('W'), P = G.get('P'); P.x = (W - 31 + 5) * 16; P.y = 100; P.inv = 9999;
+    const log = []; for (let f = 0; f < 60 * 25; f++) { G.get('P').inv = 9999; G.step(1, { right: f % 90 < 20, left: f % 90 > 60, jump: f % 50 < 10, fire: f % 10 < 5 }); const B = G.get('B'); if (f % 30 === 0) log.push(B ? `${B.st}:${Math.round(B.x)}:${B.hp}` : '-', G.get('EB').length); }
+    return log.join(); };
+  const a = run(1234), b = run(1234), c = run(98765);
+  check('the same seed and inputs replay a boss fight exactly', a === b);
+  check('a different seed plays the fight differently', a !== c);
+}
+{ // ghost replays
+  const G = load({ seed: 61 });
+  const pts = []; for (let i = 0; i < 400; i++) pts.push(16 + i * 3 + (i === 200 ? 900 : 0), 200 - (i % 40) + (i === 300 ? -150 : 0), i % 64);
+  const back = G.call('ghostDecode', G.call('ghostEncode', pts));
+  check('ghost encoding round-trips, including big jumps', back.length === 400 && back.every((p, i) => p.x === pts[i * 3] && p.y === pts[i * 3 + 1] && p.b === pts[i * 3 + 2]), `${G.call('ghostEncode', pts).length} chars`);
+  G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; G.get('save').best = Array(9).fill(0);
+  G.call('startStage', 0); G.set('introT', 0); G.step(240, { right: 1, jump: 1 });
+  const rec = G.get('GREC').length; G.call('winStage');
+  const g = G.get('GHOSTS')['0n'];
+  check('a new best time saves a ghost for that sector and difficulty', !!g && g.t === G.get('clock') && rec > 300);
+  G.call('startStage', 0); check('the next run plays the ghost back', !!G.get('GPLAY') && G.get('GPLAY').length === rec / 3);
+  G.get('OPT').gh = 0; G.call('startStage', 0); check('the Ghost replay setting turns it off', !G.get('GPLAY'));
+  G.get('OPT').gh = 1; G.call('startStage', 4); check('Boss Rush has no ghost', !G.get('GPLAY') && !G.get('GREC'));
+  G.set('hard', true); G.call('startStage', 0); check('Hard keeps its own ghost', !G.get('GPLAY')); G.set('hard', false);
+  G.call('startStage', 0); G.step(60, {}); let drew = true; try { G.draw(); } catch (e) { drew = false; } check('the ghost draws without errors', drew);
+}
+{ // practice mode
+  const G = load({ seed: 62 }); const sv = G.get('save'); sv.cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; sv.best = Array(9).fill(0); sv.ach = {};
+  let safe = true, bad = [];
+  for (const si of G.call('pracRows')) for (let c = 0; c < 4; c++) { if (!G.call('pracOk', si, c)) continue;
+    G.call('startPractice', si, c); G.set('introT', 0); const near = G.get('E').some(e => Math.abs(e.x - G.get('P').x) < 56); G.step(50, {});
+    if (near || G.get('state') !== 'play' || G.get('P').hp < 28 || !G.get('P').onG) { safe = false; bad.push(G.get('ST').name + ' ' + c); } }
+  check('every practice start point puts you on safe ground', safe, bad.join(', '));
+  G.call('startPractice', 0, 3); G.set('introT', 0); G.step(120, { right: 1 });
+  check('Boss practice starts at the boss door', !!G.get('B') || G.get('arena'));
+  G.call('die', 'hit'); G.step(100, {}); check('dying in Boss practice puts you back at the door', Math.abs(G.get('P').x - (G.get('ARENA') - 3) * 16) < 2);
+  G.call('winStage'); check('a practice clear records nothing', sv.best[0] === 0 && !G.get('GHOSTS')['0n'] && !Object.keys(sv.ach).length && G.get('lastWin').prac === 1);
+  G.step(70, {}); tap(G, 'start'); check('a practice clear returns to the Practice page', G.get('state') === 'records' && G.get('recPage') === 2 && G.get('PRAC') === null);
+  G.call('startPractice', 3, 2); check('the Null Core has no mid-boss to practise', !G.call('pracOk', 3, 2));
+  G.set('state', 'records'); G.set('recPage', 1); tap(G, 'right'); check('Practice is the third Records page', G.get('recPage') === 2);
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

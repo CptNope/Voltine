@@ -1,13 +1,13 @@
 // Voltline · entities.js · Run state, the player, moving platforms, crushers, wind and regular enemies.
 // Classic script (no modules) so the game also runs from file://. Load order is set in index.html.
 /* ---------- state ---------- */
-let state='title',sel=0,P,E=[],PB=[],EB=[],PT=[],PU=[],B=null,arena=false,cp=0,camX=0,shake=0,deadT=0,gotT=0,clock=0,deaths=0,tick=0,EN=[28,28,28,28,28],gust=0,lastWin=0,MB=null,MBlock=false,MBdone=false,MBhit=false;
+let state='title',sel=0,P,E=[],PB=[],EB=[],PT=[],PU=[],B=null,arena=false,cp=0,camX=0,shake=0,deadT=0,gotT=0,clock=0,deaths=0,tick=0,EN=[28,28,28,28,28],gust=0,lastWin=0,MB=null,MBlock=false,MBdone=false,MBhit=false,PRAC=null;
 const stars=Array.from({length:70},()=>({x:Math.random()*VW*2,y:Math.random()*170,r:Math.random()<.2?1.4:.8}));
 function spawnAll(){
   E=[];PU=[];
   for(const [t,x,y] of ST.spawns){
     if(t==='p'||t==='e'){PU.push({x:x*TS+3,y:(y+1)*TS-10,w:10,h:10,v:8,t:0,en:t==='e'});continue}
-    const e={type:t,x:x*TS,y:0,w:t==='t'?16:14,h:14,vx:0,vy:0,dir:-1,t:Math.floor(Math.random()*60),hp:({w:3,f:2,t:4,s:3,h:2,g:2,j:2,a:3,u:2,b:2,q:2}[t]||2)+(hard?1:0),flash:0,onG:false,cd:30+Math.floor(Math.random()*40)};
+    const e={type:t,x:x*TS,y:0,w:t==='t'?16:14,h:14,vx:0,vy:0,dir:-1,t:Math.floor(rnd()*60),hp:({w:3,f:2,t:4,s:3,h:2,g:2,j:2,a:3,u:2,b:2,q:2}[t]||2)+(hard?1:0),flash:0,onG:false,cd:30+Math.floor(rnd()*40)};
     e.y=(y+1)*TS-e.h;e.y0=e.y;E.push(e);
   }
 }
@@ -17,6 +17,8 @@ function resetRun(full){
   if(full){cp=0;clock=0;deaths=0;MBdone=false}
   const w=P?P.wpn:0;
   P={x:ST.cps[cp]*TS,y:groundY(ST.cps[cp])-22,w:12,h:22,vx:0,vy:0,face:1,onG:false,climb:false,slide:0,hp:28,inv:60,charge:0,shootT:0,hurt:0,anim:0,mv:null,wpn:unlocked(w)?w:0};
+  if(PRAC&&PRAC.x!==undefined){P.x=PRAC.x;P.y=PRAC.y} // practice from a mid-boss or boss respawns at its door
+  if(cp>0||PRAC)E=E.filter(e=>Math.abs(e.x+7-(P.x+6))>64); // never respawn on top of an enemy
   camX=Math.max(0,Math.min(W*TS-VW,P.x-VW/2));
 }
 buildMap();resetRun(true);
@@ -146,7 +148,7 @@ function updEnemies(){
       if(e.y>H*TS)e.dead=1;
     }else if(e.type==='h'){ // spark hopper: waits, then bounds toward you
       e.vy=Math.min(e.vy+G,6);
-      if(e.onG){e.vx=0;if(--e.cd<=0&&Math.abs(px-e.x)<200){e.vy=-4.6;e.vx=Math.sign(px-e.x-7)*1.5;e.cd=45+Math.floor(Math.random()*30);snd(500,.06,'triangle',800,.02)}}
+      if(e.onG){e.vx=0;if(--e.cd<=0&&Math.abs(px-e.x)<200){e.vy=-4.6;e.vx=Math.sign(px-e.x-7)*1.5;e.cd=45+Math.floor(rnd()*30);snd(500,.06,'triangle',800,.02)}}
       if(moveX(e))e.vx*=-1;const was=e.onG;moveY(e,false);if(e.onG&&!was)burst(e.x+7,e.y+14,ORG,3,1);
       if(e.y>H*TS)e.dead=1;
     }else if(e.type==='j'){ // jellyfish: bobs in the water and drifts toward you
@@ -157,7 +159,7 @@ function updEnemies(){
       if(Math.abs(px-e.x)<150)e.x+=Math.max(-.9,Math.min(.9,(px-e.x-7)*.05));e.y=e.y0+Math.sin(e.t*.05)*3;
       if(Math.abs(px-e.x-7)<16&&py>e.y&&e.t%70===0){EB.push({x:e.x+7,y:e.y+14,vx:0,vy:3,r:3,c:SKY});snd(700,.06,'square',300,.02)}
     }else if(e.type==='b'){ // blink drone: teleports next to you, then fires a cross of shots
-      const ph=e.t%130;if(ph===0&&Math.abs(px-e.x)<220){e.x=Math.max(16,px-7+(Math.random()<.5?-1:1)*(60+Math.random()*30));burst(e.x+7,e.y+7,'#ff9df5',6,1.5);snd(1200,.08,'triangle',600,.02)}
+      const ph=e.t%130;if(ph===0&&Math.abs(px-e.x)<220){e.x=Math.max(16,px-7+(rnd()<.5?-1:1)*(60+rnd()*30));burst(e.x+7,e.y+7,'#ff9df5',6,1.5);snd(1200,.08,'triangle',600,.02)}
       if(ph===25){for(const [vx,vy] of [[2.2,0],[-2.2,0],[0,2.2],[0,-2.2]])EB.push({x:e.x+7,y:e.y+7,vx,vy,r:3,c:'#ff9df5'});snd(500,.08,'square',250,.025)}
     }else if(e.type==='q'){ // phase mine: harmless on one beat, live on the other
     }else if(e.type==='g'){ // gull: hovers high, swoops down at you in an arc, climbs back

@@ -9,7 +9,13 @@ const ro=new ResizeObserver(fit);ro.observe(scr);fit();
 
 /* ---------- weapons & stages ---------- */
 const WPN=[{n:'VOLT BUSTER',s:'VB',c:MINT,cost:0},{n:'PRISM SPREAD',s:'PS',c:PINK,cost:2,d:'Fires a three-way fan of shots.'},{n:'ARC BOLT',s:'AB',c:GOLD,cost:3,d:'Lobs a heavy bolt that bounces along the floor.'},{n:'GUST RING',s:'GR',c:SKY,cost:4,d:'Orbiting shield that eats bullets. Fire again to throw it.'},{n:'TIDE LANCE',s:'TL',c:'#4fd1c5',cost:3,d:'A fast lance that pierces everything in a line.'},{n:'ORBIT DISC',s:'OD',c:'#c7d2ff',cost:2,d:'A disc that flies out and comes back, cutting through everything.'},{n:'ECHO SHOT',s:'ES',c:'#ff9df5',cost:2,d:'A shot that fires again from the same spot a moment later.'}];
-const VERSION='0.17.1';
+const VERSION='0.18';
+// Seeded randomness for everything that changes how a run plays (boss choices, enemy timers, drops).
+// Particles, screen dressing and sound use Math.random, so options like reduced flashing can't change a run.
+// The same seed and the same inputs always replay the same run.
+let runSeed=0,rngS=0;
+const seedRun=s=>{runSeed=s>>>0;rngS=runSeed};
+const rnd=()=>{rngS=(rngS+0x6D2B79F5)>>>0;let t=rngS;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}; // mulberry32
 // one closed loop: Prism > Hound, Arc > Undertow, Lance > Kite, Ring > Orbiter, Disc > Mirror, Echo > Warden
 const WEAK={warden:6,hound:1,kite:4,undertow:2,orbiter:3,mirror:5};
 const TEAL='#4fd1c5';

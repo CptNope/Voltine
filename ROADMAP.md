@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.17.1.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.18 (part 1 of 2).** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -159,10 +159,10 @@ Every feature should support at least one of these pillars and break none of the
 
 | Item | Size | Done when |
 |---|---|---|
-| **Seeded randomness:** every run is reproducible from a seed | M | The same seed and inputs always give the same result; smoke check compares two runs |
-| **Ghost replays:** race a translucent copy of your best run | M | Inputs recorded per frame; best run saved per sector and replayed alongside you |
+| ✅ **Seeded randomness:** every run is reproducible from a seed | M | The same seed and inputs always give the same result; smoke check compares two runs |
+| ✅ **Ghost replays:** race a translucent copy of your best run | M | Position and pose recorded every second frame (more robust than inputs when physics change); best run saved per sector and difficulty and replayed alongside you |
 | **Challenge rooms:** 20 short rooms with bronze, silver and gold times | L | Every room passes the route check; medals save with progress |
-| **Practice mode:** start any cleared sector from any checkpoint, or refight any beaten boss | S | Reached from Records; no best times recorded |
+| ✅ **Practice mode:** start any cleared sector from any checkpoint, its mid-boss, or its boss | S | Reached from Records; no best times recorded |
 | **Daily run:** a seeded set of rooms that's the same for everyone that day | M | Works offline (the seed comes from the date); local best only |
 | **Endless climb:** rooms stitched from hand-made chunks | L | Every chunk passes the route check; difficulty ramps; best height saved |
 
@@ -249,6 +249,7 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.18 (part 1) | Seeded runs, ghost replays, Practice mode, no respawning on top of enemies |
 | 0.17.1 | Six mid-bosses, each in a walled section after the middle checkpoint; two new achievements |
 | 0.17 | Orbit Deck and Phase Lab sectors (Orbiter, Mirror, Orbit Disc, Echo Shot, four new enemies, low gravity, phase blocks), six-warden weakness loop, two-row stage select, seven-boss Rush |
 | 0.16 | Level gallery (10 route-checked levels, checked in CI), play links, verified codes, names and authors, undo/redo, levels up to 200 columns, checkpoint safety |

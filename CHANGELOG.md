@@ -2,6 +2,14 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.18 — Modes and replays, part 1
+
+- **Seeded runs:** everything that changes how a run plays (boss attack choices, enemy timers, lightning positions, drops) now comes from one seeded generator. The same seed and inputs replay a run exactly. Particles and sound stay random, so cosmetic settings can't change a run. This is the base for the Daily run and Challenge rooms.
+- **Ghost replays:** setting a new best time in a sector saves that run as a ghost, and the next run plays a see-through copy alongside you. Normal and Hard keep separate ghosts in `voltline-ghosts` (about 8 KB for a three-minute run). Settings → Ghost replay turns it off.
+- **Practice:** a third Records page starts any cleared sector from its second or third checkpoint, its mid-boss or its boss. Dying puts you back at the chosen point. Practice records nothing.
+- **Respawn fix:** three checkpoints (Sky Relay's third, Tide Vault's second, Null Core's third) had an enemy standing right on them. Respawns now clear enemies within 4 tiles of the spawn point.
+- Smoke tests: 140 checks, including replaying a boss fight from a seed, ghost encoding round trips, saving and playing back a ghost, and every practice start point.
+
 ## 0.17.1 — Mid-bosses
 
 - **Six mid-bosses**, one in each warden sector, each in a walled section just after the middle checkpoint: Prism Sentry, Drop Press, Drone Carrier, Giant Clam, Meteor Head and Phase Core. The camera locks, a health bar and name appear, and the boss music plays. Beating one drops a health pickup and opens the walls.

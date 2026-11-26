@@ -28,8 +28,17 @@ Defined by the `<script>` tags at the bottom of `index.html`:
 | 9b | `sectors.js` | Orbit Deck and Phase Lab stage data (indexes 7 and 8) | pushes both onto `STAGES` |
 | 10 | `route.js` | `routeStart`, `routeSlice`, `routeMsg`: the editor's route checker | nothing |
 | 11 | `records.js` | `ACH`, `ach()`, `stat()`, `split()`, the Records screen, toasts, `exportProgress` / `importProgress` | fills in missing save fields, wires the progress-code buttons |
+| 11b | `replay.js` | `GHOSTS`, ghost recording and playback (`ghostStart`, `ghostTick`, `ghostSave`, `drawGhost`), `ghostEncode` / `ghostDecode`, Practice mode (`startPractice`, the Practice page) | loads `voltline-ghosts` |
 | 12 | `gallery.js` | `GAL`, `loadGallery()`, the Gallery screen | nothing (it fetches `levels.json` when the screen opens) |
 | 13 | `main.js` | none | starts `requestAnimationFrame(frame)` and registers the service worker |
+
+**Seeded randomness:** anything that changes how a run plays (boss attack choices, enemy timers, warning positions, drops) uses `rnd()` from `core.js`, a mulberry32 generator seeded by `startStage(i, seed)`. Without a seed, a random one is picked and kept in `runSeed`. Particles, screen dressing and sound keep using `Math.random()`, so cosmetic settings such as reduced flashing can't change a run. New gameplay code must use `rnd()`. The smoke suite checks that the same seed and inputs replay a boss fight exactly.
+
+**Ghosts:** `ghostTick()` runs on every frame the clock advances and keeps every second frame: position plus a pose bitfield (`pose()`: face, climb, slide, on ground, moving, swimming). `winStage` calls `ghostSave()` only when the clear sets a new best time, so ghosts follow the same rules as best times (no assist, no practice). Ghosts are positions, not inputs, so they keep working when the game's physics change; if a stage's layout changes, an old ghost simply drifts off the path.
+
+**Practice:** `PRAC` (declared in `entities.js`) is `{s, c}` while practising, plus a respawn point `x, y` for mid-boss and boss starts. `resetRun` uses that point, `ach()` and `winStage` record nothing while it's set, and `startStage` clears it.
+
+**Respawn safety:** after a checkpoint respawn (or any practice start), `resetRun` removes enemies within 4 tiles of the spawn point.
 
 **Mid-bosses:** `midbosses.js` holds a `MIDS` entry per sector, keyed by stage name: wall columns `l` and `r` and the kind. Run state (`MB`, `MBlock`, `MBdone`, `MBhit`) is declared in `entities.js` because `resetRun` runs at load. `midCheck()` raises the walls (saving the tiles it replaced in `MBwall`), removes enemies inside, parks crushers and spawns `MB`. `resetRun(false)` clears the fight but keeps `MBdone`; only a full reset clears it. The route checkers set `MBdone` so they treat mid-bosses like enemies.
 
@@ -154,7 +163,7 @@ All entities are plain objects in arrays, updated and drawn every frame:
 
 ## Settings
 
-`OPT` (`world.js`) holds the player settings: `mv` and `sv` volumes (0–10), `shake`, `rf` (reduced flashing), `tc` (toggle charge), `as` (assist: 0 off, 1 half damage, 2 invincible), `spd` (game speed: 0 = 100%, 1 = 75%, 2 = 50%; the frame loop stretches the step interval), `af` (auto-fire), `hs` (hold to swim), `hc` (high contrast) and `big` (large text). `assistOn()` is true when assist or a slower speed is on; anything that records results checks it. They're saved in `voltline-opts`. Code that flashes, shakes or spawns particles should check `OPT.rf` and `OPT.shake`. New drawing code should pass its colour through `hc(colour, role)` (`render.js`), where the role is one of `terrain`, `hazard`, `enemy`, `eshot`, `hero`, `hero2`, `shot`, `health`, `energy`, `interact` or `surf`, so it follows the high-contrast palette `HCP`. `text()` takes an optional max width, so long labels shrink instead of overflowing. Anything that records a result should skip it when `OPT.as` is on.
+`OPT` (`world.js`) holds the player settings: `mv` and `sv` volumes (0–10), `shake`, `rf` (reduced flashing), `tc` (toggle charge), `as` (assist: 0 off, 1 half damage, 2 invincible), `spd` (game speed: 0 = 100%, 1 = 75%, 2 = 50%; the frame loop stretches the step interval), `af` (auto-fire), `hs` (hold to swim), `hc` (high contrast), `big` (large text) and `gh` (ghost replay). `assistOn()` is true when assist or a slower speed is on; anything that records results checks it. They're saved in `voltline-opts`. Code that flashes, shakes or spawns particles should check `OPT.rf` and `OPT.shake`. New drawing code should pass its colour through `hc(colour, role)` (`render.js`), where the role is one of `terrain`, `hazard`, `enemy`, `eshot`, `hero`, `hero2`, `shot`, `health`, `energy`, `interact` or `surf`, so it follows the high-contrast palette `HCP`. `text()` takes an optional max width, so long labels shrink instead of overflowing. Anything that records a result should skip it when `OPT.as` is on.
 
 ## Playtest log
 
