@@ -20,3 +20,5 @@ jobs:
         run: node tools/check-gallery.js
       - name: Challenge rooms
         run: node tools/check-rooms.js
+      - name: Endless chunks
+        run: node tools/check-chunks.js

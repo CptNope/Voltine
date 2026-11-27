@@ -50,9 +50,12 @@ function roomClear(){
   const r=roomOf(roomId);
   if(DAILY){DAILY.total+=clock;DAILY.i++;
     if(DAILY.i<DAILY.list.length){const keep=P.wpn;startRoom(roomOf(DAILY.list[DAILY.i]),DAILY.seed+DAILY.i);P.wpn=keep;snd(660,.15,'triangle',990,.05);return}
+    logEv({e:'daily',t:DAILY.total});
     const pb=!assistOn()&&(!save.daily||save.daily.d!==DAILY.d||DAILY.total<save.daily.t);if(pb)save.daily={d:DAILY.d,t:DAILY.total};persist();
     lastWin={daily:1,pb,total:DAILY.total};state='got';gotT=0;snd(523,.2,'square',0,.05);setTimeout(()=>snd(784,.5,'square',0,.05),200);return}
+  if(!r){lastWin={test:1};state='got';gotT=0;return} // a room that isn't in ROOMS (the chunk checker's test rooms) records nothing
   if(!save.rooms||typeof save.rooms!=='object')save.rooms={};
+  logEv({e:'room',t:clock});
   const old=roomBest(r.id),pb=!assistOn()&&(!old||clock<old),before=medalFor(r,old);
   if(pb){save.rooms[r.id]=clock;ghostSave()}persist();
   const med=medalFor(r,clock);if(!assistOn()){if(med===3)ach('gold');if(ROOMS.every(q=>medalFor(q,roomBest(q.id))===3))ach('gold_all')}
@@ -71,11 +74,13 @@ function startDaily(){const d=todayStr(),list=dailyRooms(d);DAILY={d,list,i:0,to
 function roomsStep(){
   const n=ROOMS.length;
   if(pr('back')){state='select';sel=CH_SLOT;return}
-  if(pr('up')){rsel=rsel===-1?n-1:rsel%10===0?-1:rsel-1}
-  if(pr('down')){rsel=rsel===-1?0:rsel===n-1?-1:rsel+1}
-  if((pr('left')||pr('right'))&&rsel>=0){rsel=rsel<10?rsel+10:rsel-10;rsel=Math.min(rsel,n-1)}
+  // slot -1 is the Daily run (top left), -2 is Endless (top right), 0..19 the rooms in two columns of ten
+  if(pr('up')){rsel=rsel===-1?9:rsel===-2?n-1:rsel===0?-1:rsel===10?-2:rsel-1}
+  if(pr('down')){rsel=rsel===-1?0:rsel===-2?10:rsel===9?-1:rsel===n-1?-2:rsel+1}
+  if(pr('left')||pr('right')){rsel=rsel===-1?-2:rsel===-2?-1:rsel<10?Math.min(rsel+10,n-1):rsel-10}
   if(pr('start')||pr('jump')){
     if(rsel===-1){startDaily();snd(440,.1,'square',880,.04);return}
+    if(rsel===-2){startEndless();snd(440,.1,'square',880,.04);return}
     const r=ROOMS[rsel];if(!ROOM_UNLOCK(r.t)){snd(110,.15,'square',90,.04);POP.push({x:VW/2,y:250,s:'Clear '+STAGES[r.t].name+' to open this room',c:CORAL,l:60});return}
     DAILY=null;startRoom(r);snd(440,.1,'square',880,.04)}
 }
@@ -83,16 +88,16 @@ function drawRooms(){
   drawBG(STAGES[0].th);dim(.8);
   text('CHALLENGES',VW/2,28,18,GOLD,'center',8);
   const golds=ROOMS.filter(r=>medalFor(r,roomBest(r.id))===3).length;text(golds+' / '+ROOMS.length+' gold',VW-16,28,9,GOLD,'right',0);
-  {const on=rsel===-1,dl=save.daily&&save.daily.d===todayStr()?save.daily.t:0;
-   ctx.strokeStyle=on?MINT:'rgba(183,163,214,.35)';ctx.lineWidth=on?2:1;ctx.strokeRect(20.5,38.5,VW-41,20);
-   text('DAILY RUN · '+todayStr()+' · three rooms, one clock'+(dl?' · best '+fmtR(dl):''),VW/2,52,9,on?MINT:CRM,'center',on?6:0,VW-60)}
+  {const dl=save.daily&&save.daily.d===todayStr()?save.daily.t:0;
+   for(const [slot,x,label] of [[-1,20,'DAILY RUN · '+todayStr()+(dl?' · best '+fmtR(dl):' · 3 rooms')],[-2,VW/2+4,'ENDLESS RUN · '+(save.endless?'best '+save.endless+' m':'outrun the null wave')]]){const on=rsel===slot;
+     ctx.strokeStyle=on?MINT:'rgba(183,163,214,.35)';ctx.lineWidth=on?2:1;ctx.strokeRect(x+.5,38.5,VW/2-25,20);text(label,x+(VW/2-24)/2,52,9,on?MINT:CRM,'center',on?6:0,VW/2-34)}}
   ROOMS.forEach((r,i)=>{const col=i<10?0:1,row=i%10,x=20+col*224,y=76+row*18,on=i===rsel,open=ROOM_UNLOCK(r.t),bt=roomBest(r.id),md=medalFor(r,bt);
     if(on){ctx.strokeStyle=open?MINT:CORAL;ctx.lineWidth=1.5;ctx.strokeRect(x-3.5,y-11.5,222,16)}
     ctx.beginPath();ctx.arc(x+5,y-4,4,0,6.283);if(md){ctx.fillStyle=MEDC[md];ctx.fill()}else{ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;ctx.stroke()}
     text((i+1)+'. '+r.n,x+14,y,9,!open?'#6b5a8e':on?MINT:CRM,'left',on?4:0,120);
     text(open?(bt?fmtR(bt):'—'):STAGES[r.t].name,x+214,y,8,open?(md?MEDC[md]:'rgba(243,233,255,.5)'):'#6b5a8e','right',0,80)});
   if(rsel>=0){const r=ROOMS[rsel];text('Gold '+fmtR(r.m[0])+'   ·   Silver '+fmtR(r.m[1])+'   ·   Bronze '+fmtR(r.m[2]),VW/2,262,8,'rgba(243,233,255,.6)','center',0)}
-  else text('The same three rooms for everyone today. Best total time is kept for the day.',VW/2,262,8,'rgba(243,233,255,.6)','center',0,440);
+  else text(rsel===-1?'The same three rooms for everyone today. Best total time is kept for the day.':'Chunks join up as you go. The null wave follows and speeds up. One life.',VW/2,262,8,'rgba(243,233,255,.6)','center',0,440);
 }
 function drawRoomGoal(){
   if(!ST.room)return;const x=(W-4)*TS,c=OPT.hc?HCP.interact:GOLD,gy=groundY(W-3),top=gy-72;

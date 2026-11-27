@@ -22,7 +22,8 @@ const ACH=[
  ['mid','Gatecrasher','Beat a mid-boss',0],
  ['mid_clean','Clean Break','Beat a mid-boss without taking a hit',1],
  ['gold','Gold Standard','Earn a gold medal in a challenge room',1],
- ['gold_all','All That Glitters','Earn gold in all twenty challenge rooms',1]];
+ ['gold_all','All That Glitters','Earn gold in all twenty challenge rooms',1],
+ ['endless','Long Haul','Run 300 m in Endless',1]];
 const ACH_IDS=ACH.map(a=>a[0]);
 if(!save.ach||typeof save.ach!=='object')save.ach={};
 if(!save.stats||typeof save.stats!=='object')save.stats={kills:0,pickups:0,reboots:0};
@@ -48,19 +49,35 @@ function saveSplits(){if(ST.custom||ST.rush||assistOn())return;const k=hard?'spl
 let bossT0=0;
 function logEv(o){
   if(silent||!ST||ST.custom)return;if(!Array.isArray(save.log))save.log=[];
-  save.log.push(Object.assign({s:ST.key,h:hard?1:0,a:assistOn()?1:0,when:Date.now()},o));if(save.log.length>400)save.log.splice(0,save.log.length-400);persist();
+  // mode tags keep challenge rooms, Endless, the Daily run and practice out of the sector numbers
+  const tag={};if(ST.room)tag.r=roomId;if(ST.endless)tag.en=1;if(DAILY)tag.dl=1;if(PRAC)tag.p=1;if(MB&&o.e==='death')tag.mb=MB.kind;
+  save.log.push(Object.assign({s:ST.key,h:hard?1:0,a:assistOn()?1:0,when:Date.now()},tag,o));if(save.log.length>400)save.log.splice(0,save.log.length-400);persist();
 }
+// Pause → "Flag this moment" (or F while playing) marks a spot for the report, so testers needn't stop
+function flagMoment(){logEv({e:'flag',x:ST.endless?enMetres():Math.floor((P.x+6)/TS),t:clock,b:B?B.kind:''});POP.push({x:P.x+6,y:P.y-16,s:'FLAGGED',c:GOLD,l:70});snd(990,.08,'triangle',0,.04)}
 function playtestReport(){
   const L=Array.isArray(save.log)?save.log:[],keys=['prism','foundry','sky','tide','orbit','phase','core','rush'],nm={prism:'Prism Grid',foundry:'Coil Foundry',sky:'Sky Relay',tide:'Tide Vault',orbit:'Orbit Deck',phase:'Phase Lab',core:'Null Core',rush:'Boss Rush'};
   const out=['Voltline playtest report · version '+VERSION+' · '+new Date().toISOString().slice(0,10),'Events logged: '+L.length+(assistOn()?' · assist or slow mode is on now':'')+(hard?' · Hard is selected now':''),''];
-  for(const k of keys){const ev=L.filter(e=>e.s===k);if(!ev.length)continue;
+  const dev=save.dev||{},used=[['k','keyboard'],['p','gamepad'],['t','touch'],['m','mouse']].filter(([k])=>dev[k]).map(([,n])=>n);
+  out.splice(2,0,'Inputs used: '+(used.join(', ')||'unknown')+' · settings: '+(['as','spd','hc','big','rf','tc','af','hs'].filter(k=>OPT[k]).map(k=>({as:'assist',spd:'slow '+[100,75,50][OPT.spd]+'%',hc:'high contrast',big:'large text',rf:'reduced flashing',tc:'toggle charge',af:'auto-fire',hs:'hold to slide'})[k]).join(', ')||'defaults'));
+  const flags=L.filter(e=>e.e==='flag');
+  if(flags.length){out.push('Flagged moments ('+flags.length+'):');for(const e of flags.slice(-15))out.push('  '+(e.r?'room '+e.r:e.en?'Endless':(nm[e.s]||e.s))+(e.en?' at '+e.x+' m':' column '+e.x)+(e.b?' during the '+(BN[e.b]||e.b)+' fight':'')+' · '+fmt(e.t||0)+' into the run');out.push('')}
+  const main=L.filter(e=>!e.r&&!e.en&&!e.p&&!e.dl);
+  for(const k of keys){const ev=main.filter(e=>e.s===k);if(!ev.length)continue;
     const d=ev.filter(e=>e.e==='death'),c=ev.filter(e=>e.e==='clear'),b=ev.filter(e=>e.e==='boss');
     out.push(nm[k]+': '+c.length+' clear'+(c.length===1?'':'s')+(c.length?' (fastest '+fmt(Math.min(...c.map(e=>e.t)))+')':'')+', '+d.length+' death'+(d.length===1?'':'s'));
-    const spots={};for(const e of d){const key=e.b?'boss fight ('+(BN[e.b]||e.b)+')':'columns '+Math.floor(e.x/5)*5+'-'+(Math.floor(e.x/5)*5+4);(spots[key]=spots[key]||{n:0,c:{}}).n++;spots[key].c[e.c]=(spots[key].c[e.c]||0)+1}
+    const spots={};for(const e of d){const key=e.b?'boss fight ('+(BN[e.b]||e.b)+')':e.mb?'mid-boss fight ('+(MBN[e.mb]||e.mb)+')':'columns '+Math.floor(e.x/5)*5+'-'+(Math.floor(e.x/5)*5+4);(spots[key]=spots[key]||{n:0,c:{}}).n++;spots[key].c[e.c]=(spots[key].c[e.c]||0)+1}
     Object.entries(spots).sort((a,b)=>b[1].n-a[1].n).slice(0,5).forEach(([w,v])=>out.push('  '+v.n+' × '+w+' ('+Object.entries(v.c).map(([c,n])=>n+' '+c).join(', ')+')'));
     const byB={};for(const e of b)(byB[e.k]=byB[e.k]||[]).push(e.d);
+    const mids=ev.filter(e=>e.e==='mid');if(mids.length)out.push('  mid-boss '+(MBN[mids[0].k]||mids[0].k)+': '+mids.length+' win'+(mids.length===1?'':'s')+(mids[0].d?', average fight '+fmt(mids.reduce((x,e)=>x+(e.d||0),0)/mids.length):''));
     for(const [kk,ds] of Object.entries(byB))out.push('  boss '+(BN[kk]||kk)+': '+ds.length+' win'+(ds.length===1?'':'s')+', average fight '+fmt(ds.reduce((x,y)=>x+y,0)/ds.length)+', range '+fmt(Math.min(...ds))+'-'+fmt(Math.max(...ds)));
     out.push('')}
+  const rooms=L.filter(e=>e.r&&!e.dl);if(rooms.length){out.push('Challenge rooms:');const by={};for(const e of rooms)(by[e.r]=by[e.r]||[]).push(e);
+    for(const [id,ev] of Object.entries(by)){const r=roomOf(id),c=ev.filter(e=>e.e==='room'),d=ev.filter(e=>e.e==='death').length;
+      out.push('  '+(r?r.n:id)+': '+c.length+' clear'+(c.length===1?'':'s')+(c.length?' (best '+fmtR(Math.min(...c.map(e=>e.t)))+(r?', gold '+fmtR(r.m[0]):'')+')':'')+', '+d+' death'+(d===1?'':'s'))}out.push('')}
+  const dl=L.filter(e=>e.dl);if(dl.length){const c=dl.filter(e=>e.e==='daily');out.push('Daily run: '+c.length+' finished'+(c.length?' (best '+fmtR(Math.min(...c.map(e=>e.t)))+')':'')+', '+dl.filter(e=>e.e==='death').length+' deaths','')}
+  const en=L.filter(e=>e.en&&e.e==='endless');if(en.length){const ms=en.map(e=>e.m);out.push('Endless: '+en.length+' run'+(en.length===1?'':'s')+', best '+Math.max(...ms)+' m, average '+Math.round(ms.reduce((a,b)=>a+b,0)/ms.length)+' m; ended by '+Object.entries(en.reduce((o,e)=>(o[e.c]=(o[e.c]||0)+1,o),{})).map(([c,n])=>n+' '+c).join(', '),'')}
+  const pr=L.filter(e=>e.p&&e.e==='death').length;if(pr)out.push('Practice: '+pr+' deaths (not counted above)','');
   if(L.length===0)out.push('No events yet. Play a few stages first.');
   return out.join('\n');
 }
@@ -76,6 +93,7 @@ function importProgress(code){
     for(const k of['kills','pickups','reboots'])out.stats[k]=nums([o.stats&&o.stats[k]],1)[0];
     out.rooms={};if(o.rooms&&typeof o.rooms==='object')for(const [k,v] of Object.entries(o.rooms).slice(0,100))if(/^r\d\d$/.test(k)&&Number.isFinite(v)&&v>0)out.rooms[k]=Math.floor(v);
     if(o.daily&&typeof o.daily.d==='string'&&/^\d{4}-\d\d-\d\d$/.test(o.daily.d)&&Number.isFinite(o.daily.t)&&o.daily.t>0)out.daily={d:o.daily.d,t:Math.floor(o.daily.t)};
+    if(Number.isFinite(o.endless)&&o.endless>0)out.endless=Math.min(99999,Math.floor(o.endless));
     out.gal={};if(o.gal&&typeof o.gal==='object')for(const [k,v] of Object.entries(o.gal).slice(0,200))if(/^[a-z0-9]{1,12}$/.test(k)&&Number.isFinite(v)&&v>0)out.gal[k]=Math.floor(v);
     return out}catch(e){return null}
 }

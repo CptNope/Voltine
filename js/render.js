@@ -347,18 +347,18 @@ function drawMain(){
     else drawSelect();if(state==='opts')drawOpts();else if(state==='keys')drawKeys();return}
   drawBG(ST.th);
   ctx.save();const sx=shake?(Math.random()-.5)*shake:0,sy=shake?(Math.random()-.5)*shake:0;ctx.translate(-Math.round(camX)+sx,sy);
-  drawTiles();drawRoomGoal();drawEnemies();drawMid();drawGhost();drawWorldFx();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
+  drawTiles();drawRoomGoal();drawEnemies();drawMid();drawGhost();drawWorldFx();drawWave();drawBoss(B);drawHero();drawShots();drawWater();ctx.restore();
   text('CORE',8,15,9,CRM,'left',0);bar(36,8,P.hp,28,MINT);
   if(P.wpn){text(WPN[P.wpn].s,8,27,9,WPN[P.wpn].c,'left',0);bar(36,20,EN[P.wpn],28,WPN[P.wpn].c)}
   drawMidHUD();
   if(B&&B.st!=='drop'){text(BN[B.kind],VW-8,28,9,CRM,'right',0,150);bar(VW-8,8,Math.min(B.shown,B.hp),28,B.hp<=14?CORAL:PINK,true)}
-  text((DAILY?'DAILY '+(DAILY.i+1)+'/3  '+fmtR(DAILY.total+clock):ST.room?fmtR(clock):fmt(clock))+(hard?'  HARD':''),VW/2,15,9,hard?CORAL:'rgba(243,233,255,.7)','center',0);
+  text((EL?enMetres()+' m'+(EL.best?'  ·  best '+EL.best+' m':''):DAILY?'DAILY '+(DAILY.i+1)+'/3  '+fmtR(DAILY.total+clock):ST.room?fmtR(clock):fmt(clock))+(hard?'  HARD':''),VW/2,15,9,hard?CORAL:'rgba(243,233,255,.7)','center',0);
   if(ST.wind&&gust&&!arena)text('GUST',VW/2,28,9,SKY,'center',4);
   if(bossCard>0)drawBossCard();else if(B&&B.st==='intro')text(BN[B.kind],VW/2,110,22,ST.th.edge);
   if(ST.rush)text('RUSH '+(rushIdx+1)+'/'+RUSH.length,VW/2,28,9,PINK,'center',4);
   if(ST.custom&&state==='play')text(sharedMode?'Enter: leave level':'Enter: back to editor',VW-8,VH-6,9,'rgba(243,233,255,.55)','right',0);
   if(state==='pause'){dim(.7);text('PAUSED',VW/2,58,24,GOLD);
-    const L={resume:'Resume',weapon:'Weapon  ◀ '+WPN[P.wpn].n+' ▶',restart:'Restart from checkpoint',settings:'Settings',quit:ST.custom?'Back to editor':'Quit to stage select'};
+    const L={resume:'Resume',weapon:'Weapon  ◀ '+WPN[P.wpn].n+' ▶',restart:ST.room||ST.endless?'Restart':'Restart from checkpoint',settings:'Settings',flag:'Flag this moment (playtest)',quit:ST.custom?'Back to editor':ST.room||ST.endless?'Quit to room list':'Quit to stage select'};
     PAUSE_ITEMS.forEach((it,i)=>{const on=i===pm;text((on?'▸ ':'')+L[it],VW/2,92+i*22,12,on?(it==='weapon'?WPN[P.wpn].c:MINT):'rgba(243,233,255,.75)','center',on?6:0)});
     let x=VW/2-WPN.length*28;for(let w=0;w<WPN.length;w++){const u=unlocked(w);text(u?WPN[w].s:'--',x+22,214,9,u?WPN[w].c:'rgba(255,255,255,.25)','center',0);if(u&&w)bar(x+2,219,Math.round(EN[w]/2.8),10,WPN[w].c);x+=56}
     text('↑ ↓ choose · Enter select · Q/E weapon · O settings · Esc resume',VW/2,252,9,'rgba(243,233,255,.6)','center',0)}
@@ -373,6 +373,8 @@ function drawMain(){
     text(lastWin.pb?'New best':'Best '+fmtR(roomBest(r.id)),VW/2,166,10,CRM,'center',0);if(gotT>60&&tick%60<40)text('Press Enter for the room list',VW/2,210,12,GOLD)}
   else if(state==='got'&&lastWin.daily){dim(Math.min(.8,gotT/50));text('DAILY RUN COMPLETE',VW/2,90,22,MINT,'center',10);text(fmtR(lastWin.total),VW/2,128,30,GOLD,'center',10);
     text((lastWin.pb?'New best for today':'Today\'s best '+fmtR(save.daily.t))+'  ·  '+DAILY.d,VW/2,152,10,CRM,'center',0);if(gotT>60&&tick%60<40)text('Press Enter for the room list',VW/2,210,12,GOLD)}
+  else if(state==='got'&&lastWin.endless){dim(Math.min(.8,gotT/50));text('RUN OVER',VW/2,90,24,CORAL,'center',10);text(lastWin.m+' m',VW/2,130,30,GOLD,'center',10);
+    text(lastWin.pb?'New best':'Best '+(save.endless||0)+' m',VW/2,156,11,CRM,'center',0);if(gotT>60&&tick%60<40)text('Press Enter for the room list',VW/2,210,12,GOLD)}
   else if(state==='got'&&lastWin.prac){dim(Math.min(.8,gotT/50));text('PRACTICE CLEAR',VW/2,100,24,GOLD,'center',10);text('Time '+fmt(clock)+'  ·  nothing recorded',VW/2,130,11,CRM,'center',0);
     if(gotT>60&&tick%60<40)text('Press Enter to return to Practice',VW/2,200,12,GOLD)}
   else if(state==='got'&&lastWin.rush){dim(Math.min(.8,gotT/50));

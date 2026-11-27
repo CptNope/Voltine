@@ -5,11 +5,12 @@ let state='title',sel=0,P,E=[],PB=[],EB=[],PT=[],PU=[],B=null,arena=false,cp=0,c
 const stars=Array.from({length:70},()=>({x:Math.random()*VW*2,y:Math.random()*170,r:Math.random()<.2?1.4:.8}));
 function spawnAll(){
   E=[];PU=[];
-  for(const [t,x,y] of ST.spawns){
-    if(t==='p'||t==='e'){PU.push({x:x*TS+3,y:(y+1)*TS-10,w:10,h:10,v:8,t:0,en:t==='e'});continue}
+  for(const sp of ST.spawns)spawnOne(sp);
+}
+function spawnOne([t,x,y]){
+    if(t==='p'||t==='e'){PU.push({x:x*TS+3,y:(y+1)*TS-10,w:10,h:10,v:8,t:0,en:t==='e'});return}
     const e={type:t,x:x*TS,y:0,w:t==='t'?16:14,h:14,vx:0,vy:0,dir:-1,t:Math.floor(rnd()*60),hp:({w:3,f:2,t:4,s:3,h:2,g:2,j:2,a:3,u:2,b:2,q:2}[t]||2)+(hard?1:0),flash:0,onG:false,cd:30+Math.floor(rnd()*40)};
     e.y=(y+1)*TS-e.h;e.y0=e.y;E.push(e);
-  }
 }
 function groundY(tx){for(let y=0;y<H;y++)if(solid(tx,y))return y*TS;return 15*TS}
 function resetRun(full){

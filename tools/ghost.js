@@ -19,7 +19,7 @@ const MACROS = [
 function runStage(si, { beam = 60, iters = 260, room = null } = {}) {
   const G = load({ seed: 7 });
   G.set('save', { cleared: [1, 1, 1, 1, 0, 1, 0, 1, 1], best: Array(9).fill(0), bestH: Array(9).fill(0), rush: [0, 0] });
-  if (room) { G.call('loadRoom', G.get('ROOMS').find(q => q.id === room)); si = G.get('ROOM_I'); }
+  if (room) { G.call('loadRoom', typeof room === 'object' ? room : G.get('ROOMS').find(q => q.id === room)); si = G.get('ROOM_I'); }
   G.call('startStage', si, 1);
   G.set('E', []);
   const ST = G.get('ST'), ARENA = G.get('ARENA'), TS = 16, goal = (ARENA + 3) * TS;

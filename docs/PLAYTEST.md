@@ -1,6 +1,6 @@
 # Playtesting Voltline
 
-The automated checks prove the game *works*. Only people can tell us whether it's *fun*, *fair* and *clear*. This kit is for milestone 0.14 (see [ROADMAP.md](../ROADMAP.md#014--feel-and-first-playtest)).
+The automated checks prove the game *works*. Only people can tell us whether it's *fun*, *fair* and *clear*. This kit was written for milestone 0.14 and updated for 0.20; the first round is now the main thing standing between the game and 1.0 (see [ROADMAP.md](../ROADMAP.md)).
 
 ## What we want from round 1
 
@@ -29,19 +29,32 @@ Write down, with a rough time:
 
 ## The playtest report
 
-The game keeps a local log of deaths (where and what caused them), stage clears and boss-fight lengths. It never leaves the device unless the tester shares it.
+The game keeps a local log of deaths (where and what caused them), stage clears, boss and mid-boss fight lengths, challenge-room and Daily results, Endless runs and flagged moments. It never leaves the device unless the tester shares it. Challenge rooms, Endless, the Daily run and practice are reported separately, so they never skew the sector numbers.
+
+**Flagging moments.** Ask testers to press **F** (or Pause → **Flag this moment**) whenever something feels off: a confusing spot, an unfair hit, a bug. They don't have to stop or explain; the report lists where and when they flagged, and you can ask about each one afterwards.
 
 To get it, scroll below the game, open **Move your progress, or share a playtest report**, and press **Copy playtest report**. The report looks like this:
 
 ```
-Voltline playtest report · version 0.14 · 2026-11-25
-Events logged: 23
+Voltline playtest report · version 0.20 · 2026-11-27
+Events logged: 31
+Inputs used: keyboard, gamepad · settings: defaults
+
+Flagged moments (2):
+  Prism Grid column 57 · 0:48 into the run
+  Coil Foundry column 120 during the COIL HOUND fight · 3:02 into the run
 
 Prism Grid: 1 clear (fastest 2:41), 6 deaths
   3 × columns 55-59 (3 spikes)
   2 × boss fight (PRISM WARDEN) (2 hit)
-  1 × columns 140-144 (1 pit)
+  1 × mid-boss fight (PRISM SENTRY) (1 hit)
+  mid-boss PRISM SENTRY: 1 win, average fight 0:31
   boss PRISM WARDEN: 1 win, average fight 1:12, range 1:12-1:12
+
+Challenge rooms:
+  First Steps: 2 clears (best 0:09.4, gold 0:07.5), 1 death
+
+Endless: 3 runs, best 164 m, average 97 m; ended by 2 null wave, 1 pit
 ```
 
 Ask testers to paste it into the same message as their answers.
@@ -84,6 +97,9 @@ Use these to decide what to change after round 1.
 | Boss fight length, blaster only | under 3 min | Same as above |
 | Deaths at one spot in a stage, across all testers | under 3 per tester | Widen the platform, add a checkpoint, or move the enemy (then run `node tools/ghost.js`) |
 | Time to first clear of the first sector a tester picks | 3–8 min | Too long: trim length or ease the hard spots. Too short: fine for a first stage. |
+| Mid-boss fight length | 20–60 s | Change `MB_HP` or the attack timings in `js/midbosses.js` |
+| Challenge rooms: testers who earn at least bronze on a room's first few tries | most rooms | Medal times are bot-made; if bronze feels out of reach, loosen the multipliers in `tools/check-rooms.js` and run it with `--write` |
+| Endless: typical first-run distance | 60–150 m | Change `EN_VMAX` or the wave ramp in `js/endless.js` (then `node tools/check-chunks.js`) |
 | Testers who found at least one boss weakness on their own | 3 of 5 or more | Make the "WEAK!" feedback louder, or add a hint on the weapon-acquired screen |
 
 ## Results log

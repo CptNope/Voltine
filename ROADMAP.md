@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.19.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.20.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -126,7 +126,7 @@ Every feature should support at least one of these pillars and break none of the
 | ✅ **Level gallery:** a curated `levels.json` in the repo, browsable from a Gallery screen | M | At least 10 levels, each passing the route check in CI |
 | ✅ **Levels by pull request:** a documented way to add a gallery level | S | `CONTRIBUTING.md` section, with CI validating every entry |
 
-**Follow-ups from 0.18:** Endless climb (moved to 0.19); a medals page in Records; room ghosts in the Daily run.
+**Follow-ups from 0.18:** a medals page in Records; room ghosts in the Daily run.
 
 **Follow-ups from 0.17:** a weakness chart on the Records screen; gallery levels that use the new themes.
 
@@ -166,7 +166,7 @@ Every feature should support at least one of these pillars and break none of the
 | ✅ **Challenge rooms:** 20 short rooms with bronze, silver and gold times | L | Every room passes the route check; medals save with progress |
 | ✅ **Practice mode:** start any cleared sector from any checkpoint, its mid-boss, or its boss | S | Reached from Records; no best times recorded |
 | ✅ **Daily run:** a seeded set of rooms that's the same for everyone that day | M | Works offline (the seed comes from the date); local best only |
-| **Endless climb:** rooms stitched from hand-made chunks | L | Every chunk passes the route check; difficulty ramps; best height saved |
+| ✅ **Endless climb:** rooms stitched from hand-made chunks (0.20, as an Endless *run*: the camera scrolls sideways) | L | Every chunk passes the route check; difficulty ramps; best distance saved |
 
 ### 0.19 · Presentation
 
@@ -251,6 +251,7 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.20 | Endless run (24 checked chunks, the null wave), playtest report split by mode, flagging moments, input and settings in the report |
 | 0.19 | Bundled font (no third-party requests), music second passes and boss phase-2 layer, a near background layer per sector, maskable-safe icon |
 | 0.19 (part 1) | Story intro and ending, boss intro cards, reboot screen, respawn beam, checkpoint ring, attract-mode demo; route checker fix |
 | 0.18 | Challenge rooms (20, with medals, checked in CI), Daily run, Challenges card on stage select |

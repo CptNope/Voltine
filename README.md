@@ -156,7 +156,11 @@ A weakness hit does 4 damage, flashes "WEAK!" and staggers the boss. The Null En
 
 **Daily run.** At the top of the room list. Three rooms picked from the date, the same for everyone that day, played back to back on one clock. It works offline because the choice comes from the date alone. Your best total is kept for the day.
 
+**Endless run.** Next to the Daily run. Hand-made 16-column chunks join up as you go, harder ones appear further on, and the scenery changes every 8 chunks. A wall of static, the null wave, follows you and speeds up. One life; your best distance is saved.
+
 **Ghost replays.** When you set a new best time in a sector, that run is saved as a ghost. Next time, a see-through copy of your best run plays alongside you. Normal and Hard keep separate ghosts. Turn it off with Settings → Ghost replay.
+
+**Flag a moment.** Press **F** (or Pause → Flag this moment) to mark a spot for the playtest report. Useful when testing; it changes nothing in the game.
 
 **Practice.** Records → Practice (the third page) starts any sector you've cleared from its second or third checkpoint, its mid-boss, or its boss. Dying puts you back at the point you picked. Practice runs record nothing: no best times, splits, ghosts, achievements or clears.
 

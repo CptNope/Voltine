@@ -2,6 +2,16 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.20 — Endless run and playtest prep
+
+- **Endless run:** on the Challenges screen next to the Daily run. Hand-made 16-column chunks join up as you go: 24 of them in three tiers, with tier 2 from 80 m and tier 3 from 200 m. The scenery and music change every 8 chunks. The null wave follows you, speeds up with distance, and never falls more than most of a screen behind. One life; best distance saved. The roadmap said "climb", but the camera scrolls sideways, so it's a run.
+- **Every chunk is checked:** `tools/check-chunks.js` route-checks each chunk and measures its speed; CI fails if any chunk loses its route or the wave's top speed (0.75 px/frame) isn't below 90% of the slowest chunk (0.96). CI now runs five checks.
+- **Playtest report:** challenge rooms, the Daily run, Endless and practice are now reported in their own sections instead of being counted as sector deaths. Mid-boss deaths and fight lengths are listed, and so are the kinds of input used and the settings that were on.
+- **Flag a moment:** press F (or Pause → Flag this moment) to mark a spot for the report without stopping. The playtest guide (`docs/PLAYTEST.md`) explains it and adds tuning targets for mid-bosses, rooms and Endless.
+- One achievement: **Long Haul** (300 m in Endless).
+- Pause menu: Restart and Quit read correctly in rooms and Endless.
+- Smoke tests: 193 checks.
+
 ## 0.19 — Presentation, part 2
 
 - **Bundled font:** Chakra Petch now ships in `fonts/` under the SIL Open Font License, replacing Google Fonts. The game makes no third-party requests at all, and a fresh offline install looks exactly the same.

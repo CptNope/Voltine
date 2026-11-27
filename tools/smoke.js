@@ -111,7 +111,7 @@ for (const [s, kind] of [[0, 'warden'], [1, 'hound'], [2, 'kite'], [5, 'undertow
   const OPT = G.get('OPT'); tap(G, 'left'); check('volume changes with left/right', OPT.mv === 7);
   G.set('om', G.get('OPT_ITEMS').findIndex(o => o.k === 'as')); tap(G, 'right'); check('assist cycles', OPT.as === 1);
   tap(G, 'back'); check('Esc returns to the pause menu', G.get('state') === 'pause');
-  tap(G, 'down'); tap(G, 'start'); check('Quit returns to stage select', G.get('state') === 'select');
+  tap(G, 'down'); check('Flag this moment sits under Settings', G.get('PAUSE_ITEMS')[G.get('pm')] === 'flag'); G.set('pm', G.get('PAUSE_ITEMS').indexOf('quit')); tap(G, 'start'); check('Quit returns to stage select', G.get('state') === 'select');
   G.get('save').cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; G.get('save').best = Array(9).fill(0);
   toArena(G, 0); fightBoss(G); check('assist runs do not record a best time', G.get('save').best[0] === 0);
   OPT.as = 0; OPT.tc = 1; G.call('startStage', 0); G.step(80, {});
@@ -460,6 +460,39 @@ for (const s of [0, 1, 2, 5, 7, 8]) { // 0.17.1 mid-bosses: lock, beat, walls ba
   B.hp = 12; G.step(2, {}); check('the boss layer turns on below half health', G.get('mus').layer === true);
   const fs = require('fs'), html = fs.readFileSync(__dirname + '/../index.html', 'utf8'), sw = fs.readFileSync(__dirname + '/../sw.js', 'utf8');
   check('the page makes no third-party requests', !/https?:\/\/(?!github\.com|cptnope)/.test(html.replace(/<a [^>]*>/g, '')) && fs.existsSync(__dirname + '/../fonts/chakra-petch-latin-700-normal.woff2') && /fonts\/chakra-petch-latin-700/.test(sw));
+}
+
+{ // 1.0 prep: Endless run
+  const G = load({ seed: 100 }); const sv = G.get('save');
+  G.set('state', 'rooms'); G.set('rsel', -1); tap(G, 'right'); check('Endless sits next to the Daily run', G.get('rsel') === -2);
+  tap(G, 'start'); check('Endless starts from the room list', G.get('state') === 'play' && G.get('ST').endless === true && G.get('W') === 128);
+  let far = 0; for (let i = 0; i < 60 * 40 && G.get('state') === 'play'; i++) { const P = G.get('P'); P.inv = 9999; P.hp = 28; G.set('EL', Object.assign(G.get('EL'), { wave: -999 }));
+    P.x += 3.5; P.y = Math.min(P.y, 100); P.vy = 0; G.step(1, {}); far = Math.max(far, G.get('P').x); }
+  check('Endless grows as you run', G.get('W') > 128 + 200 && G.get('W') % 16 === 0, `${G.get('W')} columns`);
+  const L = G.get('EL').list, t3 = L.slice(Math.ceil(200 / 16) + 1).map(id => G.get('CHUNKS').find(c => c.id === id)).filter(Boolean);
+  check('harder chunks appear further on', L.slice(0, 2).every(id => id === 'start') && t3.some(c => c.tier === 3) && L.slice(2, 5).every(id => G.get('CHUNKS').find(c => c.id === id).tier === 1));
+  const ths = new Set(); for (let x = 0; x < G.get('W') * 16; x += 16 * 16) { G.set('camX', x); G.call('enTick'); ths.add(G.get('ST').key); } check('the theme changes along the run', ths.size >= 3);
+  const P = G.get('P'); P.inv = 0; G.set('EL', Object.assign(G.get('EL'), { wave: P.x + 50 })); G.call('enTick'); G.step(100, {});
+  check('the null wave ends the run', G.get('state') === 'got' && G.get('lastWin').endless === 1 && G.get('lastWin').m > 100 && sv.endless === G.get('lastWin').m);
+  const a = (() => { const H = load({ seed: 101 }); H.call('startEndless'); return H.get('EL').list.join(); })(), b = (() => { const H = load({ seed: 101 }); H.call('startEndless'); return H.get('EL').list.join(); })();
+  check('the chunk order comes from the run seed', a === b);
+  G.call('startEndless'); G.step(30, {}); G.set('state', 'pause'); G.set('pm', G.get('PAUSE_ITEMS').indexOf('restart')); tap(G, 'start'); check('Restart starts a fresh Endless run', G.get('ST').endless && G.get('state') === 'play' && G.get('P').x < 64);
+  G.set('introT', 0); G.step(400, {}); check('standing still lets the wave catch you', G.get('state') !== 'play');
+  let drew = true; try { G.call('startEndless'); G.step(200, { right: 1 }); G.draw(); G.set('state', 'rooms'); G.draw(); } catch (e) { drew = false; } check('Endless and the room list draw without errors', drew);
+}
+{ // 1.0 prep: playtest report
+  const G = load({ seed: 102 }); const sv = G.get('save'); sv.cleared = [1, 1, 1, 1, 0, 1, 0, 1, 1]; sv.log = [];
+  G.call('startStage', 0); G.step(10, {}); G.call('die', 'spikes'); G.step(100, {});
+  G.call('startRoom', G.get('ROOMS')[0]); G.step(10, {}); G.call('die', 'pit'); G.step(100, {});
+  G.call('startPractice', 1, 0); G.step(10, {}); G.call('die', 'hit'); G.step(100, {});
+  G.call('startStage', 0); G.step(10, {}); G.set('state', 'pause'); G.set('pm', G.get('PAUSE_ITEMS').indexOf('flag')); tap(G, 'start');
+  G.call('startEndless'); G.set('introT', 0); G.step(500, {});
+  const r = G.call('playtestReport');
+  check('challenge-room deaths stay out of the sector numbers', /Prism Grid: 0 clears, 1 death\b/.test(r) && /First Steps: 0 clears, 1 death/.test(r), r.split('\n').filter(l => /Prism|First/.test(l)).join(' | '));
+  check('practice deaths are listed separately', /Practice: 1 deaths/.test(r) && !/Coil Foundry/.test(r));
+  check('flagged moments appear in the report', /Flagged moments \(1\)/.test(r));
+  check('Endless runs appear in the report', /Endless: 1 run, best \d+ m/.test(r) && /null wave/.test(r));
+  check('the report says which settings were on', /settings: defaults/.test(r));
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');

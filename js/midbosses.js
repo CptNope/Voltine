@@ -32,7 +32,7 @@ function midCheck(){
   const fy=midFloor(m),cx=((m.l+m.r+1)/2)*TS;
   const sz={sentry:[26,26],press:[34,26],carrier:[44,20],clam:[36,24],meteor:[28,28],pcore:[24,24]}[m.k];
   const bx=m.k==='clam'?m.r*TS-sz[0]-24:cx-sz[0]/2; // the clam sits at the far end of its short arena, past the pillar
-  MB={kind:m.k,x:bx,y:m.k==='clam'?fy-sz[1]:-40,w:sz[0],h:sz[1],vx:0,vy:0,hp:Math.round(MB_HP*(hard?1.25:1)),max:Math.round(MB_HP*(hard?1.25:1)),shown:0,t:0,st:'intro',inv:0,fy,cx};
+  MB={kind:m.k,x:bx,y:m.k==='clam'?fy-sz[1]:-40,w:sz[0],h:sz[1],vx:0,vy:0,hp:Math.round(MB_HP*(hard?1.25:1)),max:Math.round(MB_HP*(hard?1.25:1)),shown:0,t:0,st:'intro',inv:0,fy,cx,born:clock};
   snd(110,.4,'sawtooth',200,.06);shake=OPT.shake?4:0;
 }
 function midOpen(){
@@ -42,7 +42,7 @@ function hitMid(s){
   const b=MB;if(b.inv>0||b.st==='intro'||b.st==='boom')return;
   if(midShielded(b)){burst(s.x,s.y,'#c7d2ff',4,1.2);snd(1600,.04,'square',1000,.02);if(!s.pierce)s.dead=1;return}
   b.hp-=s.dmg;b.inv=8;if(!s.pierce)s.dead=1;burst(s.x,s.y,CRM,5);snd(500,.06,'square',250,.04);
-  if(b.hp<=0){b.hp=0;b.st='boom';b.t=0;if(!OPT.rf)hitStop=8;logEv({e:'mid',k:b.kind});if(!MBhit)ach('mid_clean');ach('mid')}
+  if(b.hp<=0){b.hp=0;b.st='boom';b.t=0;if(!OPT.rf)hitStop=8;logEv({e:'mid',k:b.kind,d:clock-b.born});if(!MBhit)ach('mid_clean');ach('mid')}
 }
 // shots bounce off while it is closed up or out of phase
 const midShielded=b=>(b.kind==='clam'&&b.st!=='open')||(b.kind==='pcore'&&PHASE===1);

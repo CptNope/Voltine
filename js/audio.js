@@ -64,7 +64,7 @@ function musicTick(){
 const PAD_DIRS={12:'up',13:'down',14:'left',15:'right'},padOwn={},PADK=['jump','fire','next','prev','start','up','down','left','right','music'];let padPrev=[];
 function pollPad(){
   let gp=null;try{if(navigator.getGamepads)for(const g of navigator.getGamepads())if(g){gp=g;break}}catch(e){}
-  const cur={},now=gp?gp.buttons.map(b=>!!(b&&b.pressed)):[];
+  const cur={},now=gp?gp.buttons.map(b=>!!(b&&b.pressed)):[];if(now.some(Boolean)&&typeof save!=='undefined')(save.dev=save.dev||{}).p=1;
   if(gp&&capture&&capture.kind==='pad'){const i=now.findIndex((p,n)=>p&&!padPrev[n]&&!(n in PAD_DIRS));if(i>=0){bindPad(capture.act,i);capture=null}padPrev=now;return}
   if(gp){for(const a in PADB)for(const i of PADB[a])if(now[i])cur[a]=true;for(const i in PAD_DIRS)if(now[i])cur[PAD_DIRS[i]]=true;
     const ax=gp.axes[0]||0,ay=gp.axes[1]||0;if(ax<-.5)cur.left=true;if(ax>.5)cur.right=true;if(ay<-.6)cur.up=true;if(ay>.6)cur.down=true}
