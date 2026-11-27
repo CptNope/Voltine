@@ -141,5 +141,5 @@ function drawToasts(){
   if(!TOASTS.length)return;const q=TOASTS[0];q.t--;if(q.t<=0){TOASTS.shift();return}
   const al=Math.min(1,q.t/20,(200-q.t)/12),w=Math.max(150,q.s.length*7+90);ctx.globalAlpha=al;
   ctx.fillStyle='rgba(8,3,20,.9)';ctx.fillRect(VW-w-8,40,w,26);ctx.strokeStyle=GOLD;ctx.lineWidth=1;ctx.strokeRect(VW-w-7.5,40.5,w-1,25);
-  text('ACHIEVEMENT',VW-w,51,7,'rgba(255,209,102,.8)','left',0);text(q.s,VW-w,62,10,GOLD,'left',4);ctx.globalAlpha=1;
+  text(q.h||'ACHIEVEMENT',VW-w,51,7,'rgba(255,209,102,.8)','left',0);text(q.s,VW-w,62,10,GOLD,'left',4);ctx.globalAlpha=1;
 }

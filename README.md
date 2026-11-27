@@ -182,6 +182,7 @@ Open **Settings** with **O**, from the pause menu, or with the button under the 
 | Assist | Off / Half damage / Invincible | Half damage halves every hit. Invincible ignores hits. With either, spikes knock you back instead of killing you; pits still reset you. |
 | Game speed | 100% / 75% / 50% | slows gameplay (menus and music stay at normal speed) |
 | Ghost replay | On / Off | shows a see-through copy of your best run in each sector |
+| Graphics | Auto / High / Low | Auto caps pixel density at 2× and switches to Low by itself if play runs slow; High allows 3×; Low uses 1.5× and turns the glow off (the biggest saving on phones) |
 | Controls | — | rebind every keyboard key and gamepad button (below) |
 
 **Assist or a slower game speed** keeps every stage playable but doesn't record best times, splits or the skill achievements, so the Records stay comparable.
@@ -340,10 +341,18 @@ How the pieces fit together, and how to add a stage, enemy, boss or weapon, is i
 Node 18 or newer. No packages to install.
 
 ```sh
-node tools/smoke.js     # ~1 min: menus, locks, every boss beatable, weaknesses, Boss Rush, Hard, editor, level codes, music
-node tools/ghost.js     # ~1 min: searches for a damage-free route through each stage with the real physics
-node tools/ghost.js 2   # check a single stage (0 Prism, 1 Foundry, 2 Sky, 3 Core)
+node tools/smoke.js           # a few minutes: ~200 checks: menus, every boss and mid-boss beatable, modes, replays, report
+node tools/ghost.js           # route check through every built-in stage with the real physics
+node tools/ghost.js 2         # one stage, by STAGES index
+node tools/check-rooms.js     # route check for every challenge room; --write resets medal times from it
+node tools/check-chunks.js    # route check and route speed for every Endless chunk, against the null wave's top speed
+node tools/check-gallery.js   # every gallery level still loads and has a route
+node tools/build-gallery.js   # rebuilds levels.json from its recipes (only levels with a route)
+node tools/build-demo.js      # rebuilds the title screen demo's inputs from a route through Prism Grid
+sh tools/build-itch.sh        # zips the game for an itch.io upload
 ```
+
+`build-icons.js` and `build-press.js` (icons, screenshots, the GIF and logo in `docs/press/`) need `puppeteer-core`, Chrome and ffmpeg, so they aren't part of CI. CI runs smoke, ghost, gallery, rooms and chunks on every push.
 
 `ghost.js` takes out the enemies but keeps every pit, spike, crusher, belt, platform and gust. It then searches with jump, run, wait, slide and climb inputs until it reaches the boss gate. If you change a stage, run it: a jump that's too tall or too tight makes it fail and tells you how far it got. It has already caught four impossible or near-impossible jumps.
 
@@ -357,6 +366,7 @@ Contribution workflow and conventions are in [CONTRIBUTING.md](CONTRIBUTING.md).
 - [docs/LEVEL_CODES.md](docs/LEVEL_CODES.md): the shareable level format
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to work on the game
 - [docs/PLAYTEST.md](docs/PLAYTEST.md): how to run a playtest and what to measure
+- [docs/press/](docs/press/README.md): press kit: fact sheet, itch.io page text, logo, screenshots, a 30-second GIF
 
 ## Status
 

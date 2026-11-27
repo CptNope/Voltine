@@ -22,10 +22,13 @@ Voltline is [MIT licensed](LICENSE). By contributing, you agree that your contri
    ```sh
    node tools/smoke.js
    node tools/ghost.js
+   node tools/check-rooms.js
+   node tools/check-chunks.js
+   node tools/check-gallery.js
    ```
-   Both need to pass. If you changed a stage, `ghost.js` tells you how far its search got if a jump is now impossible.
+   All five need to pass; CI runs the same set. If you changed a stage, room or chunk, the route checks tell you how far their search got if a jump is now impossible. After changing a challenge room, run `node tools/check-rooms.js --write` to reset its medal times; after changing the start of Prism Grid, run `node tools/build-demo.js`.
 4. Play the part you changed yourself, on a keyboard and ideally on a phone. The tools prove things *work*, not that they *feel* right.
-5. Bump `VERSION` in `sw.js`.
+5. Bump `VERSION` in `sw.js` (and in `js/core.js` for a release). If you added a file under `js/`, add its `<script>` tag to `index.html` and its name to the list in `sw.js`.
 6. Add a line to [CHANGELOG.md](CHANGELOG.md), and tick off or add items in [ROADMAP.md](ROADMAP.md). New items need a size (S/M/L) and a "done when" check.
 7. Commit with a message that says what changed and why.
 

@@ -2,7 +2,7 @@
 
 Where the game is going, in what order, and how we'll know each step is finished. When something ships, tick it off here, move its milestone to **Done**, and add an entry to [CHANGELOG.md](CHANGELOG.md).
 
-**Current version: 0.20.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
+**Current version: 0.21.** (0.14 still needs its human playtest round.) Licensed under MIT. Everything shipped so far is covered by `tools/smoke.js` and `tools/ghost.js`, but **no real person has play-tested it yet**. That gap is why the next milestone is about playtesting and game feel, not new content.
 
 **How to read this:**
 - **Size:** **S** is an afternoon, **M** a day or two, **L** most of a week.
@@ -190,13 +190,13 @@ Every feature should support at least one of these pillars and break none of the
 **Done when:**
 - [ ] At least 5 playtesters have finished the story, and every high-severity note is resolved
 - [ ] Every stage passes the route check; every boss passes the smoke tests on Normal and Hard
-- [ ] Holds 60 fps on a mid-range phone (Pixel 6a class) in the busiest boss fight
+- [ ] Holds 60 fps on a mid-range phone (Pixel 6a class) in the busiest boss fight. *0.21: game logic measures 2–3 ms a frame with the CPU slowed 4×; Auto graphics drops to Low (60 fps in software rendering) if a device can't keep up. Still needs a real phone.*
 - [ ] Accessibility checklist from 0.15 complete
 - [ ] No high-severity known issues
 - [ ] README, ARCHITECTURE, LEVEL_CODES, CONTRIBUTING and CHANGELOG up to date
 - [x] Repo-name decision made, with links updated (0.14)
-- [ ] itch.io page: description, 5 screenshots, a 30-second GIF, controls
-- [ ] Press kit in `docs/press/`: logo, screenshots, fact sheet
+- [ ] itch.io page: description, 5 screenshots, a 30-second GIF, controls. *0.21: all the material is in `docs/press/` (text in `ITCH.md`, 8 screenshots, the GIF) and `tools/build-itch.sh` makes the upload; the page itself isn't created yet.*
+- [x] Press kit in `docs/press/`: logo, screenshots, fact sheet (0.21)
 - [ ] Git tag `v1.0.0` and a GitHub Release with notes
 
 ---
@@ -251,6 +251,7 @@ Unscheduled. Promote an idea to a milestone when there's a reason.
 
 | Version | Highlights |
 |---|---|
+| 0.21 | Graphics setting with automatic fallback, press kit (fact sheet, itch.io text, logo, 8 screenshots, 30-second GIF and MP4), itch.io zip script |
 | 0.20 | Endless run (24 checked chunks, the null wave), playtest report split by mode, flagging moments, input and settings in the report |
 | 0.19 | Bundled font (no third-party requests), music second passes and boss phase-2 layer, a near background layer per sector, maskable-safe icon |
 | 0.19 (part 1) | Story intro and ending, boss intro cards, reboot screen, respawn beam, checkpoint ring, attract-mode demo; route checker fix |

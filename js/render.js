@@ -393,4 +393,8 @@ function drawMain(){
     if(gotT>60&&tick%60<40)text('Press Enter to continue',VW/2,240,12,GOLD)}
 }
 let acc=0,last=performance.now();
-function frame(now){acc+=Math.min(100,now-last);last=now;if(state==='route'){step();acc=0}const dt=state==='play'?1000/60/[1,.75,.5][OPT.spd||0]:1000/60;while(acc>=dt){step();acc-=dt}draw();musicTick();requestAnimationFrame(frame)}
+// Auto graphics: if play averages under about 52 fps for 3 seconds, switch to Low once and say so
+let slowT=0,slowN=0;
+function autoGfx(dt){if(gq()!==0||gfxLow||state!=='play'||dt>100)return;slowT+=dt;slowN++;
+  if(slowN>=180){if(slowT/slowN>19.2){gfxLow=true;fit();TOASTS.push({h:'SETTINGS',s:'Graphics set to Low for smoother play',t:200})}slowT=0;slowN=0}}
+function frame(now){autoGfx(now-last);acc+=Math.min(100,now-last);last=now;if(state==='route'){step();acc=0}const dt=state==='play'?1000/60/[1,.75,.5][OPT.spd||0]:1000/60;while(acc>=dt){step();acc-=dt}draw();musicTick();requestAnimationFrame(frame)}

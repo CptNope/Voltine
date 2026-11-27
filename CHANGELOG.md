@@ -2,6 +2,15 @@
 
 Versions are informal milestones. Newest first.
 
+## 0.21 — Performance and press kit
+
+- **Graphics setting** (Settings → Graphics): Auto, the default, caps the canvas at 2× pixel density and switches itself to Low, with a toast, if play averages under about 52 fps for 3 seconds. High allows 3×. Low uses 1.5× and turns off the glow, which is the most expensive thing the game draws.
+- **Performance check:** with the CPU slowed 4× on a phone-sized screen, the game's own work is 2–3 ms a frame (95th percentile) in the busiest scenes. Drawing is the real cost: in software rendering, High ran the Null Engine fight at 30 fps and Low at 60, and Auto switched within 3 seconds. A real phone still needs checking.
+- **Press kit** in `docs/press/`: a fact sheet, ready-to-paste itch.io page text, the logo (light and dark), eight screenshots, and a 30-second gameplay GIF (2.7 MB) and MP4. All of it is made from the game itself by `tools/build-press.js`, so it can be rebuilt.
+- `tools/build-itch.sh` zips the game for an itch.io HTML upload (about 460 KB).
+- The README's development-tools section lists every tool.
+- Smoke tests: 200 checks.
+
 ## 0.20 — Endless run and playtest prep
 
 - **Endless run:** on the Challenges screen next to the Daily run. Hand-made 16-column chunks join up as you go: 24 of them in three tiers, with tier 2 from 80 m and tier 3 from 200 m. The scenery and music change every 8 chunks. The null wave follows you, speeds up with distance, and never falls more than most of a screen behind. One life; best distance saved. The roadmap said "climb", but the camera scrolls sideways, so it's a run.

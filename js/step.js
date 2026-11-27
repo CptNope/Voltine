@@ -36,12 +36,12 @@ function updParts(){for(const q of PT){q.x+=q.vx;q.y+=q.vy;if(!q.orb&&!q.wind)q.
 
 /* ---------- main step ---------- */
 const PAUSE_ITEMS=['resume','weapon','restart','settings','flag','quit'];
-const OPT_ITEMS=[{k:'mv',n:'Music volume'},{k:'sv',n:'Sound volume'},{k:'shake',n:'Screen shake'},{k:'rf',n:'Flashing and particles'},{k:'hc',n:'High contrast'},{k:'big',n:'Text size'},{k:'tc',n:'Charge shot'},{k:'af',n:'Auto-fire'},{k:'hs',n:'Hold jump to swim'},{k:'as',n:'Assist'},{k:'spd',n:'Game speed'},{k:'gh',n:'Ghost replay'},{k:'keys',n:'Controls'},{k:'back',n:'Back'}];
+const OPT_ITEMS=[{k:'mv',n:'Music volume'},{k:'sv',n:'Sound volume'},{k:'shake',n:'Screen shake'},{k:'rf',n:'Flashing and particles'},{k:'hc',n:'High contrast'},{k:'big',n:'Text size'},{k:'tc',n:'Charge shot'},{k:'af',n:'Auto-fire'},{k:'hs',n:'Hold jump to swim'},{k:'as',n:'Assist'},{k:'spd',n:'Game speed'},{k:'gh',n:'Ghost replay'},{k:'gq',n:'Graphics'},{k:'keys',n:'Controls'},{k:'back',n:'Back'}];
 let kr=0,kc=0; // controls screen: row and column (0 keyboard, 1 gamepad)
 let pm=0,om=0,optsFrom='title',introT=0;
 function openOpts(from){optsFrom=from;om=0;state='opts'}
-function optChange(k,d){if(k==='mv'||k==='sv')OPT[k]=Math.max(0,Math.min(10,OPT[k]+d));else if(k==='as'||k==='spd')OPT[k]=(OPT[k]+d+3)%3;else OPT[k]=OPT[k]?0:1;saveOpts()}
-function optLabel(k){const v=OPT[k];return k==='mv'||k==='sv'?'■'.repeat(v)+'□'.repeat(10-v):k==='shake'?(v?'On':'Off'):k==='rf'?(v?'Reduced':'Full'):k==='tc'?(v?'Tap to toggle':'Hold'):k==='as'?['Off','Half damage','Invincible'][v]:k==='spd'?['100%','75%','50%'][v]:k==='af'||k==='hs'||k==='hc'||k==='gh'?(v?'On':'Off'):k==='big'?(v?'Large':'Normal'):k==='keys'?'Change ›':''}
+function optChange(k,d){if(k==='mv'||k==='sv')OPT[k]=Math.max(0,Math.min(10,OPT[k]+d));else if(k==='as'||k==='spd'||k==='gq'){OPT[k]=(OPT[k]+d+3)%3;if(k==='gq'){gfxLow=false;fit()}}else OPT[k]=OPT[k]?0:1;saveOpts()}
+function optLabel(k){const v=OPT[k];return k==='mv'||k==='sv'?'■'.repeat(v)+'□'.repeat(10-v):k==='shake'?(v?'On':'Off'):k==='rf'?(v?'Reduced':'Full'):k==='tc'?(v?'Tap to toggle':'Hold'):k==='as'?['Off','Half damage','Invincible'][v]:k==='spd'?['100%','75%','50%'][v]:k==='gq'?(['Auto','High','Low'][v]+(v===0&&gfxLow?' (now Low)':'')):k==='af'||k==='hs'||k==='hc'||k==='gh'?(v?'On':'Off'):k==='big'?(v?'Large':'Normal'):k==='keys'?'Change ›':''}
 let hitStop=0,camLook=0; // hit-stop freezes gameplay for a few frames on boss hits; camLook eases the camera's lead
 function startStage(i,seed){S=i;PRAC=null;cardSeen={};bossCard=0;cpFx=null;if(i!==ROOM_I)DAILY=null;if(i!==ENDLESS_I)EL=null;seedRun(seed!==undefined?seed:Math.floor(Math.random()*4294967296));rushIdx=0;rushWait=0;runSplits=[];resetRun(true);ghostStart();state='play';introT=200;snd(440,.1,'square',880,.04)}
 function step(){

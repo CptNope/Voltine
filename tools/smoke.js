@@ -495,5 +495,17 @@ for (const s of [0, 1, 2, 5, 7, 8]) { // 0.17.1 mid-bosses: lock, beat, walls ba
   check('the report says which settings were on', /settings: defaults/.test(r));
 }
 
+{ // 1.0 prep: graphics quality
+  const G = load({ seed: 110 }); const OPT = G.get('OPT');
+  check('Graphics defaults to Auto, capped at 2x pixel density', OPT.gq === 0 && G.call('dprCap') === 2 && !G.call('lowGlow'));
+  OPT.gq = 1; check('High allows 3x with glow', G.call('dprCap') === 3 && !G.call('lowGlow'));
+  OPT.gq = 2; check('Low uses 1.5x and no glow', G.call('dprCap') === 1.5 && G.call('lowGlow'));
+  OPT.gq = 0; G.call('startStage', 0); G.set('state', 'play'); for (let i = 0; i < 200; i++) G.call('autoGfx', 16.7);
+  check('Auto stays put at a steady 60 fps', !G.get('gfxLow'));
+  for (let i = 0; i < 200; i++) G.call('autoGfx', 25); check('Auto drops to Low after 3 slow seconds and says so', G.get('gfxLow') && G.get('TOASTS').some(t => /Graphics set to Low/.test(t.s)));
+  G.set('gfxLow', false); G.set('state', 'pause'); for (let i = 0; i < 400; i++) G.call('autoGfx', 25); check('Auto ignores slow frames outside play', !G.get('gfxLow'));
+  G.set('state', 'opts'); G.set('om', G.get('OPT_ITEMS').findIndex(o => o.k === 'gq')); tap(G, 'right'); check('the Graphics setting cycles Auto, High, Low', OPT.gq === 1 && G.call('optLabel', 'gq') === 'High');
+}
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll smoke checks passed');
 process.exit(failed ? 1 : 0);

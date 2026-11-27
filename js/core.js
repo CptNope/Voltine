@@ -4,12 +4,22 @@ const cv=document.getElementById('game'),ctx=cv.getContext('2d'),scr=document.ge
 const VW=480,VH=272,TS=16,H=17,G=.25;
 const MINT='#5ef2c4',ORG='#ff8a3d',CRM='#ffe9c7',GOLD='#ffd166',PINK='#ff5ea8',CORAL='#ff6b6b',VIO='#8b5cf6',SKY='#7fd8ff';
 let sc=1;
-const fit=()=>{const r=scr.getBoundingClientRect(),d=window.devicePixelRatio||1;cv.width=Math.max(1,Math.round(r.width*d));cv.height=Math.max(1,Math.round(r.height*d));sc=cv.width/VW};
+// Graphics quality (Settings → Graphics): Auto caps the canvas at 2× pixel density and drops to Low by
+// itself if play runs slow; High allows up to 3×; Low uses 1.5× and turns the glow (canvas shadow blur,
+// the most expensive thing the game draws, especially on phones) off.
+let gfxLow=false;
+const gq=()=>{try{return OPT.gq||0}catch(e){return 0}},// OPT loads later (world.js); until then, Auto
+  lowGlow=()=>gq()===2||gq()===0&&gfxLow;
+const dprCap=()=>gq()===1?3:lowGlow()?1.5:2;
+const fit=()=>{const r=scr.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,dprCap());cv.width=Math.max(1,Math.round(r.width*d));cv.height=Math.max(1,Math.round(r.height*d));sc=cv.width/VW};
 const ro=new ResizeObserver(fit);ro.observe(scr);fit();
+// every shadowBlur the game sets goes through here, so Low can switch the glow off in one place
+try{const SB=typeof CanvasRenderingContext2D!=='undefined'&&Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'shadowBlur');
+  if(SB&&SB.set)Object.defineProperty(ctx,'shadowBlur',{get(){return SB.get.call(this)},set(v){SB.set.call(this,lowGlow()?0:v)}})}catch(e){}
 
 /* ---------- weapons & stages ---------- */
 const WPN=[{n:'VOLT BUSTER',s:'VB',c:MINT,cost:0},{n:'PRISM SPREAD',s:'PS',c:PINK,cost:2,d:'Fires a three-way fan of shots.'},{n:'ARC BOLT',s:'AB',c:GOLD,cost:3,d:'Lobs a heavy bolt that bounces along the floor.'},{n:'GUST RING',s:'GR',c:SKY,cost:4,d:'Orbiting shield that eats bullets. Fire again to throw it.'},{n:'TIDE LANCE',s:'TL',c:'#4fd1c5',cost:3,d:'A fast lance that pierces everything in a line.'},{n:'ORBIT DISC',s:'OD',c:'#c7d2ff',cost:2,d:'A disc that flies out and comes back, cutting through everything.'},{n:'ECHO SHOT',s:'ES',c:'#ff9df5',cost:2,d:'A shot that fires again from the same spot a moment later.'}];
-const VERSION='0.20';
+const VERSION='0.21';
 // Seeded randomness for everything that changes how a run plays (boss choices, enemy timers, drops).
 // Particles, screen dressing and sound use Math.random, so options like reduced flashing can't change a run.
 // The same seed and the same inputs always replay the same run.
