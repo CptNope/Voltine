@@ -5,7 +5,7 @@ Versions are informal milestones. Newest first.
 ## 0.21.1 — itch.io release
 
 - **On itch.io:** https://cptnope.itch.io/voltline, free with donations welcome, playable in the browser.
-- **Embed layout:** inside an iframe (or with `?embed`), the game screen fills the frame at 480:272, letterboxed, and the controls, editor and progress panels sit below it. On touch screens the pad floats over the bottom of the frame; in landscape, START and WPN move above FIRE and JUMP so they don't cover the middle of the screen. The page on GitHub Pages is unchanged. Offline cache bumped to v26.
+- **Embed layout:** inside an iframe (or with `?embed`), the game screen fills the frame at 480:272, letterboxed, and the controls, editor and progress panels sit below it. On touch screens the pad floats over the bottom of the frame; in landscape, START and WPN move above FIRE and JUMP so they don't cover the middle of the screen. The page on GitHub Pages is unchanged. Offline cache bumped to v27.
 - **itch.io art** in `docs/press/itch/`: cover, theme banner, page background and a launch devlog header, drawn by `tools/build-itch-art.py` from the logo and screenshots.
 - Fixed: the README said 16 achievements; there are 21. The fact sheet now says version 0.21.
 
