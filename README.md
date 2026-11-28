@@ -4,7 +4,7 @@ A vector-graphics action platformer for the browser. Run, jump, slide, swim and 
 
 Everything is drawn live as glowing strokes on a canvas and every sound is synthesized in the browser, so the game has no image or audio files. It's plain HTML and JavaScript with no build step and no dependencies.
 
-> **Play it:** **https://cptnope.github.io/Voltline/**, served by GitHub Pages from `main`. You can also open `index.html` straight from a download.
+> **Play it:** **https://cptnope.github.io/Voltline/**, served by GitHub Pages from `main`, or on itch.io at **https://cptnope.itch.io/voltline** (free, donations welcome). You can also open `index.html` straight from a download.
 
 ![checks](https://github.com/CptNope/Voltline/actions/workflows/checks.yml/badge.svg) ![license: MIT](https://img.shields.io/badge/license-MIT-5ef2c4)
 
@@ -41,7 +41,7 @@ Everything is drawn live as glowing strokes on a canvas and every sound is synth
 - **Boss Rush:** all seven bosses back to back on one clock.
 - **Level editor:** paint your own stage (up to 200 columns), undo and redo, playtest it instantly, and share it as a short code or a play link once the route check has verified it.
 - **Level gallery:** ten hand-built levels, each route-checked on every push, with your best time on each.
-- **Records:** 16 achievements, checkpoint splits against your best run, lifetime stats, and a progress code to move your save between devices.
+- **Records:** 21 achievements, checkpoint splits against your best run, lifetime stats, and a progress code to move your save between devices.
 - **Synthesized soundtrack:** seven tracks, one per stage, plus a menu, boss and final-boss theme.
 - **Keyboard, gamepad and touch** controls. The touch pad appears automatically on phones and tablets.
 - **Pause menu and settings:** restart from the last checkpoint, quit to stage select, adjust music and sound volume, turn screen shake off, reduce flashing, switch the charge shot to tap-to-toggle, and turn on an assist mode.
@@ -249,7 +249,7 @@ Your level saves in the browser as you work.
 
 Choose **Records** from the bar under the stage cards. It has two pages; switch between them with ← →.
 
-- **Achievements:** 16 of them, with a pop-up when one unlocks. Ones marked * need assist off.
+- **Achievements:** 21 of them, with a pop-up when one unlocks. Ones marked * need assist off.
 
   | Achievement | How |
   |---|---|
@@ -350,6 +350,7 @@ node tools/check-gallery.js   # every gallery level still loads and has a route
 node tools/build-gallery.js   # rebuilds levels.json from its recipes (only levels with a route)
 node tools/build-demo.js      # rebuilds the title screen demo's inputs from a route through Prism Grid
 sh tools/build-itch.sh        # zips the game for an itch.io upload
+python3 tools/build-itch-art.py  # redraws the itch.io cover, theme banner, page background and devlog header
 ```
 
 `build-icons.js` and `build-press.js` (icons, screenshots, the GIF and logo in `docs/press/`) need `puppeteer-core`, Chrome and ffmpeg, so they aren't part of CI. CI runs smoke, ghost, gallery, rooms and chunks on every push.

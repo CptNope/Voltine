@@ -8,7 +8,7 @@
 | **Source** | https://github.com/CptNope/Voltline |
 | **Price** | Free |
 | **License** | MIT (code and art). Font: Chakra Petch, SIL Open Font License. |
-| **Release** | Version 0.20 now; 1.0 after the first round of playtests |
+| **Release** | Version 0.21 now, on itch.io at https://cptnope.itch.io/voltline; 1.0 after the first round of playtests |
 | **Size** | About 600 KB in total, fonts and icons included (the code is about 73 KB gzipped). No third-party requests, no tracking, no account. |
 | **Tech** | Plain HTML, canvas and the Web Audio API. No engine, no build step, no external libraries. Every sound and note is synthesised; every shape is drawn in code. |
 
