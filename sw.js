@@ -1,5 +1,5 @@
 // Voltline offline cache. Bump VERSION whenever index.html changes.
-const VERSION = 'voltline-v25';
+const VERSION = 'voltline-v27';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './levels.json', './fonts/chakra-petch-latin-500-normal.woff2', './fonts/chakra-petch-latin-700-normal.woff2',
   ...['core', 'world', 'input', 'audio', 'entities', 'bosses', 'midbosses', 'step', 'render', 'editor', 'sectors', 'rooms', 'endless', 'route', 'records', 'replay', 'gallery', 'story', 'demo', 'main'].map(n => `./js/${n}.js`)];
 

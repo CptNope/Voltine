@@ -1,6 +1,8 @@
 # itch.io page text
 
-Paste these into the itch.io project form. Upload the game as an HTML project: `sh tools/build-itch.sh` makes `voltline-itch.zip` (about 460 KB), with **This file will be played in the browser** ticked and a viewport of **960 × 544** (or "Click to launch in fullscreen" for phones).
+Paste these into the itch.io project form. Upload the game as an HTML project: `sh tools/build-itch.sh` makes `voltline-itch.zip` (about 460 KB), with **This file will be played in the browser** ticked, a viewport of **960 × 544**, **Mobile friendly** (landscape) and the **Fullscreen button** on. Inside an iframe the page switches to its embed layout by itself: the game screen fills the frame, the controls, editor and progress panels sit below it, and the touch pad floats over the bottom of the frame. Add `?embed` to the URL to see that layout outside an iframe.
+
+The live page is https://cptnope.itch.io/voltline. Its art (cover, theme banner, page background, launch devlog header) is in [`itch/`](itch/), drawn by `python3 tools/build-itch-art.py`.
 
 ## Title
 Voltline

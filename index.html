@@ -66,7 +66,23 @@ kbd{font:inherit;font-size:13px;color:var(--ink);background:#2a1650;border:1px s
 .mid{display:flex;flex-direction:column;gap:8px}
 .mid button{width:64px;height:36px;font-size:12px}
 @media(max-width:420px){.dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.ab button{width:56px;height:56px}.mid button{width:52px}}
+/* EMBED: inside an iframe (itch.io) or with ?embed, the game screen fills the frame, letterboxed at 480:272.
+   The controls strip, editor panel and progress panel sit below it and scroll into view. On touch screens the
+   pad floats over the bottom of the frame, slightly see-through, so it stays reachable in landscape. */
+.embed body{background:#0d0520;min-height:0}
+.embed main{max-width:none;padding:0 0 24px}
+.embed header{display:none}
+.embed .cab{display:flex;align-items:center;justify-content:center;height:100vh;height:100dvh;padding:0;border:0;border-radius:0;box-shadow:none;background:#0d0520}
+.embed .screen{width:min(100%,100dvh*480/272);border-radius:0}
+.embed .ctrl,.embed .edp,.embed .prog{margin-left:12px;margin-right:12px}
+.embed body.touch .pad{position:fixed;left:0;right:0;bottom:0;margin:0;padding:10px max(12px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));pointer-events:none;z-index:5}
+.embed body.touch .pad button{pointer-events:auto;opacity:.72}
+.embed body.touch .pad span{pointer-events:none}
+@media(orientation:landscape){.embed body.touch .pad{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"dpad . mid" "dpad . ab";align-items:end}
+.embed body.touch .dpad{grid-area:dpad}.embed body.touch .ab{grid-area:ab}
+.embed body.touch .mid{grid-area:mid;flex-direction:row;justify-content:flex-end;margin-bottom:8px}}
 </style>
+<script>try{if(self!==top||/[?&]embed\b/.test(location.search))document.documentElement.classList.add('embed')}catch(e){document.documentElement.classList.add('embed')}</script>
 </head>
 <body>
 <main>
